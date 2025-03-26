@@ -1,3 +1,5 @@
 *.o
 *.a
 minishell
+libft/*.o
+libft/libft.a

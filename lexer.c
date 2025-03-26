@@ -17,13 +17,28 @@ t_token_list *init_token_list(void)
 
 int add_token(t_token_list *tokens, char *buffer)
 {
+    char    **new_tokens;
     char    *token;
+    size_t  i;
 
-    token = ft_strdup(buffer); // Assume libft
+    token = ft_strdup(buffer);
     if (!token)
         return (0);
     if (tokens->count >= tokens->capacity)
-        return (0); // Stub for now; resize later
+    {
+        tokens->capacity *= 2;
+        new_tokens = malloc(sizeof(char *) * tokens->capacity);
+        if (!new_tokens)
+            return (free(token), 0);
+        i = 0;
+        while (i < tokens->count)
+        {
+            new_tokens[i] = tokens->tokens[i];
+            i++;
+        }
+        free(tokens->tokens);
+        tokens->tokens = new_tokens;
+    }
     tokens->tokens[tokens->count] = token;
     tokens->count++;
     return (1);

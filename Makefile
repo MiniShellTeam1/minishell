@@ -3,7 +3,7 @@ NAME = minishell
 CC = cc
 CFLAGS = -Wall -Wextra -Werror
 
-SRCS = main.c lexer.c lexer_utils.c
+SRCS = main.c lexer.c lexer_utils.c parser.c
 OBJS = $(SRCS:.c=.o)
 
 all: $(NAME)

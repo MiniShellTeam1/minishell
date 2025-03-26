@@ -1,4 +1,5 @@
 #include "parser_utils.h"
+#include "libft/libft.h"
 
 char *strip_quotes(char *token)
 {
@@ -33,13 +34,13 @@ int is_variable(char *token)
 
 int set_redirect(t_command *cmd, char *token, char *next_token)
 {
-    if (!ft_strcmp(token, ">") || !ft_strcmp(token, ">>"))
+    if (!ft_strncmp(token, ">", 2) || !ft_strncmp(token, ">>", 3))
     {
-        cmd->append = (!ft_strcmp(token, ">>"));
+        cmd->append = (!ft_strncmp(token, ">>", 3));
         cmd->redirect_out = ft_strdup(next_token);
         return (!cmd->redirect_out ? 0 : 1);
     }
-    if (!ft_strcmp(token, "<"))
+    if (!ft_strncmp(token, "<", 2))
     {
         cmd->redirect_in = ft_strdup(next_token);
         return (!cmd->redirect_in ? 0 : 1);

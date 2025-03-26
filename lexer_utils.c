@@ -1,7 +1,8 @@
-#include "lexer.h"
+#include "lexer_utils.h"
 
 int handle_normal(t_state *state, char const **input, t_token_list *tokens, char *buffer, size_t *buf_pos)
 {
+    (void)tokens;
     if (**input == ' ')
         return ((*input)++, 1);
     if (**input == '"')
@@ -57,7 +58,7 @@ int handle_word(t_state *state, char const **input, t_token_list *tokens, char *
 
 int handle_operator(t_state *state, char const **input, t_token_list *tokens, char *buffer, size_t *buf_pos)
 {
-    if (*buf_pos == 1 && (buffer[0] == '>' && **input == '>') || (buffer[0] == '<' && **input == '<'))
+    if (*buf_pos == 1 && ((buffer[0] == '>' && **input == '>') || (buffer[0] == '<' && **input == '<')))
         buffer[(*buf_pos)++] = *(*input)++;
     else
     {

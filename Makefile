@@ -8,21 +8,21 @@ LIBFT = libft/libft.a
 all: $(NAME)
 
 $(LIBFT):
-    make -C libft
+	make -C libft
 
 $(NAME): $(LIBFT) $(OBJS)
-    $(CC) $(CFLAGS) $(OBJS) $(LIBFT) -o $(NAME) -lreadline
+	$(CC) $(CFLAGS) $(OBJS) $(LIBFT) -o $(NAME) -lreadline
 
 %.o: %.c
-    $(CC) $(CFLAGS) -c $< -o $@ -Ilibft
+	$(CC) $(CFLAGS) -c $< -o $@ -Ilibft
 
 clean:
-    rm -f $(OBJS)
-    make -C libft clean
+	rm -f $(OBJS)
+	make -C libft clean
 
 fclean: clean
-    rm -f $(NAME)
-    make -C libft fclean
+	rm -f $(NAME)
+	make -C libft fclean
 
 re: fclean all
 

@@ -1,4 +1,6 @@
+#include "libft/libft.h"
 #include "parser.h"
+#include "parser_utils.h"
 
 t_command *init_command(void)
 {
@@ -39,6 +41,7 @@ int add_arg(t_command *cmd, char *arg)
 {
     size_t  i;
     char    *dup;
+    char    **new_args;
 
     dup = ft_strdup(arg);
     if (!dup)
@@ -46,8 +49,20 @@ int add_arg(t_command *cmd, char *arg)
     i = 0;
     while (cmd->args[i])
         i++;
-    if (i >= 10) // Stub; resize later
-        return (free(dup), 0);
+    if (i >= 10) // Initial capacity check
+    {
+        new_args = malloc(sizeof(char *) * (i * 2));
+        if (!new_args)
+            return (free(dup), 0);
+        i = 0;
+        while (cmd->args[i])
+        {
+            new_args[i] = cmd->args[i];
+            i++;
+        }
+        free(cmd->args);
+        cmd->args = new_args;
+    }
     cmd->args[i] = dup;
     cmd->args[i + 1] = NULL;
     return (1);
@@ -55,9 +70,9 @@ int add_arg(t_command *cmd, char *arg)
 
 int process_token(t_command **cmd, char *token, int *pipe_flag)
 {
-    if (!ft_strcmp(token, "|"))
+    if (!ft_strncmp(token, "|", 2))
         return (*pipe_flag = 1, 1);
-    if (!ft_strcmp(token, ">") || !ft_strcmp(token, ">>") || !ft_strcmp(token, "<"))
+    if (!ft_strncmp(token, ">", 2) || !ft_strncmp(token, ">>", 3) || !ft_strncmp(token, "<", 2) || !ft_strncmp(token, "<<", 3))
         return (2);
     return (add_arg(*cmd, strip_quotes(token)));
 }
@@ -77,10 +92,13 @@ t_command *parser(t_token_list *tokens)
     pipe_flag = 0;
     while (i < tokens->count)
     {
-        if (process_token(¤t, tokens->tokens[i], &pipe_flag) == 2)
+        if (process_token(&current, tokens->tokens[i], &pipe_flag) == 2)
         {
-            if (!set_redirect(current, tokens->tokens[i], tokens->tokens[++i]))
+            if (!ft_strncmp(tokens->tokens[i], "<<", 3))
+                current->redirect_in = ft_strjoin("<<", tokens->tokens[i + 1]);
+            else if (!set_redirect(current, tokens->tokens[i], tokens->tokens[i + 1]))
                 return (free_command(head), NULL);
+            i++;
         }
         else if (pipe_flag)
         {

@@ -1,4 +1,6 @@
+#include "libft/libft.h"
 #include "lexer.h"
+#include "lexer_utils.h"
 
 t_token_list *init_token_list(void)
 {

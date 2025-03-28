@@ -1,23 +1,24 @@
 #include "executor.h"
 
-#include <stdio.h>
+static int ft_countargs(char **args);
+static int ft_checkminusnl(char **args);
+static void ft_printargs(int nlparam, int argsnum, char **args);
 
-void ft_echo(t_command);
-static int ft_getargs(char **args);
-static int ft_getnl(char **args);
-void ft_printargs(int nlparam, int argsnum, char **args);
+/* prints out the arguments given if its not a valid -n flag */
 
 void ft_echo(t_command cmd)
 {
     int argsnum;
     int nlparam;
 
-    argsnum = ft_getargs(cmd.args);
-    nlparam = ft_getnl(cmd.args);
+    argsnum = ft_countargs(cmd.args);
+    nlparam = ft_checkminusnl(cmd.args);
     ft_printargs(nlparam, argsnum, cmd.args);
 }
 
-static int ft_getargs(char **args)
+/* counts the amount of arguments given */
+
+static int ft_countargs(char **args)
 {
     int x;
 
@@ -27,7 +28,9 @@ static int ft_getargs(char **args)
     return (x);
 }
 
-static int ft_getnl(char **args)
+/* checks if there are any -n / -nnnnn arguments and returns the number of -n / -nnnnn arguments found */
+
+static int ft_checkminusnl(char **args)
 {
     int x;
     int y;
@@ -53,24 +56,26 @@ static int ft_getnl(char **args)
     return (nlparam);
 }
 
-void ft_printargs(int nlparam, int argsnum, char **args)
+/* prints out the given arguments to the terminal, jumps over the -n / -nnnnn flags */
+
+static void ft_printargs(int nlparam, int argsnum, char **args)
 {
     int x;
 
     x = 1;
     if (argsnum == 1)
-        printf("\n");
+        write(1, "\n", 1);
     if (argsnum - nlparam == 1)
         return ;
     if (nlparam > 0)
         x += nlparam;
     while (args[x])
     {
-        printf("%s", args[x]);
+        ft_putstr_fd(args[x], 1);
         if (x < argsnum - 1)
-            printf(" ");
+            write(1, " ", 1);
         x++;
     }
     if (nlparam == 0)
-        printf("\n");
+        write(1, "\n", 1);
 }

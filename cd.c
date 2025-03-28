@@ -4,12 +4,16 @@
 static int ft_checkdir(t_command cmd);
 static int ft_checkargs(t_command cmd);
 
+/* builtin cd function like in bash */
+
 int ft_cd(t_command cmd)
 {
     if (ft_checkargs(cmd) || ft_checkdir(cmd) || chdir(cmd.args[1]) == -1)
         return (1);
     return (0);
 }
+
+/* checks the arguments of cd | if there is no or more than 1 */
 
 static int ft_checkargs(t_command cmd)
 {
@@ -28,6 +32,8 @@ static int ft_checkargs(t_command cmd)
     }
     return (0);
 }
+
+/* checks if the directory can be opened if not prints error and returns 1 */
 
 static int ft_checkdir(t_command cmd)
 {

@@ -8,6 +8,7 @@ static int ft_checkargs(t_command cmd);
 
 int ft_cd(t_command cmd)
 {
+    //!OLDPWD UND PWD SETZEN
     if (ft_checkargs(cmd) || ft_checkdir(cmd) || chdir(cmd.args[1]) == -1)
         return (1);
     return (0);

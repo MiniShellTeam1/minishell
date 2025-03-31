@@ -6,13 +6,13 @@
 #include <errno.h>
 #include <stdlib.h>
 
-typedef struct s_master {
+/* typedef struct s_master {
     t_command *cmds;
     t_env *env;
     unsigned char errorcode;
-}   t_master;
+}   t_master; */
 
-typedef struct s_command {
+/* typedef struct s_command {
     char *cmdpath;
     char **args;
     char **infiles;
@@ -21,13 +21,14 @@ typedef struct s_command {
     int append;
 
     t_command *next;
-}   t_command;
+}   t_command; */
 
 typedef struct s_env {
     char *key;
     char *value;
 
-    t_env *next;
+	struct s_env *prev;
+    struct s_env *next;
 }   t_env;
 
 void ft_printerror(char *cmd, char *errfile, char *errormsg);

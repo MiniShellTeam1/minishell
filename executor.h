@@ -5,14 +5,17 @@
 #include <dirent.h>
 #include <errno.h>
 #include <stdlib.h>
+#include <readline/readline.h>
 
-/* typedef struct s_master {
-    t_command *cmds;
-    t_env *env;
+#include <stdio.h>
+
+typedef struct s_master {
+    struct s_command *cmds;
+    struct s_env *env;
     unsigned char errorcode;
-}   t_master; */
+}   t_master;
 
-/* typedef struct s_command {
+typedef struct s_command {
     char *cmdpath;
     char **args;
     char **infiles;
@@ -20,8 +23,8 @@
     char *errormsg;
     int append;
 
-    t_command *next;
-}   t_command; */
+    struct s_command *next;
+}   t_command;
 
 typedef struct s_env {
     char *key;
@@ -32,6 +35,24 @@ typedef struct s_env {
 }   t_env;
 
 void ft_printerror(char *cmd, char *errfile, char *errormsg);
+
+//env
+void ft_env(t_master master);
+
+//libft
 void ft_putstr_fd(char *str, int fd);
+int ft_strcmp(char *str1, char *str2);
+char *ft_itoa(int num);
+
+//enviroment
+t_env *ft_createenvlist(char **envp);
+void ft_addvar(t_env **env, char *key, char *value);
+void ft_delvar(t_env **env, char *key);
+
+//enviroment utils
+char *ft_getkey(char *var);
+char *ft_getvalue(char *var);
+void ft_freevar(t_env *var);
+char *ft_addlvl(char *stringlvl);
 
 #endif

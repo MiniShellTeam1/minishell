@@ -1,4 +1,4 @@
-#include "libft/libft.h"
+#include "../libft/libft.h"
 #include "lexer.h"
 #include "lexer_utils.h"
 

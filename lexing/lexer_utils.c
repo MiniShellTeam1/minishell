@@ -1,4 +1,4 @@
-#include "libft/libft.h"
+#include "../libft/libft.h"
 #include "lexer_utils.h"
 
 int handle_normal(t_state *state, char const **input, t_token_list *tokens, char *buffer, size_t *buf_pos)
@@ -30,6 +30,7 @@ int handle_single_quote(t_state *state, char const **input, t_token_list *tokens
     else
         write(1, *input, 1);
     write(1, "\n", 1);
+    (*input)++;
     if (**input == '\0')
     {
         *state = NORMAL;
@@ -53,7 +54,6 @@ int handle_single_quote(t_state *state, char const **input, t_token_list *tokens
             return (0);
         *buf_pos = 0;
     }
-    (*input)++;
     return (1);
 }
 
@@ -69,6 +69,7 @@ int handle_double_quote(t_state *state, char const **input, t_token_list *tokens
     else
         write(1, *input, 1);
     write(1, "\n", 1);
+    (*input)++;
     if (**input == '\0')
     {
         *state = NORMAL;
@@ -104,7 +105,6 @@ int handle_double_quote(t_state *state, char const **input, t_token_list *tokens
         *buf_pos = 0;
         return (1);
     }
-    (*input)++;
     return (1);
 }
 

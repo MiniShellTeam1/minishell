@@ -2,7 +2,7 @@
 # define LEXER_H
 
 # include <stdlib.h>
-# include "minishell.h"
+# include "../minishell.h"
 
 typedef enum {
     NORMAL,

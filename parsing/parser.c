@@ -1,25 +1,25 @@
-#include "libft.h"
+#include "../libft/libft.h"
 #include "parser.h"
 #include "parser_utils.h"
 
-s_command *init_command(void)
+t_command *init_command(void)
 {
-    s_command   *cmd;
+    t_command   *cmd;
 
-    cmd = malloc(sizeof(s_command));
+    cmd = malloc(sizeof(t_command));
     if (!cmd)
         return (NULL);
-    cmd->cmdargs = malloc(sizeof(char *) * 10);
-    if (!cmd->cmdargs)
+    cmd->args = malloc(sizeof(char *) * 10);
+    if (!cmd->args)
         return (free(cmd), NULL);
-    cmd->cmdargs[0] = NULL;
+    cmd->args[0] = NULL;
     cmd->infiles = malloc(sizeof(char *) * 2);
     if (!cmd->infiles)
-        return (free(cmd->cmdargs), free(cmd), NULL);
+        return (free(cmd->args), free(cmd), NULL);
     cmd->infiles[0] = NULL;
     cmd->outfiles = malloc(sizeof(char *) * 2);
     if (!cmd->outfiles)
-        return (free(cmd->cmdargs), free(cmd->infiles), free(cmd), NULL);
+        return (free(cmd->args), free(cmd->infiles), free(cmd), NULL);
     cmd->outfiles[0] = NULL;
     cmd->cmdpath = NULL;
     cmd->errormsg = NULL;
@@ -29,16 +29,16 @@ s_command *init_command(void)
     return (cmd);
 }
 
-void free_command(s_command *cmd)
+void free_command(t_command *cmd)
 {
     size_t  i;
 
     if (!cmd)
         return ;
     i = 0;
-    while (cmd->cmdargs[i])
-        free(cmd->cmdargs[i++]);
-    free(cmd->cmdargs);
+    while (cmd->args[i])
+        free(cmd->args[i++]);
+    free(cmd->args);
     i = 0;
     while (cmd->infiles[i])
         free(cmd->infiles[i++]);
@@ -54,7 +54,7 @@ void free_command(s_command *cmd)
     free(cmd);
 }
 
-int add_arg(s_command *cmd, char *arg)
+int add_arg(t_command *cmd, char *arg)
 {
     size_t  i;
     char    *dup;
@@ -64,7 +64,7 @@ int add_arg(s_command *cmd, char *arg)
     if (!dup)
         return (0);
     i = 0;
-    while (cmd->cmdargs[i])
+    while (cmd->args[i])
         i++;
     if (i >= 10)
     {
@@ -72,20 +72,20 @@ int add_arg(s_command *cmd, char *arg)
         if (!new_args)
             return (free(dup), 0);
         i = 0;
-        while (cmd->cmdargs[i])
+        while (cmd->args[i])
         {
-            new_args[i] = cmd->cmdargs[i];
+            new_args[i] = cmd->args[i];
             i++;
         }
-        free(cmd->cmdargs);
-        cmd->cmdargs = new_args;
+        free(cmd->args);
+        cmd->args = new_args;
     }
-    cmd->cmdargs[i] = dup;
-    cmd->cmdargs[i + 1] = NULL;
+    cmd->args[i] = dup;
+    cmd->args[i + 1] = NULL;
     return (1);
 }
 
-int process_token(s_command **cmd, char *token, int *pipe_flag)
+int process_token(t_command **cmd, char *token, int *pipe_flag)
 {
     char *expanded;
 
@@ -104,7 +104,7 @@ int process_token(s_command **cmd, char *token, int *pipe_flag)
 
 static int is_builtin(const char *cmd)
 {
-    const char *builtins[] = {"echo", "cd", "pwd", "export", "unset", "env", "exit", "cat", NULL}; // Added "cat" as placeholder
+    const char *builtins[] = {"echo", "cd", "pwd", "export", "unset", "env", "exit", "cat", NULL};
     int i = 0;
 
     while (builtins[i])
@@ -116,27 +116,30 @@ static int is_builtin(const char *cmd)
     return (0);
 }
 
-static void validate_command(s_command *cmd)
+static void validate_command(t_command *cmd)
 {
-    if (cmd->cmdargs[0])
+    if (!cmd->args[0] || !cmd->args[0][0])
     {
-        if (is_builtin(cmd->cmdargs[0]))
-        {
-            cmd->cmdpath = ft_strdup(cmd->cmdargs[0]);
-            cmd->errormsg = NULL;
-        }
-        else
-        {
-            cmd->cmdpath = NULL;
-            cmd->errormsg = ft_strdup("command not found");
-        }
+        cmd->cmdpath = NULL;
+        cmd->errormsg = NULL;
+        return;
+    }
+    if (is_builtin(cmd->args[0]))
+    {
+        cmd->cmdpath = ft_strdup(cmd->args[0]);
+        cmd->errormsg = NULL;
+    }
+    else
+    {
+        cmd->cmdpath = NULL;
+        cmd->errormsg = ft_strdup("command not found");
     }
 }
 
-s_command *parser(t_token_list *tokens)
+t_command *parser(t_token_list *tokens)
 {
-    s_command   *head;
-    s_command   *current;
+    t_command   *head;
+    t_command   *current;
     size_t      i;
     int         pipe_flag;
     int         result;
@@ -165,7 +168,7 @@ s_command *parser(t_token_list *tokens)
                 return (free_command(head), NULL);
             current = current->next;
             pipe_flag = 0;
-            validate_command(current); // Validate new command block
+            validate_command(current);
         }
         else if (result == 1)
         {
@@ -182,7 +185,7 @@ s_command *parser(t_token_list *tokens)
         }
         i++;
     }
-    validate_command(head); // Validate the first command block
-    validate_command(current); // Validate the last command block
+    validate_command(head);
+    validate_command(current);
     return (head);
 }

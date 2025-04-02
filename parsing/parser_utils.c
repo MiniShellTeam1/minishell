@@ -9,7 +9,7 @@ char *strip_quotes(char *token)
     len = ft_strlen(token);
     if (len < 2 || (token[0] != '"' && token[0] != '\'') || (token[len - 1] != token[0]))
         return (ft_strdup(token));
-    result = malloc(len - 1); // len - 2 for quotes, +1 for null terminator
+    result = malloc(len - 1);
     if (!result)
         return (NULL);
     i = 0;
@@ -36,8 +36,8 @@ char *expand_variable(char *token)
     if (!token || token[0] != '$')
         return (ft_strdup(token));
     if (!ft_strncmp(token, "$?", 3))
-        return (ft_strdup("0")); // Placeholder for exit status
-    return (ft_strdup(token)); // Placeholder for $VAR
+        return (ft_strdup("0"));
+    return (ft_strdup(token));
 }
 
 static int append_to_array(char ***array, char *new_item)
@@ -72,7 +72,7 @@ static int append_to_array(char ***array, char *new_item)
     return (1);
 }
 
-int set_redirect(s_command *cmd, char *token, char *next_token)
+int set_redirect(t_command *cmd, char *token, char *next_token)
 {
     if (!ft_strncmp(token, ">", 2) || !ft_strncmp(token, ">>", 3))
     {

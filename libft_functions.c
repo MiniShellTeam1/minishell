@@ -73,3 +73,24 @@ char *ft_itoa(int num)
         str[0] = '-';
     return (str);
 }
+
+int ft_strlen(char *str)
+{
+	int x;
+
+	x = 0;
+	while (str[x])
+		x++;
+	return (x);
+}
+
+char *ft_strjoin3(char *str1, char *str2, char *st3)
+{
+	int len;
+	char *joinedstr;
+
+	len = ft_strlen(str1) + ft_strlen(str2) + ft_strlen(str2);
+	joinedstr = malloc(sizeof(char) * (len + 1));
+	if (!joinedstr)
+		return (NULL);
+}

@@ -12,6 +12,11 @@ t_env *ft_createenvlist(char **envp)
 	env = NULL;
 	x = 0;
     shlvlexist = 0;
+	if (!envp || !envp[x]) //!PWD setzen
+	{
+		ft_addvar(&env, "SHLVL", "1");
+		return (env);
+	}
 	while (envp[x])
 	{
         if (!ft_strcmp(ft_getkey(envp[x]), "SHLVL"))
@@ -41,7 +46,7 @@ void ft_addvar(t_env **env, char *key, char *value)
 	addedvar->key = key;
 	addedvar->value = value;
 	addedvar->next = NULL;
-	if (!*env)
+	if (!*env || !env)
 	{
 		*env = addedvar;
 		addedvar->prev = NULL;

@@ -1,10 +1,14 @@
+#include "libft/libft.h"
 #include "lexer_utils.h"
 
 int handle_normal(t_state *state, char const **input, t_token_list *tokens, char *buffer, size_t *buf_pos)
 {
     (void)tokens;
     if (**input == ' ')
-        return ((*input)++, 1);
+    {
+        (*input)++;
+        return (1);
+    }
     if (**input == '"')
         return (*state = IN_DOUBLE_QUOTE, buffer[(*buf_pos)++] = *(*input)++, 1);
     if (**input == '\'')
@@ -17,9 +21,34 @@ int handle_normal(t_state *state, char const **input, t_token_list *tokens, char
 int handle_single_quote(t_state *state, char const **input, t_token_list *tokens, char *buffer, size_t *buf_pos)
 {
     buffer[(*buf_pos)++] = **input;
+    write(1, "In handle_single_quote, char: ", 30);
+    write(1, *input, 1);
+    write(1, "\n", 1);
+    write(1, "Before increment, **input: ", 27);
+    if (**input == '\0')
+        write(1, "END", 3);
+    else
+        write(1, *input, 1);
+    write(1, "\n", 1);
+    if (**input == '\0')
+    {
+        *state = NORMAL;
+        buffer[*buf_pos] = '\0';
+        write(1, "handle_single_quote adding token (end of input): ", 48);
+        write(1, buffer, ft_strlen(buffer));
+        write(1, "\n", 1);
+        if (!add_token(tokens, buffer))
+            return (0);
+        *buf_pos = 0;
+        return (1);
+    }
     if (**input == '\'')
     {
         *state = NORMAL;
+        buffer[*buf_pos] = '\0';
+        write(1, "handle_single_quote adding token: ", 34);
+        write(1, buffer, ft_strlen(buffer));
+        write(1, "\n", 1);
         if (!add_token(tokens, buffer))
             return (0);
         *buf_pos = 0;
@@ -31,12 +60,49 @@ int handle_single_quote(t_state *state, char const **input, t_token_list *tokens
 int handle_double_quote(t_state *state, char const **input, t_token_list *tokens, char *buffer, size_t *buf_pos)
 {
     buffer[(*buf_pos)++] = **input;
-    if (**input == '"')
+    write(1, "In handle_double_quote, char: ", 30);
+    write(1, *input, 1);
+    write(1, "\n", 1);
+    write(1, "Before increment, **input: ", 27);
+    if (**input == '\0')
+        write(1, "END", 3);
+    else
+        write(1, *input, 1);
+    write(1, "\n", 1);
+    if (**input == '\0')
     {
         *state = NORMAL;
+        buffer[*buf_pos] = '\0';
+        write(1, "handle_double_quote adding token (end of input): ", 48);
+        write(1, buffer, ft_strlen(buffer));
+        write(1, "\n", 1);
         if (!add_token(tokens, buffer))
             return (0);
         *buf_pos = 0;
+        return (1);
+    }
+    if (**input == '"')
+    {
+        *state = NORMAL;
+        buffer[*buf_pos] = '\0';
+        write(1, "handle_double_quote adding token: ", 34);
+        write(1, buffer, ft_strlen(buffer));
+        write(1, "\n", 1);
+        if (!add_token(tokens, buffer))
+            return (0);
+        *buf_pos = 0;
+    }
+    else if (**input == '|' || **input == '<' || **input == '>')
+    {
+        *state = NORMAL;
+        buffer[*buf_pos] = '\0';
+        write(1, "handle_double_quote adding token (redirect/pipe): ", 50);
+        write(1, buffer, ft_strlen(buffer));
+        write(1, "\n", 1);
+        if (!add_token(tokens, buffer))
+            return (0);
+        *buf_pos = 0;
+        return (1);
     }
     (*input)++;
     return (1);
@@ -47,6 +113,10 @@ int handle_word(t_state *state, char const **input, t_token_list *tokens, char *
     if (**input == ' ' || **input == '|' || **input == '<' || **input == '>')
     {
         *state = NORMAL;
+        buffer[*buf_pos] = '\0';
+        write(1, "handle_word adding token: ", 26);
+        write(1, buffer, ft_strlen(buffer));
+        write(1, "\n", 1);
         if (!add_token(tokens, buffer))
             return (0);
         *buf_pos = 0;
@@ -63,6 +133,10 @@ int handle_operator(t_state *state, char const **input, t_token_list *tokens, ch
     else
     {
         *state = NORMAL;
+        buffer[*buf_pos] = '\0';
+        write(1, "handle_operator adding token: ", 30);
+        write(1, buffer, ft_strlen(buffer));
+        write(1, "\n", 1);
         if (!add_token(tokens, buffer))
             return (0);
         *buf_pos = 0;

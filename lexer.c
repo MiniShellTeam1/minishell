@@ -91,8 +91,11 @@ t_token_list *lexer(char const *input)
         if (!process_char(&state, &input, tokens, buffer, &buf_pos))
             return (free(buffer), free_token_list(tokens), NULL);
     }
-    if (buf_pos > 0)
+    if (buf_pos > 0 && state == IN_WORD)
+    {
+        buffer[buf_pos] = '\0';
         if (!add_token(tokens, buffer))
             return (free(buffer), free_token_list(tokens), NULL);
+    }
     return (free(buffer), tokens);
 }

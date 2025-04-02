@@ -4,10 +4,10 @@
 # include "minishell.h"
 # include "lexer.h"
 
-t_command   *parser(t_token_list *tokens);
-t_command   *init_command(void);
-void        free_command(t_command *cmd);
-int         add_arg(t_command *cmd, char *arg);
-int         process_token(t_command **cmd, char *token, int *pipe_flag);
+s_command   *parser(t_token_list *tokens);
+s_command   *init_command(void);
+void        free_command(s_command *cmd);
+int         add_arg(s_command *cmd, char *arg);
+int         process_token(s_command **cmd, char *token, int *pipe_flag);
 
 #endif

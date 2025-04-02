@@ -4,12 +4,14 @@
 # include <stdlib.h>
 
 typedef struct s_command {
-    char            **args;
-    char            *redirect_in;
-    char            *redirect_out;
+    char            *cmdpath;
+    char            **cmdargs;
+    char            **infiles;
+    char            **outfiles;
+    char            *errormsg;
     int             append;
-    int             pipe_next;
+    char            *heredoc_input;
     struct s_command *next;
-} t_command;
+} s_command;
 
 #endif

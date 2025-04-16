@@ -3,14 +3,13 @@
 /*                                                        :::      ::::::::   */
 /*   functions_03.c                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mhuthmay <mhuthmay@student.42.fr>          +#+  +:+       +#+        */
+/*   By: feanor <feanor@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/16 14:47:45 by mhuthmay          #+#    #+#             */
-/*   Updated: 2025/04/16 14:48:51 by mhuthmay         ###   ########.fr       */
+/*   Updated: 2025/04/16 18:43:08 by feanor           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <stddef.h>
 #include "minishell.h"
 
 size_t	ft_strlcpy(char *dst, const char *src, size_t size)

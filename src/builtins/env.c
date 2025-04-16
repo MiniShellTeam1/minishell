@@ -1,5 +1,5 @@
 #include "minishell.h"
-#include <stdio.h>
+
 
 /* prints out the whole enviroment */
 

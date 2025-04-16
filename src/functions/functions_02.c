@@ -3,14 +3,13 @@
 /*                                                        :::      ::::::::   */
 /*   functions_02.c                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mhuthmay <mhuthmay@student.42.fr>          +#+  +:+       +#+        */
+/*   By: feanor <feanor@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/16 14:27:19 by mhuthmay          #+#    #+#             */
-/*   Updated: 2025/04/16 14:52:44 by mhuthmay         ###   ########.fr       */
+/*   Updated: 2025/04/16 18:43:00 by feanor           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <stdlib.h>
 #include "minishell.h"
 
 char	*ft_strjoin(char const *s1, char const *s2)

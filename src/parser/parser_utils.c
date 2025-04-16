@@ -3,14 +3,14 @@
 /*                                                        :::      ::::::::   */
 /*   parser_utils.c                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mhuthmay <mhuthmay@student.42.fr>          +#+  +:+       +#+        */
+/*   By: feanor <feanor@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/16 13:22:43 by mhuthmay          #+#    #+#             */
-/*   Updated: 2025/04/16 14:13:11 by mhuthmay         ###   ########.fr       */
+/*   Updated: 2025/04/16 18:44:07 by feanor           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../../include/parser.h"
+#include "minishell.h"
 
 char *strip_quotes(char *token)
 {

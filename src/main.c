@@ -3,20 +3,14 @@
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mhuthmay <mhuthmay@student.42.fr>          +#+  +:+       +#+        */
+/*   By: feanor <feanor@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/16 13:23:07 by mhuthmay          #+#    #+#             */
-/*   Updated: 2025/04/16 14:34:17 by mhuthmay         ###   ########.fr       */
+/*   Updated: 2025/04/16 19:03:34 by feanor           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
-#include "../include/lexer.h"
-#include "../include/parser.h"
-#include "../include/debug.h"
-#include <readline/readline.h>
-#include <readline/history.h>
-#include <unistd.h>
 
 static void handle_heredoc(t_command *cmd)
 {
@@ -100,8 +94,10 @@ void free_master(t_master *master)
     free(master);
 }
 
-int main(int argc, char **argv, char **envp)
+int main(int argc, char *argv[], char *envp[])
 {
+    (void)argc;  // suppress unused parameter warning
+    (void)argv;  // suppress unused parameter warning
     t_master *master = init_master();
     if (!master) return 1;
     master->env = ft_createenvlist(envp);

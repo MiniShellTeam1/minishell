@@ -48,13 +48,6 @@ OBJS = $(SRCS:$(SRC_DIR)/%.c=$(OBJ_DIR)/%.o)
 # Header files
 HEADERS = \
 	$(INCLUDE_DIR)/minishell.h \
-	$(INCLUDE_DIR)/functions.h \
-	$(INCLUDE_DIR)/errormsg.h \
-	$(INCLUDE_DIR)/lexer.h \
-	$(INCLUDE_DIR)/lexer_utils.h \
-	$(INCLUDE_DIR)/parser.h \
-	$(INCLUDE_DIR)/parser_utils.h \
-	$(INCLUDE_DIR)/debug.h
 
 # Rules
 all: $(NAME)

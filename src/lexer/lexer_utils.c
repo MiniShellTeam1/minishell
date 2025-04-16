@@ -3,16 +3,14 @@
 /*                                                        :::      ::::::::   */
 /*   lexer_utils.c                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mhuthmay <mhuthmay@student.42.fr>          +#+  +:+       +#+        */
+/*   By: feanor <feanor@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/16 13:22:02 by mhuthmay          #+#    #+#             */
-/*   Updated: 2025/04/16 14:10:49 by mhuthmay         ###   ########.fr       */
+/*   Updated: 2025/04/16 18:43:52 by feanor           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-
-#include "../libft/libft.h"
-#include "lexer_utils.h"
+#include "minishell.h"
 
 int	handle_normal(t_state *state, char const **input, t_token_list *tokens,
 		char *buffer, size_t *buf_pos)

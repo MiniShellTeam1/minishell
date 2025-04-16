@@ -1,5 +1,5 @@
 #include "minishell.h"
-#include "errormsg.h"
+
 
 void ft_exit(t_command cmd)
 {

@@ -3,18 +3,14 @@
 /*                                                        :::      ::::::::   */
 /*   parser.c                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mhuthmay <mhuthmay@student.42.fr>          +#+  +:+       +#+        */
+/*   By: feanor <feanor@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/16 13:22:55 by mhuthmay          #+#    #+#             */
-/*   Updated: 2025/04/16 14:14:06 by mhuthmay         ###   ########.fr       */
+/*   Updated: 2025/04/16 18:44:13 by feanor           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-
-
-#include "../libft/libft.h"
-#include "../../include/parser.h"
-#include "../../include/parser_utils.h"
+#include "minishell.h"
 
 t_command *init_command(void)
 {

@@ -3,17 +3,14 @@
 /*                                                        :::      ::::::::   */
 /*   lexer.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mhuthmay <mhuthmay@student.42.fr>          +#+  +:+       +#+        */
+/*   By: feanor <feanor@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/16 13:22:17 by mhuthmay          #+#    #+#             */
-/*   Updated: 2025/04/16 14:15:04 by mhuthmay         ###   ########.fr       */
+/*   Updated: 2025/04/16 18:43:59 by feanor           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-
-#include "../libft/libft.h"
-#include "../../include/lexer.h"
-#include "../../include/lexer_utils.h"
+#include "minishell.h"
 
 t_token_list *init_token_list(void)
 {

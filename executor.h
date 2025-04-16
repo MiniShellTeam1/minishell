@@ -43,6 +43,8 @@ void ft_env(t_master master);
 void ft_putstr_fd(char *str, int fd);
 int ft_strcmp(char *str1, char *str2);
 char *ft_itoa(int num);
+int ft_strlen(char *str);
+int ft_strncmp(char *str1, char *str2, int n);
 
 //enviroment
 t_env *ft_createenvlist(char **envp);
@@ -54,5 +56,7 @@ char *ft_getkey(char *var);
 char *ft_getvalue(char *var);
 void ft_freevar(t_env *var);
 char *ft_addlvl(char *stringlvl);
+void ft_freeenv(t_master *master);
+char *ft_getstralloc(char *str);
 
 #endif

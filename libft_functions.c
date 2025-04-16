@@ -93,4 +93,19 @@ char *ft_strjoin3(char *str1, char *str2, char *st3)
 	joinedstr = malloc(sizeof(char) * (len + 1));
 	if (!joinedstr)
 		return (NULL);
+	return (NULL);
+}
+
+int ft_strncmp(char *str1, char *str2, int n)
+{
+	int x;
+
+	x = 0;
+	while(str1[x] && str2[x] && x < n)
+	{
+		if (str1[x] != str2[x])
+			return (1);
+		x++;
+	}
+	return (0);
 }

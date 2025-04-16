@@ -14,12 +14,13 @@ t_env *ft_createenvlist(char **envp)
     shlvlexist = 0;
 	if (!envp || !envp[x]) //!PWD setzen
 	{
-		ft_addvar(&env, "SHLVL", "1");
+		ft_addvar(&env, ft_getstralloc("SHLVL"), ft_getstralloc("1"));
+		shlvlexist++;
 		return (env);
 	}
 	while (envp[x])
 	{
-        if (!ft_strcmp(ft_getkey(envp[x]), "SHLVL"))
+        if (!ft_strncmp(envp[x], "SHLVL=", 5))
         {
             ft_addvar(&env, ft_getkey(envp[x]), ft_addlvl(ft_getvalue(envp[x])));
             shlvlexist++;
@@ -29,13 +30,13 @@ t_env *ft_createenvlist(char **envp)
 		x++;
 	}
     if (!shlvlexist)
-        ft_addvar(&env, "SHLVL", "1");
+        ft_addvar(&env, ft_getstralloc("SHLVL"), ft_getstralloc("1"));
 	return (env);
 }
 
 /* adds a variable to the enviroment linked list at the end */
 
-void ft_addvar(t_env **env, char *key, char *value)
+void  ft_addvar(t_env **env, char *key, char *value)
 {
 	t_env *addedvar;
 	t_env *temp = *env;
@@ -99,4 +100,22 @@ void ft_delvar(t_env **env, char *key)
         }
 		tmp = tmp->next;
 	}
+}
+
+char *ft_getstralloc(char *str)
+{
+	char *allocstr;
+	int x;
+
+	x = 0;
+	allocstr = malloc(sizeof(char) * (ft_strlen(str) + 1));
+	if (!allocstr)
+		return (NULL);
+	while (str[x])
+	{
+		allocstr[x] = str[x];
+		x++;
+	}
+	allocstr[x] = 0;
+	return (allocstr);
 }

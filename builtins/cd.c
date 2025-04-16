@@ -90,10 +90,29 @@ void ft_setoldpwd(t_master *master)
 
 void ft_setpwd(t_master *master, char *newpwd)
 {
-    while (master->env && ft_strcmp(master->env->value, "PWD"))
+    while (master->env && !ft_strcmp(master->env->key, "PWD"))
         master->env = master->env->next;
     if (master->env)
     {
-        
+        free(master->env->value);
+		master->env->value = ft_getpwd();
     }
+}
+
+char *ft_getpwd()
+{
+	char cwd[1024];
+	char *pwd;
+	int x;
+
+	x = 0;
+	if (getcwd(cwd, sizeof(cwd)) != NULL)
+	{
+		pwd = malloc(sizeof(char) * ft_strlen(cwd) + 1);
+		if (!pwd)
+			return (NULL);
+		while (cwd[x])
+			pwd[x] = cwd[x];
+		
+	}
 }

@@ -16,10 +16,10 @@ void ft_unset(t_master *master)
 
 int main(int argc, char **argv, char **envp)
 {
-    t_master master;
-    master.env = ft_createenvlist(envp);
+    t_master *master = malloc(sizeof(t_master));
+    master->env = ft_createenvlist(envp);
     t_command *test1 = malloc(sizeof(t_command) * 1);
-    master.cmds = test1;
+    master->cmds = test1;
 
     char *env[] = {
 		"unset",

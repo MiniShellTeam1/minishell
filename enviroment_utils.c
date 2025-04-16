@@ -72,6 +72,7 @@ char *ft_addlvl(char *stringlvl)
     char *newstringlvl;
 
     shlvl = atoi(stringlvl); //!replace with our atoi from libft
+	free(stringlvl);
     if (shlvl < 0)
         shlvl = 0;
     else if (shlvl + 1 >= 1000)
@@ -83,4 +84,18 @@ char *ft_addlvl(char *stringlvl)
         shlvl++;
     newstringlvl = ft_itoa(shlvl); //!replace with our itoa from libft
     return (newstringlvl);
+}
+
+void ft_freeenv(t_master *master)
+{
+	t_env *tmp;
+
+	while (master->env)
+	{
+		free(master->env->key);
+		free(master->env->value);
+		tmp = master->env->next;
+		free(master->env);
+		master->env = tmp;
+	}
 }

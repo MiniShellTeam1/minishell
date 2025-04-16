@@ -1,0 +1,1038 @@
+# **************************************************************************** #
+#                                                                              #
+#                                                         :::      ::::::::    #
+#    combined.txt                                       :+:      :+:    :+:    #
+#                                                     +:+ +:+         +:+      #
+#    By: mhuthmay <mhuthmay@student.42.fr>          +#+  +:+       +#+         #
+#                                                 +#+#+#+#+#+   +#+            #
+#    Created: 2025/04/16 13:23:07 by mhuthmay          #+#    #+#              #
+#    Updated: 2025/04/16 13:29:15 by mhuthmay         ###   ########.fr        #
+#                                                                              #
+# **************************************************************************** #
+
+
+
+#include "libft.h"
+#include "minishell.h"
+#include "lexing/lexer.h"
+#include "parsing/parser.h"
+#include "debug.h"
+#include <readline/readline.h>
+#include <readline/history.h>
+#include <unistd.h>
+
+static void handle_heredoc(t_command *cmd)
+{
+    char    *line;
+    char    *temp;
+    char    *heredoc_content;
+    size_t  len;
+
+    if (cmd->infiles && cmd->infiles[0] && !ft_strncmp(cmd->infiles[0], "<<", 2))
+    {
+        heredoc_content = NULL;
+        while (1)
+        {
+            write(1, "heredoc> ", 9);
+            line = readline("");
+            if (!line)
+                break;
+            len = ft_strlen(line);
+            if (len > 0 && line[len - 1] == '\n')
+                line[len - 1] = '\0';
+            if (!ft_strncmp(line, cmd->infiles[0] + 2, ft_strlen(cmd->infiles[0] + 2)))
+            {
+                free(line);
+                break;
+            }
+            if (!heredoc_content)
+            {
+                heredoc_content = ft_strjoin(line, "\n");
+            }
+            else
+            {
+                temp = ft_strjoin(heredoc_content, line);
+                free(heredoc_content);
+                heredoc_content = ft_strjoin(temp, "\n");
+                free(temp);
+            }
+            free(line);
+        }
+        cmd->heredoc_input = heredoc_content;
+    }
+}
+
+static void set_errorcode(t_master *master)
+{
+    t_command *cmd = master->cmds;
+
+    master->errorcode = 0;
+    while (cmd)
+    {
+        if (cmd->errormsg)
+        {
+            master->errorcode = 1;
+            break;
+        }
+        cmd = cmd->next;
+    }
+}
+
+t_master *init_master(void)
+{
+    t_master *master;
+
+    master = malloc(sizeof(t_master));
+    if (!master)
+        return (NULL);
+    master->cmds = NULL;
+    master->env = NULL;
+    master->errorcode = 0;
+    return (master);
+}
+
+void free_master(t_master *master)
+{
+    if (!master)
+        return;
+    free_command(master->cmds);
+    free(master);
+}
+
+int main(void)
+{
+    char        *line;
+    t_token_list    *tokens;
+    t_master        *master;
+
+    while ((line = readline("$ ")) != NULL)
+    {
+        if (*line)
+            add_history(line);
+        tokens = lexer(line);
+        debug_shell_state(tokens, NULL, NULL, "After Lexing");
+        if (tokens)
+        {
+            master = init_master();
+            if (master)
+            {
+                master->cmds = parser(tokens);
+                debug_shell_state(NULL, master->cmds, NULL, "After Parsing");
+                if (master->cmds)
+                {
+                    handle_heredoc(master->cmds);
+                    set_errorcode(master);
+                    debug_shell_state(NULL, NULL, master, "Before Executor");
+                }
+                free_master(master);
+            }
+            free_token_list(tokens);
+        }
+        free(line);
+    }
+    return (0);
+}
+
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   minishell.h                                        :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: mhuthmay <mhuthmay@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/04/16 13:23:29 by mhuthmay          #+#    #+#             */
+/*   Updated: 2025/04/16 13:23:30 by mhuthmay         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
+
+#ifndef MINISHELL_H
+# define MINISHELL_H
+
+# include <stdlib.h>
+
+typedef struct s_command {
+    char            *cmdpath;
+    char            **args;
+    char            **infiles;
+    char            **outfiles;
+    char            *errormsg;
+    int             append;
+    char            *heredoc_input;
+    struct s_command *next;
+} t_command;
+
+typedef struct s_env {
+    // placeholder for nico
+} s_env;
+
+typedef struct s_master {
+    struct s_command *cmds;
+    struct s_env     *env;
+    unsigned char    errorcode;
+} t_master;
+
+#endif
+
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   debug.c                                            :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: mhuthmay <mhuthmay@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/04/16 13:23:12 by mhuthmay          #+#    #+#             */
+/*   Updated: 2025/04/16 13:23:13 by mhuthmay         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
+
+
+#include <stdio.h>
+#include "debug.h"
+#include "libft.h"
+
+// Enable/disable debug output (1 = on, 0 = off)
+#define DEBUG 1
+
+void print_tokens(t_token_list *tokens)
+{
+    size_t i;
+
+    if (!DEBUG)
+        return;
+    if (!tokens)
+    {
+        printf("Tokens: NULL\n");
+        return;
+    }
+    printf("Tokens:\n");
+    for (i = 0; i < tokens->count; i++)
+        printf("  [%zu]: %s\n", i, tokens->tokens[i]);
+}
+
+void print_parsed_commands(t_command *cmd)
+{
+    t_command *current;
+    size_t i;
+
+    if (!DEBUG)
+        return;
+    if (!cmd)
+    {
+        printf("Parsed Commands: NULL\n");
+        return;
+    }
+    printf("Parsed Commands:\n");
+    current = cmd;
+    while (current)
+    {
+        if (current->args)
+        {
+            printf("  Command: %s\n", current->args[0]);
+            printf("    Arguments:\n");
+            i = 1;
+            while (current->args[i])
+            {
+                printf("      - %s\n", current->args[i]);
+                i++;
+            }
+        }
+        if (current->infiles)
+        {
+            printf("    Input Redirects:\n");
+            i = 0;
+            while (current->infiles[i])
+            {
+                printf("      - %s\n", current->infiles[i]);
+                i++;
+            }
+        }
+        if (current->outfiles)
+        {
+            printf("    Output Redirects:\n");
+            i = 0;
+            while (current->outfiles[i])
+            {
+                printf("      - %s (append: %d)\n", current->outfiles[i], current->append);
+                i++;
+            }
+        }
+        if (current->heredoc_input)
+            printf("    Heredoc Input: %s\n", current->heredoc_input);
+        if (current->cmdpath)
+            printf("    Cmdpath: %s\n", current->cmdpath);
+        if (current->errormsg)
+            printf("    Error: %s\n", current->errormsg);
+        current = current->next;
+    }
+}
+
+void print_master(t_master *master)
+{
+    if (!DEBUG)
+        return;
+    if (!master)
+    {
+        printf("t_master: NULL\n");
+        return;
+    }
+    printf("t_master:\n");
+    printf("  cmds:\n");
+    print_parsed_commands(master->cmds);
+    printf("  env: %s\n", master->env ? "[present]" : "[null]");
+    printf("  errorcode: %d\n", master->errorcode);
+}
+
+void debug_shell_state(t_token_list *tokens, t_command *cmd, t_master *master, const char *stage)
+{
+    if (!DEBUG)
+        return;
+    printf("\n=== Debug: %s ===\n", stage);
+    if (tokens)
+        print_tokens(tokens);
+    if (cmd)
+        print_parsed_commands(cmd);
+    if (master)
+        print_master(master);
+    printf("====================\n");
+}
+
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   debug.h                                            :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: mhuthmay <mhuthmay@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/04/16 13:23:18 by mhuthmay          #+#    #+#             */
+/*   Updated: 2025/04/16 13:23:19 by mhuthmay         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
+
+#ifndef DEBUG_H
+# define DEBUG_H
+
+# include "minishell.h"
+# include "lexing/lexer.h"
+
+void print_tokens(t_token_list *tokens);
+void print_parsed_commands(t_command *cmd);
+void print_master(t_master *master);
+void debug_shell_state(t_token_list *tokens, t_command *cmd, t_master *master, const char *stage);
+
+#endif
+
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   parser_utils.c                                     :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: mhuthmay <mhuthmay@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/04/16 13:22:43 by mhuthmay          #+#    #+#             */
+/*   Updated: 2025/04/16 13:22:44 by mhuthmay         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
+
+
+
+#include "parser_utils.h"
+
+char *strip_quotes(char *token)
+{
+    size_t  len;
+    char    *result;
+    size_t  i;
+
+    len = ft_strlen(token);
+    if (len < 2 || (token[0] != '"' && token[0] != '\'') || (token[len - 1] != token[0]))
+        return (ft_strdup(token));
+    result = malloc(len - 1);
+    if (!result)
+        return (NULL);
+    i = 0;
+    while (i < len - 2)
+    {
+        result[i] = token[i + 1];
+        i++;
+    }
+    result[i] = '\0';
+    return (result);
+}
+
+int is_variable(char *token)
+{
+    if (!token || token[0] != '$')
+        return (0);
+    if (token[1] == '?' || (token[1] >= 'A' && token[1] <= 'Z'))
+        return (1);
+    return (0);
+}
+
+char *expand_variable(char *token)
+{
+    if (!token || token[0] != '$')
+        return (ft_strdup(token));
+    if (!ft_strncmp(token, "$?", 3))
+        return (ft_strdup("0"));
+    return (ft_strdup(token));
+}
+
+static int append_to_array(char ***array, char *new_item)
+{
+    size_t  count;
+    char    **new_array;
+    size_t  i;
+
+    count = 0;
+    while ((*array)[count])
+        count++;
+    new_array = malloc(sizeof(char *) * (count + 2));
+    if (!new_array)
+        return (0);
+    i = 0;
+    while (i < count)
+    {
+        new_array[i] = (*array)[i];
+        i++;
+    }
+    new_array[i] = ft_strdup(new_item);
+    if (!new_array[i])
+    {
+        while (i > 0)
+            free(new_array[--i]);
+        free(new_array);
+        return (0);
+    }
+    new_array[i + 1] = NULL;
+    free(*array);
+    *array = new_array;
+    return (1);
+}
+
+int set_redirect(t_command *cmd, char *token, char *next_token)
+{
+    if (!ft_strncmp(token, ">", 2) || !ft_strncmp(token, ">>", 3))
+    {
+        cmd->append = (!ft_strncmp(token, ">>", 3));
+        return (append_to_array(&cmd->outfiles, next_token));
+    }
+    if (!ft_strncmp(token, "<", 2))
+    {
+        return (append_to_array(&cmd->infiles, next_token));
+    }
+    return (0);
+}
+
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   parser_utils.h                                     :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: mhuthmay <mhuthmay@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/04/16 13:22:50 by mhuthmay          #+#    #+#             */
+/*   Updated: 2025/04/16 13:22:51 by mhuthmay         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
+
+
+#ifndef PARSER_UTILS_H
+# define PARSER_UTILS_H
+
+#include "parser.h"
+#include "../libft/libft.h" 
+
+char *strip_quotes(char *token);
+int is_variable(char *token);
+char *expand_variable(char *token);
+int set_redirect(t_command *cmd, char *token, char *next_token);
+
+#endif
+
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   parser.c                                           :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: mhuthmay <mhuthmay@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/04/16 13:22:55 by mhuthmay          #+#    #+#             */
+/*   Updated: 2025/04/16 13:22:56 by mhuthmay         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
+
+
+#include "../libft/libft.h"
+#include "parser.h"
+#include "parser_utils.h"
+
+t_command *init_command(void)
+{
+    t_command   *cmd;
+
+    cmd = malloc(sizeof(t_command));
+    if (!cmd)
+        return (NULL);
+    cmd->args = malloc(sizeof(char *) * 10);
+    if (!cmd->args)
+        return (free(cmd), NULL);
+    cmd->args[0] = NULL;
+    cmd->infiles = malloc(sizeof(char *) * 2);
+    if (!cmd->infiles)
+        return (free(cmd->args), free(cmd), NULL);
+    cmd->infiles[0] = NULL;
+    cmd->outfiles = malloc(sizeof(char *) * 2);
+    if (!cmd->outfiles)
+        return (free(cmd->args), free(cmd->infiles), free(cmd), NULL);
+    cmd->outfiles[0] = NULL;
+    cmd->cmdpath = NULL;
+    cmd->errormsg = NULL;
+    cmd->append = 0;
+    cmd->heredoc_input = NULL;
+    cmd->next = NULL;
+    return (cmd);
+}
+
+void free_command(t_command *cmd)
+{
+    size_t  i;
+
+    if (!cmd)
+        return ;
+    i = 0;
+    while (cmd->args[i])
+        free(cmd->args[i++]);
+    free(cmd->args);
+    i = 0;
+    while (cmd->infiles[i])
+        free(cmd->infiles[i++]);
+    free(cmd->infiles);
+    i = 0;
+    while (cmd->outfiles[i])
+        free(cmd->outfiles[i++]);
+    free(cmd->outfiles);
+    free(cmd->cmdpath);
+    free(cmd->errormsg);
+    free(cmd->heredoc_input);
+    free_command(cmd->next);
+    free(cmd);
+}
+
+int add_arg(t_command *cmd, char *arg)
+{
+    size_t  i;
+    char    *dup;
+    char    **new_args;
+
+    dup = ft_strdup(arg);
+    if (!dup)
+        return (0);
+    i = 0;
+    while (cmd->args[i])
+        i++;
+    if (i >= 10)
+    {
+        new_args = malloc(sizeof(char *) * (i * 2));
+        if (!new_args)
+            return (free(dup), 0);
+        i = 0;
+        while (cmd->args[i])
+        {
+            new_args[i] = cmd->args[i];
+            i++;
+        }
+        free(cmd->args);
+        cmd->args = new_args;
+    }
+    cmd->args[i] = dup;
+    cmd->args[i + 1] = NULL;
+    return (1);
+}
+
+int process_token(t_command **cmd, char *token, int *pipe_flag)
+{
+    char *expanded;
+
+    if (!ft_strncmp(token, "|", 2))
+    {
+        *pipe_flag = 1;
+        return (1);
+    }
+    if (!ft_strncmp(token, ">", 2) || !ft_strncmp(token, ">>", 3) || !ft_strncmp(token, "<", 2) || !ft_strncmp(token, "<<", 3))
+        return (2);
+    expanded = expand_variable(token);
+    if (!expanded)
+        return (0);
+    return (add_arg(*cmd, strip_quotes(expanded)));
+}
+
+static int is_builtin(const char *cmd)
+{
+    const char *builtins[] = {"echo", "cd", "pwd", "export", "unset", "env", "exit", "cat", NULL};
+    int i = 0;
+
+    while (builtins[i])
+    {
+        if (!ft_strncmp(cmd, builtins[i], ft_strlen(builtins[i]) + 1))
+            return (1);
+        i++;
+    }
+    return (0);
+}
+
+static void validate_command(t_command *cmd)
+{
+    if (!cmd->args[0] || !cmd->args[0][0])
+    {
+        cmd->cmdpath = NULL;
+        cmd->errormsg = NULL;
+        return;
+    }
+    if (is_builtin(cmd->args[0]))
+    {
+        cmd->cmdpath = ft_strdup(cmd->args[0]);
+        cmd->errormsg = NULL;
+    }
+    else
+    {
+        cmd->cmdpath = NULL;
+        cmd->errormsg = ft_strdup("command not found");
+    }
+}
+
+t_command *parser(t_token_list *tokens)
+{
+    t_command   *head;
+    t_command   *current;
+    size_t      i;
+    int         pipe_flag;
+    int         result;
+
+    head = init_command();
+    if (!head)
+        return (NULL);
+    current = head;
+    i = 0;
+    pipe_flag = 0;
+    while (i < tokens->count)
+    {
+        result = process_token(&current, tokens->tokens[i], &pipe_flag);
+        if (result == 2)
+        {
+            if (!ft_strncmp(tokens->tokens[i], "<<", 3))
+                current->infiles[0] = ft_strjoin("<<", tokens->tokens[i + 1]);
+            else if (!set_redirect(current, tokens->tokens[i], tokens->tokens[i + 1]))
+                return (free_command(head), NULL);
+            i++;
+        }
+        else if (pipe_flag)
+        {
+            current->next = init_command();
+            if (!current->next)
+                return (free_command(head), NULL);
+            current = current->next;
+            pipe_flag = 0;
+            validate_command(current);
+        }
+        else if (result == 1)
+        {
+            // Pipe token, already handled
+        }
+        else if (result == 0)
+        {
+            // Error in process_token
+            return (free_command(head), NULL);
+        }
+        else
+        {
+            // Token was added by process_token, no need to add again
+        }
+        i++;
+    }
+    validate_command(head);
+    validate_command(current);
+    return (head);
+}
+
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   parser.h                                           :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: mhuthmay <mhuthmay@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/04/16 13:22:59 by mhuthmay          #+#    #+#             */
+/*   Updated: 2025/04/16 13:23:00 by mhuthmay         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
+
+#ifndef PARSER_H
+# define PARSER_H
+
+# include "../minishell.h"
+# include "../lexing/lexer.h"
+
+t_command   *parser(t_token_list *tokens);
+t_command   *init_command(void);
+void        free_command(t_command *cmd);
+int         add_arg(t_command *cmd, char *arg);
+int         process_token(t_command **cmd, char *token, int *pipe_flag);
+int         set_redirect(t_command *cmd, char *token, char *next_token);
+
+#endif
+
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   lexer_utils.c                                      :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: mhuthmay <mhuthmay@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/04/16 13:22:02 by mhuthmay          #+#    #+#             */
+/*   Updated: 2025/04/16 13:22:03 by mhuthmay         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
+
+#include "../libft/libft.h"
+#include "lexer_utils.h"
+
+int	handle_normal(t_state *state, char const **input, t_token_list *tokens,
+		char *buffer, size_t *buf_pos)
+{
+	(void)tokens;
+	if (**input == ' ')
+	{
+		(*input)++;
+		return (1);
+	}
+	if (**input == '"')
+		return (*state = IN_DOUBLE_QUOTE, buffer[(*buf_pos)++] = *(*input)++,
+			1);
+	if (**input == '\'')
+		return (*state = IN_SINGLE_QUOTE, buffer[(*buf_pos)++] = *(*input)++,
+			1);
+	if (**input == '|' || **input == '<' || **input == '>')
+		return (*state = IN_OPERATOR, buffer[(*buf_pos)++] = *(*input)++, 1);
+	return (*state = IN_WORD, buffer[(*buf_pos)++] = *(*input)++, 1);
+}
+
+int	handle_single_quote(t_state *state, char const **input,
+		t_token_list *tokens, char *buffer, size_t *buf_pos)
+{
+	buffer[(*buf_pos)++] = **input;
+	write(1, "In handle_single_quote, char: ", 30);
+	write(1, *input, 1);
+	write(1, "\n", 1);
+	write(1, "Before increment, **input: ", 27);
+	if (**input == '\0')
+		write(1, "END", 3);
+	else
+		write(1, *input, 1);
+	write(1, "\n", 1);
+	(*input)++;
+	if (**input == '\0')
+	{
+		*state = NORMAL;
+		buffer[*buf_pos] = '\0';
+		write(1, "handle_single_quote adding token (end of input): ", 48);
+		write(1, buffer, ft_strlen(buffer));
+		write(1, "\n", 1);
+		if (!add_token(tokens, buffer))
+			return (0);
+		*buf_pos = 0;
+		return (1);
+	}
+	if (**input == '\'')
+	{
+		*state = NORMAL;
+		buffer[*buf_pos] = '\0';
+		write(1, "handle_single_quote adding token: ", 34);
+		write(1, buffer, ft_strlen(buffer));
+		write(1, "\n", 1);
+		if (!add_token(tokens, buffer))
+			return (0);
+		*buf_pos = 0;
+	}
+	return (1);
+}
+
+int	handle_double_quote(t_state *state, char const **input,
+		t_token_list *tokens, char *buffer, size_t *buf_pos)
+{
+	buffer[(*buf_pos)++] = **input;
+	write(1, "In handle_double_quote, char: ", 30);
+	write(1, *input, 1);
+	write(1, "\n", 1);
+	write(1, "Before increment, **input: ", 27);
+	if (**input == '\0')
+		write(1, "END", 3);
+	else
+		write(1, *input, 1);
+	write(1, "\n", 1);
+	(*input)++;
+	if (**input == '\0')
+	{
+		*state = NORMAL;
+		buffer[*buf_pos] = '\0';
+		write(1, "handle_double_quote adding token (end of input): ", 48);
+		write(1, buffer, ft_strlen(buffer));
+		write(1, "\n", 1);
+		if (!add_token(tokens, buffer))
+			return (0);
+		*buf_pos = 0;
+		return (1);
+	}
+	if (**input == '"')
+	{
+		*state = NORMAL;
+		buffer[*buf_pos] = '\0';
+		write(1, "handle_double_quote adding token: ", 34);
+		write(1, buffer, ft_strlen(buffer));
+		write(1, "\n", 1);
+		if (!add_token(tokens, buffer))
+			return (0);
+		*buf_pos = 0;
+	}
+	else if (**input == '|' || **input == '<' || **input == '>')
+	{
+		*state = NORMAL;
+		buffer[*buf_pos] = '\0';
+		write(1, "handle_double_quote adding token (redirect/pipe): ", 50);
+		write(1, buffer, ft_strlen(buffer));
+		write(1, "\n", 1);
+		if (!add_token(tokens, buffer))
+			return (0);
+		*buf_pos = 0;
+		return (1);
+	}
+	return (1);
+}
+
+int	handle_word(t_state *state, char const **input, t_token_list *tokens,
+		char *buffer, size_t *buf_pos)
+{
+	if (**input == ' ' || **input == '|' || **input == '<' || **input == '>')
+	{
+		*state = NORMAL;
+		buffer[*buf_pos] = '\0';
+		write(1, "handle_word adding token: ", 26);
+		write(1, buffer, ft_strlen(buffer));
+		write(1, "\n", 1);
+		if (!add_token(tokens, buffer))
+			return (0);
+		*buf_pos = 0;
+		return (1);
+	}
+	buffer[(*buf_pos)++] = *(*input)++;
+	return (1);
+}
+
+int	handle_operator(t_state *state, char const **input, t_token_list *tokens,
+		char *buffer, size_t *buf_pos)
+{
+	if (*buf_pos == 1 && ((buffer[0] == '>' && **input == '>')
+			|| (buffer[0] == '<' && **input == '<')))
+		buffer[(*buf_pos)++] = *(*input)++;
+	else
+	{
+		*state = NORMAL;
+		buffer[*buf_pos] = '\0';
+		write(1, "handle_operator adding token: ", 30);
+		write(1, buffer, ft_strlen(buffer));
+		write(1, "\n", 1);
+		if (!add_token(tokens, buffer))
+			return (0);
+		*buf_pos = 0;
+	}
+	return (1);
+}
+
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   lexer_utils.h                                      :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: mhuthmay <mhuthmay@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/04/16 13:22:09 by mhuthmay          #+#    #+#             */
+/*   Updated: 2025/04/16 13:22:10 by mhuthmay         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
+
+#ifndef LEXER_UTILS_H
+# define LEXER_UTILS_H
+
+# include "lexer.h"
+
+int handle_normal(t_state *state, char const **input, t_token_list *tokens, char *buffer, size_t *buf_pos);
+int handle_single_quote(t_state *state, char const **input, t_token_list *tokens, char *buffer, size_t *buf_pos);
+int handle_double_quote(t_state *state, char const **input, t_token_list *tokens, char *buffer, size_t *buf_pos);
+int handle_word(t_state *state, char const **input, t_token_list *tokens, char *buffer, size_t *buf_pos);
+int handle_operator(t_state *state, char const **input, t_token_list *tokens, char *buffer, size_t *buf_pos);
+
+#endif
+
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   lexer.c                                            :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: mhuthmay <mhuthmay@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/04/16 13:22:17 by mhuthmay          #+#    #+#             */
+/*   Updated: 2025/04/16 13:22:18 by mhuthmay         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
+
+#include "../libft/libft.h"
+#include "lexer.h"
+#include "lexer_utils.h"
+
+t_token_list *init_token_list(void)
+{
+    t_token_list    *list;
+
+    list = malloc(sizeof(t_token_list));
+    if (!list)
+        return (NULL);
+    list->tokens = malloc(sizeof(char *) * 10);
+    if (!list->tokens)
+        return (free(list), NULL);
+    list->count = 0;
+    list->capacity = 10;
+    return (list);
+}
+
+int add_token(t_token_list *tokens, char *buffer)
+{
+    char    **new_tokens;
+    char    *token;
+    size_t  i;
+
+    token = ft_strdup(buffer);
+    if (!token)
+        return (0);
+    if (tokens->count >= tokens->capacity)
+    {
+        tokens->capacity *= 2;
+        new_tokens = malloc(sizeof(char *) * tokens->capacity);
+        if (!new_tokens)
+            return (free(token), 0);
+        i = 0;
+        while (i < tokens->count)
+        {
+            new_tokens[i] = tokens->tokens[i];
+            i++;
+        }
+        free(tokens->tokens);
+        tokens->tokens = new_tokens;
+    }
+    tokens->tokens[tokens->count] = token;
+    tokens->count++;
+    return (1);
+}
+
+void free_token_list(t_token_list *tokens)
+{
+    size_t  i;
+
+    i = 0;
+    while (i < tokens->count)
+    {
+        free(tokens->tokens[i]);
+        i++;
+    }
+    free(tokens->tokens);
+    free(tokens);
+}
+
+int process_char(t_state *state, char const **input, t_token_list *tokens, char *buffer, size_t *buf_pos)
+{
+    if (*state == NORMAL)
+        return (handle_normal(state, input, tokens, buffer, buf_pos));
+    if (*state == IN_SINGLE_QUOTE)
+        return (handle_single_quote(state, input, tokens, buffer, buf_pos));
+    if (*state == IN_DOUBLE_QUOTE)
+        return (handle_double_quote(state, input, tokens, buffer, buf_pos));
+    if (*state == IN_WORD)
+        return (handle_word(state, input, tokens, buffer, buf_pos));
+    return (handle_operator(state, input, tokens, buffer, buf_pos));
+}
+
+t_token_list *lexer(char const *input)
+{
+    t_state     state;
+    char        *buffer;
+    size_t      buf_pos;
+    t_token_list    *tokens;
+
+    state = NORMAL;
+    buffer = malloc(1024);
+    buf_pos = 0;
+    tokens = init_token_list();
+    if (!buffer || !tokens)
+        return (free(buffer), free_token_list(tokens), NULL);
+    while (*input)
+    {
+        if (!process_char(&state, &input, tokens, buffer, &buf_pos))
+            return (free(buffer), free_token_list(tokens), NULL);
+    }
+    if (buf_pos > 0 && state == IN_WORD)
+    {
+        buffer[buf_pos] = '\0';
+        if (!add_token(tokens, buffer))
+            return (free(buffer), free_token_list(tokens), NULL);
+    }
+    return (free(buffer), tokens);
+}
+
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   lexer.h                                            :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: mhuthmay <mhuthmay@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/04/16 13:22:24 by mhuthmay          #+#    #+#             */
+/*   Updated: 2025/04/16 13:22:25 by mhuthmay         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
+
+#ifndef LEXER_H
+# define LEXER_H
+
+# include <stdlib.h>
+# include "../minishell.h"
+
+typedef enum {
+    NORMAL,
+    IN_SINGLE_QUOTE,
+    IN_DOUBLE_QUOTE,
+    IN_WORD,
+    IN_OPERATOR
+} t_state;
+
+typedef struct {
+    char    **tokens;
+    size_t  count;
+    size_t  capacity;
+} t_token_list;
+
+t_token_list    *lexer(char const *input);
+t_token_list    *init_token_list(void);
+int             add_token(t_token_list *tokens, char *buffer);
+void            free_token_list(t_token_list *tokens);
+int             process_char(t_state *state, char const **input, t_token_list *tokens, char *buffer, size_t *buf_pos);
+
+#endif

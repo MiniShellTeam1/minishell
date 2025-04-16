@@ -1,11 +1,25 @@
-#include <readline/readline.h>
-#include <readline/history.h>
-#include <unistd.h>
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   main.c                                             :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: mhuthmay <mhuthmay@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/04/16 13:23:07 by mhuthmay          #+#    #+#             */
+/*   Updated: 2025/04/16 13:23:08 by mhuthmay         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
+
+
 #include "libft.h"
 #include "minishell.h"
 #include "lexing/lexer.h"
 #include "parsing/parser.h"
 #include "debug.h"
+#include <readline/readline.h>
+#include <readline/history.h>
+#include <unistd.h>
 
 static void handle_heredoc(t_command *cmd)
 {
@@ -80,7 +94,7 @@ t_master *init_master(void)
 void free_master(t_master *master)
 {
     if (!master)
-        return ;
+        return;
     free_command(master->cmds);
     free(master);
 }
@@ -96,19 +110,19 @@ int main(void)
         if (*line)
             add_history(line);
         tokens = lexer(line);
-        debug_print_tokens(tokens); // Debug: After lexing
+        debug_shell_state(tokens, NULL, NULL, "After Lexing");
         if (tokens)
         {
             master = init_master();
             if (master)
             {
                 master->cmds = parser(tokens);
-                debug_print_command(master->cmds); // Debug: After parsing
+                debug_shell_state(NULL, master->cmds, NULL, "After Parsing");
                 if (master->cmds)
                 {
                     handle_heredoc(master->cmds);
                     set_errorcode(master);
-                    debug_print_master(master); // Debug: Before executor
+                    debug_shell_state(NULL, NULL, master, "Before Executor");
                 }
                 free_master(master);
             }

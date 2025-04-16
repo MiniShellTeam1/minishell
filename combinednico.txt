@@ -1,0 +1,794 @@
+main.c:
+#include "executor.h"
+
+int main()
+{
+    char *line;
+    while ((line = readline("minishell> ")) != NULL)
+    {
+        printf("%s\n", line);
+        free(line);
+    }
+    return (0);
+}
+
+libft_functions.c:
+#include "executor.h"
+
+void ft_putstr_fd(char *str, int fd)
+{
+    int x;
+
+    x = 0;
+    while (str[x])
+    {
+        write(fd, &str[x], 1);
+        x++;
+    }
+}
+
+int ft_strcmp(char *str1, char *str2)
+{
+	int x;
+
+	x = 0;
+	while(str1[x] && str2[x])
+	{
+		if (str1[x] != str2[x])
+			return (1);
+		x++;
+	}
+	if (str1[x] || str2[x])
+		return (1);
+	return (0);
+}
+
+char *ft_itoa(int num)
+{
+    char *str;
+    int temp = num;
+    int length = 0;
+    int isNegative = 0;
+    int x;
+
+    if (num < 0)
+    {
+        isNegative = 1;
+        num *= -1;
+    }
+    if (num == 0)
+        length = 1;
+    else
+    {
+        while (temp != 0)
+        {
+            temp /= 10;
+            length++;
+        }
+    }
+    if (isNegative)
+        length++;
+    str = malloc(sizeof(char) * (length + 1));
+    if (!str)
+        return (NULL);
+    str[length] = '\0';
+    x = length - 1;
+    if (num == 0)
+        str[x] = '0';
+    else
+    {
+        while (num > 0)
+        {
+            str[x] = (num % 10) + '0';
+            num /= 10;
+            x--;
+        }
+    }
+    if (isNegative)
+        str[0] = '-';
+    return (str);
+}
+
+int ft_strlen(char *str)
+{
+	int x;
+
+	x = 0;
+	while (str[x])
+		x++;
+	return (x);
+}
+
+char *ft_strjoin3(char *str1, char *str2, char *st3)
+{
+	int len;
+	char *joinedstr;
+
+	len = ft_strlen(str1) + ft_strlen(str2) + ft_strlen(str2);
+	joinedstr = malloc(sizeof(char) * (len + 1));
+	if (!joinedstr)
+		return (NULL);
+}
+
+executor.h:
+#ifndef EXECUTOR_H
+# define EXECUTOR_H
+
+#include <unistd.h>
+#include <dirent.h>
+#include <errno.h>
+#include <stdlib.h>
+#include <readline/readline.h>
+
+#include <stdio.h>
+
+typedef struct s_master {
+    struct s_command *cmds;
+    struct s_env *env;
+    unsigned char errorcode;
+}   t_master;
+
+typedef struct s_command {
+    char *cmdpath;
+    char **args;
+    char **infiles;
+    char **outfiles;
+    char *errormsg;
+    int append;
+
+    struct s_command *next;
+}   t_command;
+
+typedef struct s_env {
+    char *key;
+    char *value;
+
+	struct s_env *prev;
+    struct s_env *next;
+}   t_env;
+
+void ft_printerror(char *cmd, char *errfile, char *errormsg);
+
+//env
+void ft_env(t_master master);
+
+//libft
+void ft_putstr_fd(char *str, int fd);
+int ft_strcmp(char *str1, char *str2);
+char *ft_itoa(int num);
+
+//enviroment
+t_env *ft_createenvlist(char **envp);
+void ft_addvar(t_env **env, char *key, char *value);
+void ft_delvar(t_env **env, char *key);
+
+//enviroment utils
+char *ft_getkey(char *var);
+char *ft_getvalue(char *var);
+void ft_freevar(t_env *var);
+char *ft_addlvl(char *stringlvl);
+
+#endif
+
+executor.c:
+int test() {
+    
+}
+
+errormsg.h:
+#ifndef ERRORMSG_H
+# define ERRORMSG_H
+
+# define NO_SUCH_FILE_OR_DIRECTORY "No such file or directory\n" //1 //127
+# define PERMISSION_DENIED "Permission denied\n" //1 //126
+# define NOT_A_DIRECTORY "Not a directory\n" //1
+# define TOO_MANY_ARGUMENTS "too many arguments\n" //1
+# define ARGUMENT_LIST_TOO_LONG "Argument list too long\n" //1
+# define TOO_MANY_LEVELS_OF_SYMB_LINK "Too many levels of symbolic links\n" //1
+# define FILE_NAME_TOO_LONG "File name too long\n" //1
+# define COMMAND_NOT_FOUND "command not found\n" //127
+
+#endif
+
+error.c:
+#include "executor.h"
+
+/* prints out error like minishell: cd: test1: No such file or directory */
+
+void ft_printerror(char *cmd, char *errfile, char *errormsg)
+{
+    ft_putstr_fd("minishell: ", 2);
+    if (cmd)
+    {
+        ft_putstr_fd(cmd, 2);
+        write(2, ": ", 2);
+    }
+    if (errfile)
+    {
+        ft_putstr_fd(errfile, 2);
+        write(2, ": ", 2);
+    }
+    ft_putstr_fd(errormsg, 2);
+}
+
+environment_utils.c:
+#include "executor.h"
+
+/* returns a string created before the '=' sign */
+
+char *ft_getkey(char *var)
+{
+	int x;
+	char *key;
+
+	x = 0;
+	while (var[x] && var[x] != '=')
+		x++;
+	key = malloc(sizeof(char) * x + 1);
+	x = 0;
+	while (var[x] && var[x] != '=')
+	{
+		key[x] = var[x];
+		x++;
+	}
+	key[x] = 0;
+	return (key);
+}
+
+/* returns a string created after the '=' sign  */
+
+char *ft_getvalue(char *var)
+{
+	int x;
+	int y;
+	char *value;
+
+	x = 0;
+	y = 0;
+	while (var[x] && var[x] != '=')
+		x++;
+	if (var[x] == '=')
+		x++;
+	while (var[x + y])
+		y++;
+	value = malloc(sizeof(char) * y + 1);
+	if (!value)
+		return (NULL);
+	y = 0;
+  	while (var[x])
+	{
+		value[y] = var[x];
+		y++;
+		x++;
+	}
+	value[y] = 0;
+	return (value);
+}
+
+/* frees the given variable */
+
+void ft_freevar(t_env *var)
+{
+    if (var->key)
+        free(var->key);
+    if (var->value)
+        free(var->value);
+    if (var)
+        free(var);
+}
+
+/* takes the string of $SHLVL and checks if +1 is in ranged of maximum SHLVL
+if it is adds +1 and sets it back into a string */
+
+char *ft_addlvl(char *stringlvl)
+{
+    int shlvl;
+    char *newstringlvl;
+
+    shlvl = atoi(stringlvl); //!replace with our atoi from libft
+    if (shlvl < 0)
+        shlvl = 0;
+    else if (shlvl + 1 >= 1000)
+    {
+        ft_printerror("warning", NULL, "minishell level too high, resetting to 1\n");
+        shlvl = 1;
+    }
+    else
+        shlvl++;
+    newstringlvl = ft_itoa(shlvl); //!replace with our itoa from libft
+    return (newstringlvl);
+}
+
+environment.c:
+#include "executor.h"
+
+/* takes the enviroment as string array and tranforms it into a
+linked list and returns that */
+
+t_env *ft_createenvlist(char **envp)
+{
+	int x;
+    int shlvlexist;
+	t_env *env;
+
+	env = NULL;
+	x = 0;
+    shlvlexist = 0;
+	if (!envp || !envp[x]) //!PWD setzen
+	{
+		ft_addvar(&env, "SHLVL", "1");
+		return (env);
+	}
+	while (envp[x])
+	{
+        if (!ft_strcmp(ft_getkey(envp[x]), "SHLVL"))
+        {
+            ft_addvar(&env, ft_getkey(envp[x]), ft_addlvl(ft_getvalue(envp[x])));
+            shlvlexist++;
+        }
+        else
+		    ft_addvar(&env, ft_getkey(envp[x]), ft_getvalue(envp[x]));
+		x++;
+	}
+    if (!shlvlexist)
+        ft_addvar(&env, "SHLVL", "1");
+	return (env);
+}
+
+/* adds a variable to the enviroment linked list at the end */
+
+void ft_addvar(t_env **env, char *key, char *value)
+{
+	t_env *addedvar;
+	t_env *temp = *env;
+
+	addedvar = malloc(sizeof(t_env));
+	if (!addedvar)
+		return ;
+	addedvar->key = key;
+	addedvar->value = value;
+	addedvar->next = NULL;
+	if (!*env || !env)
+	{
+		*env = addedvar;
+		addedvar->prev = NULL;
+	}
+	else
+	{
+        while (temp->next)
+            temp = temp->next;
+        temp->next = addedvar;
+        addedvar->prev = temp;
+	}
+}
+
+/* deletes a variable from the linked list with the right key,
+if the key's not found nothing happens */
+
+void ft_delvar(t_env **env, char *key)
+{
+	t_env *tmp;
+
+	tmp = *env;
+	while(tmp)
+	{
+		if (!ft_strcmp(tmp->key, key))
+        {
+			if (!tmp->next)
+			{
+				if (!tmp->prev)
+					*env = NULL;
+				else
+					tmp->prev->next = NULL;
+			}
+			if (!tmp->prev)
+			{
+				if (!tmp->next)
+					*env = NULL;
+                else
+				{
+					*env = tmp->next;
+					tmp->next->prev = NULL;
+				}
+			}
+			if (tmp->prev && tmp->next)
+			{
+				tmp->prev->next = tmp->next;
+				tmp->next->prev = tmp->prev;
+			}
+			ft_freevar(tmp);
+            break;
+        }
+		tmp = tmp->next;
+	}
+}
+
+cd.c:
+#include "executor.h"
+#include "errormsg.h"
+
+static int ft_checkdir(t_command *cmd);
+static int ft_checkargs(t_command *cmd);
+
+/* builtin cd function like in bash */
+
+int ft_cd(t_master *master)
+{
+    if (ft_checkargs(master->cmds) || ft_checkdir(master->cmds) || chdir(master->cmds->args[1]) == -1)
+        return (1);
+    ft_setoldpwd(&master);
+    ft_setpwd(&master, master->cmds->args[1]);
+    return (0);
+}
+
+/* checks the arguments of cd | if there is no or more than 1 */
+
+static int ft_checkargs(t_command *cmd)
+{
+    if (cmd->args[2])
+    {
+        ft_printerror(cmd->args[0], NULL, TOO_MANY_ARGUMENTS);
+        return (1);
+    }
+    if (!cmd->args[1])
+    {
+        if (chdir(getenv("HOME")) == -1)
+        {
+            ft_printerror(cmd->args[0], "$HOME", NO_SUCH_FILE_OR_DIRECTORY);
+            return (1);
+        }
+    }
+    return (0);
+}
+
+/* checks if the directory can be opened if not prints error and returns 1 */
+
+static int ft_checkdir(t_command *cmd)
+{
+    DIR *dir;
+
+    dir = opendir(cmd->args[1]);
+    if (!dir)
+    {
+        if (errno == ENOTDIR)
+            ft_printerror(cmd->args[0], cmd->args[1], NOT_A_DIRECTORY);
+        else if (errno == ENOENT)
+            ft_printerror(cmd->args[0], cmd->args[1], NO_SUCH_FILE_OR_DIRECTORY);
+        else if (errno == EACCES)
+            ft_printerror(cmd->args[0], cmd->args[1], PERMISSION_DENIED);
+        else if (errno == E2BIG)
+            ft_printerror(cmd->args[0], cmd->args[1], ARGUMENT_LIST_TOO_LONG);
+        else if (errno == ELOOP)
+            ft_printerror(cmd->args[0], cmd->args[1], TOO_MANY_LEVELS_OF_SYMB_LINK);
+        else if (errno == ENAMETOOLONG)
+            ft_printerror(cmd->args[0], cmd->args[1], FILE_NAME_TOO_LONG);
+        return (1);
+    }
+    closedir(dir);
+    return (0);
+}
+
+/* sets the OLDPWD in the enviroment if PWD var exists else empty string */
+
+void ft_setoldpwd(t_master *master)
+{
+    t_env *tmp;
+    char cwd[1024];
+
+    tmp = master->env;
+    while (tmp && !ft_strcmp(tmp->key, "PWD"))
+        tmp = tmp->next;
+    while (master->env && !ft_strcmp(master->env, "OLDPWD"))
+        master->env = master->env->next;
+    if (tmp && master->env)
+    {
+        free(master->env->value);
+        master->env->value = tmp->value;
+    }
+    else if (tmp)
+        ft_addvar(master->env, "OLDPWD", tmp->value);
+    else if (master->env)
+    {
+        free(master->env->value);
+        ft_addvar(master->env, "OLDPWD", "");
+    }
+}
+
+void ft_setpwd(t_master *master, char *newpwd)
+{
+    while (master->env && ft_strcmp(master->env->value, "PWD"))
+        master->env = master->env->next;
+    if (master->env)
+    {
+        
+    }
+}
+
+echo.c:
+#include "executor.h"
+
+static int ft_countargs(char **args);
+static int ft_checkminusnl(char **args);
+static void ft_printargs(int nlparam, int argsnum, char **args);
+
+/* prints out the arguments given if its not a valid -n flag */
+
+void ft_echo(t_command cmd)
+{
+    int argsnum;
+    int nlparam;
+
+    argsnum = ft_countargs(cmd.args);
+    nlparam = ft_checkminusnl(cmd.args);
+    ft_printargs(nlparam, argsnum, cmd.args);
+}
+
+/* counts the amount of arguments given */
+
+static int ft_countargs(char **args)
+{
+    int x;
+
+    x = 0;
+    while (args[x])
+        x++;
+    return (x);
+}
+
+/* checks if there are any -n / -nnnnn arguments and returns the number of -n / -nnnnn arguments found */
+
+static int ft_checkminusnl(char **args)
+{
+    int x;
+    int y;
+    int nlparam;
+
+    x = 1;
+    nlparam = 0;
+    while (args[x])
+    {
+        y = 0;
+        if (args[x][y] == '-')
+        {
+            y++;
+            while (args[x][y] && args[x][y] == 'n')
+                y++;
+        }
+        if (y >= 1 && !args[x][y])
+            nlparam++;
+        else
+            break;
+        x++;
+    }
+    return (nlparam);
+}
+
+/* prints out the given arguments to the terminal, jumps over the -n / -nnnnn flags */
+
+static void ft_printargs(int nlparam, int argsnum, char **args)
+{
+    int x;
+
+    x = 1;
+    if (argsnum == 1)
+        write(1, "\n", 1);
+    if (argsnum - nlparam == 1)
+        return ;
+    if (nlparam > 0)
+        x += nlparam;
+    while (args[x])
+    {
+        ft_putstr_fd(args[x], 1);
+        if (x < argsnum - 1)
+            write(1, " ", 1);
+        x++;
+    }
+    if (nlparam == 0)
+        write(1, "\n", 1);
+}
+
+env.c:
+#include "../executor.h"
+#include <stdio.h>
+
+/* prints out the whole enviroment */
+
+void ft_env(t_master master)
+{
+	if (master.cmds->args[1])
+	{
+		master.errorcode = 1;
+		return ;
+	}
+	while (master.env)
+	{
+		ft_putstr_fd(master.env->key, 1);
+		ft_putstr_fd("=", 1);
+		ft_putstr_fd(master.env->value, 1);
+		ft_putstr_fd("\n", 1);
+		master.env = master.env->next;
+	}
+}
+exit.c:
+#include "executor.h"
+#include "errormsg.h"
+
+void ft_exit(t_command cmd)
+{
+    unsigned char errorcode; //! diese variable in einer struct speichern und dort setzen
+
+    if (!cmd.args[1])
+        errorcode = 0;
+    else
+        errorcode = (unsigned char)atoi(cmd.args[1]); //!mit ft_atoi ersetzen aus libft
+    ft_putstr_fd("exit\n", 1);
+    if (cmd.args[2])
+    {
+        ft_printerror(cmd.args[0], NULL, TOO_MANY_ARGUMENTS);
+        errno = 1;
+        return ;
+    }
+    //!Overflow check hinzufügen
+    //! if (overflow true)
+    //! errno = 2;
+    //! return ;
+    exit(errorcode);
+}
+
+int main()
+{
+    /* t_command test;
+    char *args3[] = {"exit", "-222", "", NULL};
+    test.args = args3;
+    ft_exit(test);
+    return (errno); */
+    return -1;
+}
+
+export.c:
+#include "executor.h"
+
+void ft_export(t_master *master) //!not finished yet
+{
+    if (!master->cmds->args[1])
+        while (master->env)
+        {
+            ft_putstr_fd("declare -x ", 1);
+            ft_putstr_fd(master->env->key, 1);
+            ft_putstr_fd("=", 1);
+            ft_putstr_fd(master->env->value, 1);
+            ft_putstr_fd("\n", 1);
+            master->env = master->env->next;
+        }
+}
+
+pwd.c:
+#include "executor.h"
+
+/* uses getcwd to get the current working directory and prints it out to the terminal */
+
+int ft_pwd()
+{
+    char cwd[1024];
+
+    if (getcwd(cwd, sizeof(cwd)) != NULL)
+    {
+        ft_putstr_fd(cwd, 1);
+        write(1, "\n", 1);
+        return (0);
+    }
+    return (1);
+}
+
+unset.c:
+#include "../executor.h"
+
+void ft_unset(t_master *master)
+{
+    int x;
+    t_env *tmp;
+
+    x = 1;
+    tmp = master->env;
+    while (master->cmds->args[x])
+    {
+        ft_delvar(&master->env, master->cmds->args[x]);
+        x++;
+    }
+}
+
+int main(int argc, char **argv, char **envp)
+{
+    t_master master;
+    master.env = ft_createenvlist(envp);
+    t_command *test1 = malloc(sizeof(t_command) * 1);
+    master.cmds = test1;
+
+    char *env[] = {
+		"unset",
+		"LANGUAGE",
+		"USER",
+		"XDG_SESSION_TYPE",
+		"SHLVL",
+		"HOME",
+		"OLDPWD",
+		"DESKTOP_SESSION",
+		"GTK_MODULES",
+		"XDG_SEAT_PATH",
+		"SYSTEMD_EXEC_PID",
+		"DBUS_SESSION_BUS_ADDRESS",
+		"DBUS_STARTER_BUS_TYPE",
+		"LIBVIRT_DEFAULT_URI",
+		"COLORTERM",
+		"GTK_IM_MODULE",
+		"LOGNAME",
+		"_",
+		"XDG_SESSION_CLASS",
+		"TERM",
+		"FT_HOOK_PATHNAME",
+		"RUSTUP_HOME",
+		"GNOME_DESKTOP_SESSION_ID",
+		"PATH",
+		"SESSION_MANAGER",
+		"GDM_LANG",
+		"GNOME_TERMINAL_SCREEN",
+		"XDG_MENU_PREFIX",
+		"XDG_SESSION_PATH",
+		"XDG_RUNTIME_DIR",
+		"DISPLAY",
+		"LANG",
+		"XDG_CURRENT_DESKTOP",
+		"XDG_SESSION_DESKTOP",
+		"GNOME_TERMINAL_SERVICE",
+		"XMODIFIERS",
+		"XAUTHORITY",
+		"SSH_AUTH_SOCK",
+		"XDG_GREETER_DATA_DIR",
+		"SSH_AGENT_LAUNCHER",
+		"KRB5CCNAME",
+		"SHELL",
+		"QT_ACCESSIBILITY",
+		"GDMSESSION",
+		"FT_HOOK_NAME",
+		"DOCKER_HOST",
+		"GPG_AGENT_INFO",
+		"QT_IM_MODULE",
+		"PWD",
+		"XDG_CONFIG_DIRS",
+		"XDG_DATA_DIRS",
+		"DBUS_STARTER_ADDRESS",
+		"CARGO_HOME",
+		"VTE_VERSION",
+		"CHROME_DESKTOP",
+		"ORIGINAL_XDG_CURRENT_DESKTOP",
+		"GDK_BACKEND",
+		"TERM_PROGRAM",
+		"TERM_PROGRAM_VERSION",
+		"GIT_ASKPASS",
+		"VSCODE_GIT_ASKPASS_NODE",
+		"VSCODE_GIT_ASKPASS_EXTRA_ARGS",
+		"VSCODE_GIT_ASKPASS_MAIN",
+		"VSCODE_GIT_IPC_HANDLE",
+		"VSCODE_INJECTION",
+		"ZDOTDIR",
+		"USER_ZDOTDIR",
+		NULL
+	};
+    master.cmds->args = env;
+    ft_unset(&master);
+    //printf("%p\n", master.env);
+	//printf("%s", master.env->key);
+    //ft_env(master);
+	ft_addvar(&master.env, "TEST", "TEST");
+	char *test[] = {"env", NULL};
+	master.cmds->args = test;
+	ft_env(master);
+/* 	while (master.env)
+	{
+		ft_putstr_fd(master.env->key, 1);
+		ft_putstr_fd("=", 1);
+		ft_putstr_fd(master.env->value, 1);
+		ft_putstr_fd("\n", 1);
+		master.env = master.env->next;
+	} */
+} 

@@ -1,3 +1,16 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   minishell.h                                        :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: mhuthmay <mhuthmay@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/04/16 13:23:29 by mhuthmay          #+#    #+#             */
+/*   Updated: 2025/04/16 13:23:30 by mhuthmay         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
+
 #ifndef MINISHELL_H
 # define MINISHELL_H
 
@@ -15,7 +28,7 @@ typedef struct s_command {
 } t_command;
 
 typedef struct s_env {
-    // placeholder
+    // placeholder for nico
 } s_env;
 
 typedef struct s_master {

@@ -21,51 +21,56 @@ DEBUG_DIR = $(SRC_DIR)/debug
 
 # Source files
 SRCS = \
-    $(SRC_DIR)/main.c \
-    $(FUNCTIONS_DIR)/functions_01.c \
-    $(FUNCTIONS_DIR)/functions_02.c \
-    $(FUNCTIONS_DIR)/functions_03.c \
-    $(LEXER_DIR)/lexer.c \
-    $(LEXER_DIR)/lexer_utils.c \
-    $(PARSER_DIR)/parser.c \
-    $(PARSER_DIR)/parser_utils.c \
-    $(EXECUTOR_DIR)/executor.c \
-    $(BUILTINS_DIR)/cd.c \
-    $(BUILTINS_DIR)/echo.c \
-    $(BUILTINS_DIR)/env.c \
-    $(BUILTINS_DIR)/exit.c \
-    $(BUILTINS_DIR)/export.c \
-    $(BUILTINS_DIR)/pwd.c \
-    $(BUILTINS_DIR)/unset.c \
-    $(ENV_DIR)/environment.c \
-    $(ENV_DIR)/environment_utils.c \
-    $(ERROR_DIR)/error.c \
-    $(DEBUG_DIR)/debug.c
+	$(SRC_DIR)/main.c \
+	$(FUNCTIONS_DIR)/functions_01.c \
+	$(FUNCTIONS_DIR)/functions_02.c \
+	$(FUNCTIONS_DIR)/functions_03.c \
+	$(LEXER_DIR)/lexer.c \
+	$(LEXER_DIR)/lexer_utils.c \
+	$(PARSER_DIR)/parser.c \
+	$(PARSER_DIR)/parser_utils.c \
+	$(EXECUTOR_DIR)/executor.c \
+	$(BUILTINS_DIR)/cd.c \
+	$(BUILTINS_DIR)/echo.c \
+	$(BUILTINS_DIR)/env.c \
+	$(BUILTINS_DIR)/exit.c \
+	$(BUILTINS_DIR)/export.c \
+	$(BUILTINS_DIR)/pwd.c \
+	$(BUILTINS_DIR)/unset.c \
+	$(ENV_DIR)/environment.c \
+	$(ENV_DIR)/environment_utils.c \
+	$(ERROR_DIR)/error.c \
+	$(DEBUG_DIR)/debug.c
 
 # Object files
 OBJS = $(SRCS:$(SRC_DIR)/%.c=$(OBJ_DIR)/%.o)
 
 # Header files
 HEADERS = \
-    $(INCLUDE_DIR)/minishell.h \
-    $(INCLUDE_DIR)/functions.h \
-    $(INCLUDE_DIR)/errormsg.h
+	$(INCLUDE_DIR)/minishell.h \
+	$(INCLUDE_DIR)/functions.h \
+	$(INCLUDE_DIR)/errormsg.h \
+	$(INCLUDE_DIR)/lexer.h \
+	$(INCLUDE_DIR)/lexer_utils.h \
+	$(INCLUDE_DIR)/parser.h \
+	$(INCLUDE_DIR)/parser_utils.h \
+	$(INCLUDE_DIR)/debug.h
 
 # Rules
 all: $(NAME)
 
 $(NAME): $(OBJS)
-    $(CC) $(OBJS) $(LDFLAGS) -o $(NAME)
+	$(CC) $(OBJS) $(LDFLAGS) -o $(NAME)
 
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c $(HEADERS)
-    @mkdir -p $(@D)
-    $(CC) $(CFLAGS) -c $< -o $@
+	@mkdir -p $(@D)
+	$(CC) $(CFLAGS) -c $< -o $@
 
 clean:
-    rm -rf $(OBJ_DIR)
+	rm -rf $(OBJ_DIR)
 
 fclean: clean
-    rm -f $(NAME)
+	rm -f $(NAME)
 
 re: fclean all
 

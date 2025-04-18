@@ -6,6 +6,7 @@
 #include <errno.h>
 #include <stdlib.h>
 #include <readline/readline.h>
+#include <fcntl.h>
 
 #include <stdio.h>
 
@@ -45,6 +46,7 @@ int ft_strcmp(char *str1, char *str2);
 char *ft_itoa(int num);
 int ft_strlen(char *str);
 int ft_strncmp(char *str1, char *str2, int n);
+int ft_strchr(char *str, char c);
 
 //enviroment
 t_env *ft_createenvlist(char **envp);
@@ -63,5 +65,6 @@ char *ft_getstralloc(char *str);
 void ft_unset(t_master *master);
 void ft_export(t_master *master);
 int ft_pwd();
+int ft_cd(t_master *master);
 
 #endif

@@ -59,4 +59,9 @@ char *ft_addlvl(char *stringlvl);
 void ft_freeenv(t_master *master);
 char *ft_getstralloc(char *str);
 
+//builtins
+void ft_unset(t_master *master);
+void ft_export(t_master *master);
+int ft_pwd();
+
 #endif

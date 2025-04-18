@@ -5,11 +5,11 @@
 
 void ft_env(t_master master)
 {
-	if (master.cmds->args[1])
+/* 	if (master.cmds->args[1])
 	{
 		master.errorcode = 1;
 		return ;
-	}
+	} */
 	while (master.env)
 	{
 		ft_putstr_fd(master.env->key, 1);

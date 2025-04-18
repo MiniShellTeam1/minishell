@@ -1,4 +1,4 @@
-#include "executor.h"
+#include "../executor.h"
 
 /* uses getcwd to get the current working directory and prints it out to the terminal */
 

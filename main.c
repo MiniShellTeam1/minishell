@@ -13,7 +13,7 @@ int main(int argc, char **argv, char **envp)
     t_command *cmd = malloc(sizeof(t_command));
 	master->env = env;
     master->cmds = cmd;
-    char *test[] = {"unset", "SHELL",
+    char *test[] = {"export", NULL, "Hellso=3", "Hellso", NULL,
     "SESSION_MANAGER",
     "QT_ACCESSIBILITY",
     "COLORTERM",
@@ -101,13 +101,13 @@ int main(int argc, char **argv, char **envp)
     "LC_NUMERIC",
     "TERM_PROGRAM", "_", "LD_LIBRARY_PATH", "GLIBCPP_FORCE_NEW", "GLIBCXX_FORCE_NEW", "LD_PRELOAD", NULL};
     master->cmds->args = test;
-    //ft_export(master);
-    ft_unset(master);
-    ft_addvar(&master->env, ft_getstralloc("Hello"), ft_getstralloc("Hello"));
-    ft_env(*master);
+    ft_export(master);
+    //ft_unset(master);
+    //ft_addvar(&master->env, ft_getstralloc("Hello"), ft_getstralloc("Hello"));
+    //ft_env(*master);
     //ft_pwd();
 	ft_freeenv(master);
 	free(master);
-    free(cmd);
+	free(cmd);
 	return (0);
 }

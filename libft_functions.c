@@ -109,3 +109,17 @@ int ft_strncmp(char *str1, char *str2, int n)
 	}
 	return (0);
 }
+
+int ft_strchr(char *str, char c)
+{
+	int x; 
+
+	x = 0;
+	while (str[x])
+	{
+		if (str[x] == c)
+			return (1);
+		x++;
+	}
+	return (0);
+}

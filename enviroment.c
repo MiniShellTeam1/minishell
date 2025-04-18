@@ -2,7 +2,7 @@
 
 /* takes the enviroment as string array and tranforms it into a
 linked list and returns that */
-
+//! 25lines
 t_env *ft_createenvlist(char **envp)
 {
 	int x;
@@ -34,6 +34,7 @@ t_env *ft_createenvlist(char **envp)
 	return (env);
 }
 
+
 /* adds a variable to the enviroment linked list at the end */
 
 void  ft_addvar(t_env **env, char *key, char *value)
@@ -63,7 +64,7 @@ void  ft_addvar(t_env **env, char *key, char *value)
 
 /* deletes a variable from the linked list with the right key,
 if the key's not found nothing happens */
-
+//! 25 lines
 void ft_delvar(t_env **env, char *key)
 {
 	t_env *tmp;

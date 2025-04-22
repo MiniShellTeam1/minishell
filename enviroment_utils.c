@@ -99,3 +99,38 @@ void ft_freeenv(t_master *master)
 		master->env = tmp;
 	}
 }
+
+char **ft_getenvarray(t_master *master)
+{
+	t_env *tmp;
+	char **envarr;
+	int x;
+
+	x = 0;
+	envarr = malloc(sizeof(char *) * (ft_lstlen(*master) + 1));
+	if (!envarr)
+		return (NULL);
+	tmp = master->env;
+	while (tmp)
+	{
+		envarr[x] = malloc(sizeof(char) * (ft_strlen(tmp->key) + ft_strlen(tmp->value) + 2));
+		envarr[x] = ft_strjoin3(tmp->key, "=", tmp->value);
+		x++;
+		tmp = tmp->next;
+	}
+	envarr[x] = 0;
+	return (envarr);
+}
+
+int ft_lstlen(t_master master)
+{
+	int x;
+
+	x = 0;
+	while (master.env)
+	{
+		x++;
+		master.env = master.env->next;
+	}
+	return (x);
+}

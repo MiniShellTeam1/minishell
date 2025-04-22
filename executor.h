@@ -13,6 +13,7 @@
 typedef struct s_master {
     struct s_command *cmds;
     struct s_env *env;
+    int *pids;
     unsigned char errorcode;
 }   t_master;
 
@@ -47,6 +48,7 @@ char *ft_itoa(int num);
 int ft_strlen(char *str);
 int ft_strncmp(char *str1, char *str2, int n);
 int ft_strchr(char *str, char c);
+char *ft_strjoin3(char *str1, char *str2, char *str3);
 
 //enviroment
 t_env *ft_createenvlist(char **envp);
@@ -60,11 +62,16 @@ void ft_freevar(t_env *var);
 char *ft_addlvl(char *stringlvl);
 void ft_freeenv(t_master *master);
 char *ft_getstralloc(char *str);
+char **ft_getenvarray(t_master *master);
+int ft_lstlen(t_master master);
 
 //builtins
 void ft_unset(t_master *master);
 void ft_export(t_master *master);
 int ft_pwd();
 int ft_cd(t_master *master);
+
+//execution
+int ft_openinfiles(t_master *master);
 
 #endif

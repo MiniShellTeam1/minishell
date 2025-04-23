@@ -6,7 +6,7 @@
 /*   By: mhuthmay <mhuthmay@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/16 13:23:29 by mhuthmay          #+#    #+#             */
-/*   Updated: 2025/04/23 11:31:42 by mhuthmay         ###   ########.fr       */
+/*   Updated: 2025/04/23 11:55:08 by mhuthmay         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -86,13 +86,14 @@ void    ft_putstr_fd(char *str, int fd);           // Write string to file descr
 int     ft_strcmp(char *str1, char *str2);         // Compare two strings
 char    *ft_itoa(int num);                         // Convert integer to string
 int     ft_strlen(const char *str);                // Get string length
-// char    *ft_strjoin3(char *str1, char *str2, char *st3); // Join three strings
+char *ft_strjoin3(char *str1, char *str2, char *str3);
 size_t  ft_strlcpy(char *dst, const char *src, size_t size); // Safe string copy
 size_t  ft_strlcat(char *dst, const char *src, size_t size); // Safe string concatenation
 char    *ft_strjoin(const char *s1, const char *s2); // Join two strings
 char    *ft_strdup(const char *s1);                // Duplicate a string
 int     ft_strncmp(const char *s1, const char *s2, size_t n); // Compare n chars of two strings
 char    *ft_strndup(const char *s, size_t n);      // Duplicate n chars of a string
+int ft_strchr(char *str, char c);
 
 /* Lexer Functions */
 t_token_list    *lexer(const char *input);			// Tokenize input string
@@ -121,7 +122,7 @@ char            *expand_variable(char *token, t_master *master);     // Expand v
 void            executor(t_master *master);        // Execute parsed commands
 
 /* Built-in Functions */
-int             ft_cd(t_master *master);           // Change directory built-in
+// int             ft_cd(t_master *master);           // Change directory built-in
 void            ft_echo(t_command cmd);            // Echo command built-in
 void            ft_env(t_master master);           // Print environment variables
 void            ft_exit(t_command cmd);            // Exit shell built-in
@@ -136,6 +137,10 @@ void            ft_delvar(t_env **env, char *key); // Delete env variable
 char            *ft_getkey(char *var);             // Get key from env string
 char            *ft_getvalue(char *var);           // Get value from env string
 void            ft_freevar(t_env *var);            // Free an env variable
+char			*ft_getstralloc(char *str);
+void 			ft_freeenv(t_master *master);
+char			**ft_getenvarray(t_master *master);
+int				ft_lstlen(t_master master);
 char            *ft_addlvl(char *stringlvl);       // Increment SHLVL value
 
 /* Error Handling */

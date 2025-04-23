@@ -6,7 +6,7 @@
 /*   By: mhuthmay <mhuthmay@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/16 13:22:43 by mhuthmay          #+#    #+#             */
-/*   Updated: 2025/04/23 10:52:30 by mhuthmay         ###   ########.fr       */
+/*   Updated: 2025/04/23 16:51:56 by mhuthmay         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,18 +14,24 @@
 
 char *strip_quotes(char *token)
 {
-    size_t  len;
-    char    *result;
-    size_t  i;
+    size_t len;
+    char *result;
+    size_t i;
 
+    if (!token)
+        return (NULL);
     len = ft_strlen(token);
-    if (len < 2 || (token[0] != '"' && token[0] != '\'') || (token[len - 1] != token[0]))
+    if (len < 1)
+        return (ft_strdup(""));
+    if (len == 2 && token[0] == '"' && token[1] == '"')
+        return (ft_strdup(""));
+    if (token[0] != '"' && token[0] != '\'')
         return (ft_strdup(token));
-    result = malloc(len - 1);
+    result = malloc(len);
     if (!result)
         return (NULL);
     i = 0;
-    while (i < len - 2)
+    while (i < len - 1 && token[i + 1])
     {
         result[i] = token[i + 1];
         i++;

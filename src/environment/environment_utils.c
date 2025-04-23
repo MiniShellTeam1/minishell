@@ -72,6 +72,7 @@ char *ft_addlvl(char *stringlvl)
     char *newstringlvl;
 
     shlvl = atoi(stringlvl); //!replace with our atoi from libft
+	free(stringlvl);
     if (shlvl < 0)
         shlvl = 0;
     else if (shlvl + 1 >= 1000)
@@ -83,4 +84,53 @@ char *ft_addlvl(char *stringlvl)
         shlvl++;
     newstringlvl = ft_itoa(shlvl); //!replace with our itoa from libft
     return (newstringlvl);
+}
+
+void ft_freeenv(t_master *master)
+{
+	t_env *tmp;
+
+	while (master->env)
+	{
+		free(master->env->key);
+		free(master->env->value);
+		tmp = master->env->next;
+		free(master->env);
+		master->env = tmp;
+	}
+}
+
+char **ft_getenvarray(t_master *master)
+{
+	t_env *tmp;
+	char **envarr;
+	int x;
+
+	x = 0;
+	envarr = malloc(sizeof(char *) * (ft_lstlen(*master) + 1));
+	if (!envarr)
+		return (NULL);
+	tmp = master->env;
+	while (tmp)
+	{
+		envarr[x] = malloc(sizeof(char) * (ft_strlen(tmp->key) + ft_strlen(tmp->value) + 2));
+		envarr[x] = ft_strjoin3(tmp->key, "=", tmp->value);
+		x++;
+		tmp = tmp->next;
+	}
+	envarr[x] = 0;
+	return (envarr);
+}
+
+int ft_lstlen(t_master master)
+{
+	int x;
+
+	x = 0;
+	while (master.env)
+	{
+		x++;
+		master.env = master.env->next;
+	}
+	return (x);
 }

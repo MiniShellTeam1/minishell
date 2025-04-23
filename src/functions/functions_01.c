@@ -84,13 +84,37 @@ int ft_strlen(const char *str)
 	return (x);
 }
 
-// char *ft_strjoin3(char *str1, char *str2, char *st3)
-// {
-// 	int len;
-// 	char *joinedstr;
+char *ft_strjoin3(char *str1, char *str2, char *str3)
+{
+	int len;
+	char *joinedstr;
+    int x;
+    int y;
 
-// 	len = ft_strlen(str1) + ft_strlen(str2) + ft_strlen(str2);
-// 	joinedstr = malloc(sizeof(char) * (len + 1));
-// 	if (!joinedstr)
-// 		return (NULL);
-// }
+    x = 0;
+    y = 0;
+	len = ft_strlen(str1) + ft_strlen(str2) + ft_strlen(str3);
+	joinedstr = malloc(sizeof(char) * (len + 1));
+	if (!joinedstr)
+		return (NULL);
+    while (str1[x])
+    {
+        joinedstr[x] = str1[x];
+        x++;
+    }
+    while (str2[y])
+    {
+        joinedstr[x] = str2[y];
+        y++;
+        x++;
+    }
+    y = 0;
+    while (str3[y])
+    {
+        joinedstr[x] = str3[y];
+        y++;
+        x++;
+    }
+    joinedstr[x] = 0;
+    return (joinedstr);
+}

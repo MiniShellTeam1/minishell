@@ -2,7 +2,7 @@
 
 /* takes the enviroment as string array and tranforms it into a
 linked list and returns that */
-
+//! 25lines
 t_env *ft_createenvlist(char **envp)
 {
 	int x;
@@ -14,12 +14,13 @@ t_env *ft_createenvlist(char **envp)
     shlvlexist = 0;
 	if (!envp || !envp[x]) //!PWD setzen
 	{
-		ft_addvar(&env, "SHLVL", "1");
+		ft_addvar(&env, ft_getstralloc("SHLVL"), ft_getstralloc("1"));
+		shlvlexist++;
 		return (env);
 	}
 	while (envp[x])
 	{
-        if (!ft_strcmp(ft_getkey(envp[x]), "SHLVL"))
+        if (!ft_strncmp(envp[x], "SHLVL=", 5))
         {
             ft_addvar(&env, ft_getkey(envp[x]), ft_addlvl(ft_getvalue(envp[x])));
             shlvlexist++;
@@ -29,13 +30,14 @@ t_env *ft_createenvlist(char **envp)
 		x++;
 	}
     if (!shlvlexist)
-        ft_addvar(&env, "SHLVL", "1");
+        {ft_addvar(&env, ft_getstralloc("SHLVL"), ft_getstralloc("1"));}
 	return (env);
 }
 
+
 /* adds a variable to the enviroment linked list at the end */
 
-void ft_addvar(t_env **env, char *key, char *value)
+void  ft_addvar(t_env **env, char *key, char *value)
 {
 	t_env *addedvar;
 	t_env *temp = *env;
@@ -62,7 +64,7 @@ void ft_addvar(t_env **env, char *key, char *value)
 
 /* deletes a variable from the linked list with the right key,
 if the key's not found nothing happens */
-
+//! 25 lines
 void ft_delvar(t_env **env, char *key)
 {
 	t_env *tmp;
@@ -99,4 +101,22 @@ void ft_delvar(t_env **env, char *key)
         }
 		tmp = tmp->next;
 	}
+}
+
+char *ft_getstralloc(char *str)
+{
+	char *allocstr;
+	int x;
+
+	x = 0;
+	allocstr = malloc(sizeof(char) * (ft_strlen(str) + 1));
+	if (!allocstr)
+		return (NULL);
+	while (str[x])
+	{
+		allocstr[x] = str[x];
+		x++;
+	}
+	allocstr[x] = 0;
+	return (allocstr);
 }

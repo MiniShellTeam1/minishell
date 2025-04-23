@@ -6,7 +6,7 @@
 /*   By: mhuthmay <mhuthmay@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/16 14:27:19 by mhuthmay          #+#    #+#             */
-/*   Updated: 2025/04/23 11:29:47 by mhuthmay         ###   ########.fr       */
+/*   Updated: 2025/04/23 11:51:08 by mhuthmay         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -71,3 +71,16 @@ int ft_strncmp(const char *s1, const char *s2, size_t n)
     return ((unsigned char)(s1[i]) - (unsigned char)(s2[i]));
 }
 
+int ft_strchr(char *str, char c)
+{
+	int x; 
+
+	x = 0;
+	while (str[x])
+	{
+		if (str[x] == c)
+			return (1);
+		x++;
+	}
+	return (0);
+}

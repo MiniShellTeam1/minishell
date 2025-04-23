@@ -6,7 +6,7 @@
 /*   By: mhuthmay <mhuthmay@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/16 13:23:07 by mhuthmay          #+#    #+#             */
-/*   Updated: 2025/04/23 10:55:29 by mhuthmay         ###   ########.fr       */
+/*   Updated: 2025/04/23 14:09:33 by mhuthmay         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -96,8 +96,8 @@ void free_master(t_master *master)
 
 int main(int argc, char *argv[], char *envp[])
 {
-    (void)argc; // so we dont have unused variables
-    (void)argv; // same here
+    (void)argc; // prevent unused args
+    (void)argv;
     t_master *master = init_master();
     if (!master) return 1;
     master->env = ft_createenvlist(envp);
@@ -116,7 +116,7 @@ int main(int argc, char *argv[], char *envp[])
                 handle_heredoc(master->cmds);
                 set_errorcode(master);
                 debug_shell_state(NULL, NULL, master, "Before Executor");
-                executor(master);
+                // executor(master);
                 free_command(master->cmds);
                 master->cmds = NULL;
             }

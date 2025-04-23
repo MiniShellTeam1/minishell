@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   debug.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: feanor <feanor@student.42.fr>              +#+  +:+       +#+        */
+/*   By: mhuthmay <mhuthmay@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/16 13:23:12 by mhuthmay          #+#    #+#             */
-/*   Updated: 2025/04/16 18:42:37 by feanor           ###   ########.fr       */
+/*   Updated: 2025/04/23 16:38:40 by mhuthmay         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,11 +29,21 @@ void print_tokens(t_token_list *tokens)
     {
         printf("Tokens: NULL\n");
         return;
+        }
+        printf("Tokens:\n");
+        for (i = 0; i < tokens->count; i++)
+        {
+            printf("  [%zu]: \"", i);
+            for (size_t j = 0; tokens->tokens[i][j]; j++)
+            {
+                if (tokens->tokens[i][j] == '"')
+                    printf("\\\"");
+                else
+                    printf("%c", tokens->tokens[i][j]);
+            }
+            printf("\"\n");
+        }
     }
-    printf("Tokens:\n");
-    for (i = 0; i < tokens->count; i++)
-        printf("  [%zu]: %s\n", i, tokens->tokens[i]);
-}
 
 void print_parsed_commands(t_command *cmd)
 {

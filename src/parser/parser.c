@@ -6,7 +6,7 @@
 /*   By: mhuthmay <mhuthmay@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/16 13:22:55 by mhuthmay          #+#    #+#             */
-/*   Updated: 2025/04/23 10:59:33 by mhuthmay         ###   ########.fr       */
+/*   Updated: 2025/04/23 14:08:45 by mhuthmay         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -97,7 +97,7 @@ int add_arg(t_command *cmd, char *arg)
 
 int process_token(t_command **cmd, char *token, int *pipe_flag, t_master *master)
 {
-    char *expanded, *prefix, *joined;
+    char *expanded, *prefix, *joined, *stripped;
     t_token_list *new_tokens;
     size_t i, prefix_len;
 
@@ -109,10 +109,8 @@ int process_token(t_command **cmd, char *token, int *pipe_flag, t_master *master
     if (!ft_strncmp(token, ">", 2) || !ft_strncmp(token, ">>", 3) || !ft_strncmp(token, "<", 2) || !ft_strncmp(token, "<<", 3))
         return (2);
     
-    // check if token contains a variable
     if (strchr(token, '$'))
     {
-        // extract prefix (before $) and variable
         prefix_len = 0;
         while (token[prefix_len] && token[prefix_len] != '$')
             prefix_len++;
@@ -124,35 +122,46 @@ int process_token(t_command **cmd, char *token, int *pipe_flag, t_master *master
             free(expanded);
             return (0);
         }
-        // join tuff before $ and expanded value
         joined = ft_strjoin(prefix, expanded);
         free(prefix);
         free(expanded);
         if (!joined)
             return (0);
-        // Re-lex the joined string
         new_tokens = lexer(joined);
         free(joined);
         if (!new_tokens)
             return (0);
-        // Add tokens to cmd->args
         i = 0;
         while (i < new_tokens->count)
         {
-            if (!add_arg(*cmd, strip_quotes(new_tokens->tokens[i])))
+            stripped = strip_quotes(new_tokens->tokens[i]);
+            if (!stripped)
             {
                 free_token_list(new_tokens);
                 return (0);
             }
+            if (!add_arg(*cmd, stripped))
+            {
+                free(stripped);
+                free_token_list(new_tokens);
+                return (0);
+            }
+            free(stripped); // Free since add_arg duplicates
             i++;
         }
         free_token_list(new_tokens);
     }
     else
     {
-        // Non-variable token: add directly
-        if (!add_arg(*cmd, strip_quotes(ft_strdup(token))))
+        stripped = strip_quotes(ft_strdup(token));
+        if (!stripped)
             return (0);
+        if (!add_arg(*cmd, stripped))
+        {
+            free(stripped);
+            return (0);
+        }
+        free(stripped);
     }
     return (1);
 }

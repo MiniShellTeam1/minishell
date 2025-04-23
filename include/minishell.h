@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   minishell.h                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: feanor <feanor@student.42.fr>              +#+  +:+       +#+        */
+/*   By: mhuthmay <mhuthmay@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/16 13:23:29 by mhuthmay          #+#    #+#             */
-/*   Updated: 2025/04/16 18:43:38 by feanor           ###   ########.fr       */
+/*   Updated: 2025/04/23 11:31:42 by mhuthmay         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -85,15 +85,17 @@ typedef struct s_master {
 void    ft_putstr_fd(char *str, int fd);           // Write string to file descriptor
 int     ft_strcmp(char *str1, char *str2);         // Compare two strings
 char    *ft_itoa(int num);                         // Convert integer to string
-int     ft_strlen(char *str);                      // Get string length
-char    *ft_strjoin3(char *str1, char *str2, char *st3); // Join three strings
+int     ft_strlen(const char *str);                // Get string length
+// char    *ft_strjoin3(char *str1, char *str2, char *st3); // Join three strings
 size_t  ft_strlcpy(char *dst, const char *src, size_t size); // Safe string copy
-char    *ft_strjoin(char const *s1, char const *s2); // Join two strings
+size_t  ft_strlcat(char *dst, const char *src, size_t size); // Safe string concatenation
+char    *ft_strjoin(const char *s1, const char *s2); // Join two strings
 char    *ft_strdup(const char *s1);                // Duplicate a string
 int     ft_strncmp(const char *s1, const char *s2, size_t n); // Compare n chars of two strings
+char    *ft_strndup(const char *s, size_t n);      // Duplicate n chars of a string
 
 /* Lexer Functions */
-t_token_list    *lexer(const char *input);         // Tokenize input string
+t_token_list    *lexer(const char *input);			// Tokenize input string
 t_token_list    *init_token_list(void);            // Initialize token list
 int             add_token(t_token_list *tokens, char *buffer); // Add token to list
 void            free_token_list(t_token_list *tokens); // Free token list memory
@@ -105,15 +107,15 @@ int             handle_word(t_state *state, const char **input, t_token_list *to
 int             handle_operator(t_state *state, const char **input, t_token_list *tokens, char *buffer, size_t *buf_pos); // Handle operators
 
 /* Parser Functions */
-t_command       *parser(t_token_list *tokens);     // Parse tokens into commands
+t_command       *parser(t_token_list *tokens, t_master *master);     // Parse tokens into commands
 t_command       *init_command(void);               // Initialize a command structure
 void            free_command(t_command *cmd);      // Free command memory
 int             add_arg(t_command *cmd, char *arg); // Add argument to command
-int             process_token(t_command **cmd, char *token, int *pipe_flag); // Process a token during parsing
+int             process_token(t_command **cmd, char *token, int *pipe_flag, t_master *master); // Process a token during parsing
 int             set_redirect(t_command *cmd, char *token, char *next_token); // Set redirection for command
 char            *strip_quotes(char *token);        // Remove quotes from token
 int             is_variable(char *token);          // Check if token is a variable
-char            *expand_variable(char *token);     // Expand variable in token
+char            *expand_variable(char *token, t_master *master);     // Expand variable in token
 
 /* Executor Function */
 void            executor(t_master *master);        // Execute parsed commands

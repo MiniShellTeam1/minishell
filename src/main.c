@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: feanor <feanor@student.42.fr>              +#+  +:+       +#+        */
+/*   By: mhuthmay <mhuthmay@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/16 13:23:07 by mhuthmay          #+#    #+#             */
-/*   Updated: 2025/04/16 19:03:34 by feanor           ###   ########.fr       */
+/*   Updated: 2025/04/23 10:55:29 by mhuthmay         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -96,8 +96,8 @@ void free_master(t_master *master)
 
 int main(int argc, char *argv[], char *envp[])
 {
-    (void)argc;  // suppress unused parameter warning
-    (void)argv;  // suppress unused parameter warning
+    (void)argc; // so we dont have unused variables
+    (void)argv; // same here
     t_master *master = init_master();
     if (!master) return 1;
     master->env = ft_createenvlist(envp);
@@ -109,7 +109,7 @@ int main(int argc, char *argv[], char *envp[])
         debug_shell_state(tokens, NULL, NULL, "After Lexing");
         if (tokens)
         {
-            master->cmds = parser(tokens);
+            master->cmds = parser(tokens, master);
             debug_shell_state(NULL, master->cmds, NULL, "After Parsing");
             if (master->cmds)
             {

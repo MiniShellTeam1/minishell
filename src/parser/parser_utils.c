@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   parser_utils.c                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: feanor <feanor@student.42.fr>              +#+  +:+       +#+        */
+/*   By: mhuthmay <mhuthmay@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/16 13:22:43 by mhuthmay          #+#    #+#             */
-/*   Updated: 2025/04/16 18:44:07 by feanor           ###   ########.fr       */
+/*   Updated: 2025/04/23 10:52:30 by mhuthmay         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,13 +43,22 @@ int is_variable(char *token)
     return (0);
 }
 
-char *expand_variable(char *token)
+char *expand_variable(char *token, t_master *master)
 {
+    t_env *env;
+
     if (!token || token[0] != '$')
         return (ft_strdup(token));
     if (!ft_strncmp(token, "$?", 3))
-        return (ft_strdup("0"));
-    return (ft_strdup(token));
+        return (ft_itoa(master->errorcode));
+    env = master->env;
+    while (env)
+    {
+        if (!ft_strcmp(token + 1, env->key))
+            return (ft_strdup(env->value));
+        env = env->next;
+    }
+    return (ft_strdup(""));
 }
 
 static int append_to_array(char ***array, char *new_item)

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   parser.c                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: feanor <feanor@student.42.fr>              +#+  +:+       +#+        */
+/*   By: mhuthmay <mhuthmay@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/16 13:22:55 by mhuthmay          #+#    #+#             */
-/*   Updated: 2025/04/16 18:44:13 by feanor           ###   ########.fr       */
+/*   Updated: 2025/04/23 10:59:33 by mhuthmay         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -95,9 +95,11 @@ int add_arg(t_command *cmd, char *arg)
     return (1);
 }
 
-int process_token(t_command **cmd, char *token, int *pipe_flag)
+int process_token(t_command **cmd, char *token, int *pipe_flag, t_master *master)
 {
-    char *expanded;
+    char *expanded, *prefix, *joined;
+    t_token_list *new_tokens;
+    size_t i, prefix_len;
 
     if (!ft_strncmp(token, "|", 2))
     {
@@ -106,10 +108,53 @@ int process_token(t_command **cmd, char *token, int *pipe_flag)
     }
     if (!ft_strncmp(token, ">", 2) || !ft_strncmp(token, ">>", 3) || !ft_strncmp(token, "<", 2) || !ft_strncmp(token, "<<", 3))
         return (2);
-    expanded = expand_variable(token);
-    if (!expanded)
-        return (0);
-    return (add_arg(*cmd, strip_quotes(expanded)));
+    
+    // check if token contains a variable
+    if (strchr(token, '$'))
+    {
+        // extract prefix (before $) and variable
+        prefix_len = 0;
+        while (token[prefix_len] && token[prefix_len] != '$')
+            prefix_len++;
+        prefix = ft_strndup(token, prefix_len);
+        expanded = expand_variable(token + prefix_len, master);
+        if (!prefix || !expanded)
+        {
+            free(prefix);
+            free(expanded);
+            return (0);
+        }
+        // join tuff before $ and expanded value
+        joined = ft_strjoin(prefix, expanded);
+        free(prefix);
+        free(expanded);
+        if (!joined)
+            return (0);
+        // Re-lex the joined string
+        new_tokens = lexer(joined);
+        free(joined);
+        if (!new_tokens)
+            return (0);
+        // Add tokens to cmd->args
+        i = 0;
+        while (i < new_tokens->count)
+        {
+            if (!add_arg(*cmd, strip_quotes(new_tokens->tokens[i])))
+            {
+                free_token_list(new_tokens);
+                return (0);
+            }
+            i++;
+        }
+        free_token_list(new_tokens);
+    }
+    else
+    {
+        // Non-variable token: add directly
+        if (!add_arg(*cmd, strip_quotes(ft_strdup(token))))
+            return (0);
+    }
+    return (1);
 }
 
 static int is_builtin(const char *cmd)
@@ -136,8 +181,8 @@ static void validate_command(t_command *cmd)
     }
     if (is_builtin(cmd->args[0]))
     {
-        cmd->cmdpath = ft_strdup(cmd->args[0]);
-        cmd->errormsg = NULL;
+        cmd->cmdpath = ft_strdup(cmd->args[0]); // delete this
+        cmd->errormsg = NULL; // delete error message
     }
     else
     {
@@ -146,7 +191,7 @@ static void validate_command(t_command *cmd)
     }
 }
 
-t_command *parser(t_token_list *tokens)
+t_command *parser(t_token_list *tokens, t_master *master)
 {
     t_command   *head;
     t_command   *current;
@@ -162,7 +207,7 @@ t_command *parser(t_token_list *tokens)
     pipe_flag = 0;
     while (i < tokens->count)
     {
-        result = process_token(&current, tokens->tokens[i], &pipe_flag);
+        result = process_token(&current, tokens->tokens[i], &pipe_flag, master);
         if (result == 2)
         {
             if (!ft_strncmp(tokens->tokens[i], "<<", 3))
@@ -191,7 +236,7 @@ t_command *parser(t_token_list *tokens)
         }
         else
         {
-            // Token was added by process_token, no need to add again
+            // Token was added by process_token
         }
         i++;
     }

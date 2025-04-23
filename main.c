@@ -14,7 +14,13 @@ int main(int argc, char **argv, char **envp)
 	master->env = env;
     master->cmds = cmd;
     char *cmds[] = {"echoo", "hello", NULL};
-    master->cmds->args = cmds;
+	char *outfiles[] = {"outfile1.txt", "outfile2.txt", NULL};
+	master->cmds->outfiles = outfiles;
+	master->cmds->append = 1;
+	//master->cmds->args = NULL;
+	//master->cmds->infiles = NULL;
+	ft_openoutfiles(master, *master->cmds);
+    //master->cmds->args = cmds;
     //char *infiles[] = {"infile1.txt", "infile2.txt", NULL};
     //master->cmds->infiles = infiles;
     //ft_openinfiles(master);

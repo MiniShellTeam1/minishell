@@ -72,6 +72,12 @@ int ft_pwd();
 int ft_cd(t_master *master);
 
 //execution
-int ft_openinfiles(t_master *master);
+int ft_openinfiles(t_master *master, t_command currentcmd);
+int ft_openoutfiles(t_master *master, t_command currentcmd);
+
+//free
+void ft_freeandexit(t_master *master, unsigned char exitcode);
+void ft_freecmds(t_master *master);
+void ft_freechararr(char **array);
 
 #endif

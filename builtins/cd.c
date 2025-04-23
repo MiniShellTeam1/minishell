@@ -26,7 +26,7 @@ static int ft_checkargs(t_command *cmd)
     }
     if (!cmd->args[1])
     {
-        if (chdir(getenv("HOME")) == -1)
+        if (chdir(getenv("HOME")) == -1) //! ohne getenv sondern direkt in der envlist suchen!
         {
             ft_printerror(cmd->args[0], "$HOME", NO_SUCH_FILE_OR_DIRECTORY);
             return (1);
@@ -70,9 +70,9 @@ void ft_setoldpwd(t_master *master)
     char cwd[1024];
 
     tmp = master->env;
-    while (tmp && !ft_strcmp(tmp->key, "PWD"))
+    while (tmp && ft_strcmp(tmp->key, "PWD"))
         tmp = tmp->next;
-    while (master->env && !ft_strcmp(master->env, "OLDPWD"))
+    while (master->env && ft_strcmp(master->env, "OLDPWD"))
         master->env = master->env->next;
     if (tmp && master->env)
     {
@@ -90,7 +90,7 @@ void ft_setoldpwd(t_master *master)
 
 void ft_setpwd(t_master *master, char *newpwd)
 {
-    while (master->env && !ft_strcmp(master->env->key, "PWD"))
+    while (master->env && ft_strcmp(master->env->key, "PWD"))
         master->env = master->env->next;
     if (master->env)
     {
@@ -113,6 +113,8 @@ char *ft_getpwd()
 			return (NULL);
 		while (cwd[x])
 			pwd[x] = cwd[x];
-		
+		x++;
 	}
+	pwd[x] = 0;
+	return (pwd);
 }

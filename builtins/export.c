@@ -1,7 +1,7 @@
 #include "../executor.h"
-void ft_printexport(t_master *master);
-void ft_exportvar(t_master *master);
-int ft_changeifexist(t_master *master, char *vararg);
+static void ft_printexport(t_master *master);
+static void ft_exportvar(t_master *master);
+static int ft_changeifexist(t_master *master, char *vararg);
 
 /* exports a given variable with its value or just prints out
 the export list */
@@ -13,8 +13,8 @@ void ft_export(t_master *master)
 }
 
 /* prints the enviroment list sorted by value of the key */
-
-void ft_printexport(t_master *master) //! 25lines
+ //! 25lines
+static void ft_printexport(t_master *master)
 {
 	char *lastprinted;
 	t_env *min;
@@ -25,7 +25,7 @@ void ft_printexport(t_master *master) //! 25lines
 	i = 0;
 	tmp = master->env;
 	lstlen = 0;
-	while (tmp)
+	while (tmp) //! eigene listlength funktion schreiben
 	{
 		lstlen++;
 		tmp = tmp->next;
@@ -59,7 +59,7 @@ void ft_printexport(t_master *master) //! 25lines
 /* export the variable if it contains an equal sign, if it already exists
 it will get overwritten */
 
-void ft_exportvar(t_master *master)
+static void ft_exportvar(t_master *master)
 {
 	int x;
 
@@ -78,7 +78,7 @@ void ft_exportvar(t_master *master)
 /* checks if the variable already exists in the env list, if so it will get
 overwritten and returns a 1 for overwritten */
 
-int ft_changeifexist(t_master *master, char *vararg)
+static int ft_changeifexist(t_master *master, char *vararg)
 {
 	int varlen;
 	t_env *tmp;

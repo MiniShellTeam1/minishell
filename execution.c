@@ -1,17 +1,16 @@
 #include "executor.h"
 #include "errormsg.h"
 
-int ft_execbuiltin(t_master *master);
+void ft_execbuiltin(t_master *master);
 void ft_execpipe(t_master *master);
 
-/* void ft_exec(t_master *master)
+void ft_exec(t_master *master)
 {
-	if (master->cmds->next)
+	if (master->cmds->next || !ft_isbuiltin(*master->cmds))
 		ft_execpipe(master);
-	else
-		if (!ft_execbuiltin(master));
-			ft_execpipe(master);
-} */
+	else if (ft_isbuiltin(*master->cmds))
+		ft_execbuiltin(master);
+} 
 
 void ft_execpipe(t_master *master)
 {
@@ -27,15 +26,17 @@ void ft_execpipe(t_master *master)
 			ft_freeandexit(master, 1);
 		if (master->pids[pid] == 0)
 		{
+			infilefd = ft_openinfiles(master, *master->cmds);
+			outfilefd = ft_openoutfiles(master, *master->cmds);
+			ft_checkcmdpath(master, *master->cmds);
+			//! dup2 und pipen
 			env = ft_getenvarray(master);
 			if (!env)
 				ft_freeandexit(master, 1);
-			infilefd = ft_openinfiles(master, *master->cmds);
-			outfilefd = ft_openoutfiles(master, *master->cmds);
-			//ft_checkcmdpath(master); //! muss noch geschrieben werden
 			execve(master->cmds->cmdpath, master->cmds->args, env);
 			close (infilefd);
 			close (outfilefd);
+			ft_freechararr(env);
 			ft_freeandexit(master, 1);
 		}
 		master->cmds = master->cmds->next;
@@ -44,12 +45,26 @@ void ft_execpipe(t_master *master)
 
 void ft_checkcmdpath(t_master *master, t_command currentcmd)
 {
-	if (!currentcmd.cmdpath)
+	if (ft_isbuiltin(currentcmd))
+		return ;
+	else if (!currentcmd.cmdpath)
 	{
 		ft_printerror(currentcmd.args[0], NULL, COMMAND_NOT_FOUND);
 		ft_freeandexit(master, 127);
 	}
-	else if (access(currentcmd.cmdpath, ))
+	else if (access(currentcmd.cmdpath, X_OK) != 0)
+	{
+		ft_printerror(currentcmd.args[0], NULL, PERMISSION_DENIED);
+		ft_freeandexit(master, 126);
+	}
+}
+
+int ft_isbuiltin(t_command cmd)
+{
+	if (cmd.args[0] && (!ft_strcmp(cmd.args[0], "unset") || !ft_strcmp(cmd.args[0], "env") || !ft_strcmp(cmd.args[0], "exit") || 
+	!ft_strcmp(cmd.args[0], "export") || !ft_strcmp(cmd.args[0], "echo") || !ft_strcmp(cmd.args[0], "pwd") || !ft_strcmp(cmd.args[0], "cd")))
+		return (1);
+	return (0);
 }
 
 int ft_openinfiles(t_master *master, t_command currentcmd)
@@ -147,28 +162,21 @@ void ft_freechararr(char **array) //! zu free file
 	}
 }
 
-/* 
-int ft_execbuiltin(t_master *master)
-{
-	int isbuiltin;
 
-	isbuiltin = 0;
-	if (master->cmds->args[0])
-	{
-		if (!ft_strcmp(master->cmds->args[0], "unset") && ++isbuiltin)
-			ft_unset(master);
-		else if (!ft_strcmp(master->cmds->args[0], "export") && ++isbuiltin)
-			ft_export(master);
-		else if (!ft_strcmp(master->cmds->args[0], "pwd") && ++isbuiltin)
-			ft_pwd();
-		else if (!ft_strcmp(master->cmds->args[0], "cd") && ++isbuiltin)
-			ft_cd(master);
-		else if (!ft_strcmp(master->cmds->args[0], "echo") && ++isbuiltin)
-			ft_echo(master);
-		else if (!ft_strcmp(master->cmds->args[0], "exit") && ++isbuiltin)
-			ft_exit(master);
-		else if (!ft_strcmp(master->cmds->args[0], "env") && ++isbuiltin)
-			ft_env(*master);
-	}
-	return (isbuiltin);
-} */
+void ft_execbuiltin(t_master *master)
+{
+	if (!ft_strcmp(master->cmds->args[0], "unset"))
+		ft_unset(master);
+	else if (!ft_strcmp(master->cmds->args[0], "export"))
+		ft_export(master);
+	else if (!ft_strcmp(master->cmds->args[0], "pwd"))
+		ft_pwd();
+	else if (!ft_strcmp(master->cmds->args[0], "cd"))
+		ft_cd(master);
+	else if (!ft_strcmp(master->cmds->args[0], "echo"))
+		ft_echo(master);
+	else if (!ft_strcmp(master->cmds->args[0], "exit"))
+		ft_exit(master);
+	else if (!ft_strcmp(master->cmds->args[0], "env"))
+		ft_env(*master);
+}

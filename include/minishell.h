@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   minishell.h                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: feanor <feanor@student.42.fr>              +#+  +:+       +#+        */
+/*   By: mhuthmay <mhuthmay@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/16 13:23:29 by mhuthmay          #+#    #+#             */
-/*   Updated: 2025/05/02 11:25:30 by feanor           ###   ########.fr       */
+/*   Updated: 2025/05/02 18:29:54 by mhuthmay         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -69,6 +69,7 @@ typedef struct s_command {
     char            *errormsg;     // Error message if command fails
     int             append;        // Flag for append mode (>>)
     char            *heredoc_input;// Heredoc input string
+	int				is_heredoc;
     struct s_command *next;        // Pointer to next command in pipeline
 } t_command;
 
@@ -161,8 +162,11 @@ int             is_variable(char *token);          // Check if token is a variab
 char            *expand_variable(char *token, t_master *master); // Expand variable
 
 /* Executor Functions */
-void            handle_heredoc(t_command *cmd);    // Handle heredoc input
 void            executor(t_master *master);        // Execute parsed commands
+
+/* Heredoc functions*/
+void            handle_heredoc(t_command *cmd, t_master *master);    // Handle heredoc input
+int				is_quoted_delimiter(char *delimiter);
 
 /* Built-in Functions */
 void            ft_echo(t_command cmd);            // Echo command built-in

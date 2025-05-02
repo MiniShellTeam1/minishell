@@ -6,7 +6,7 @@
 /*   By: mhuthmay <mhuthmay@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/02 15:30:00 by mhuthmay          #+#    #+#             */
-/*   Updated: 2025/05/02 15:49:22 by mhuthmay         ###   ########.fr       */
+/*   Updated: 2025/05/02 18:46:21 by mhuthmay         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,7 +56,7 @@ static void validate_command(t_command *cmd)
 }
 
 static int process_redirect_token(t_command **current, size_t *i, 
-                              t_token_list *tokens)
+                                  t_token_list *tokens)
 {
     if (!ft_strncmp(tokens->tokens[*i], "<<", 3))
     {
@@ -72,7 +72,7 @@ static int process_redirect_token(t_command **current, size_t *i,
 
 static int process_pipe_token(t_command **head, t_command **current, int *pipe_flag)
 {
-	(void)head;
+    (void)head;
     if (*pipe_flag)
     {
         (*current)->next = init_command();

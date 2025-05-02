@@ -6,425 +6,9 @@
 #    By: mhuthmay <mhuthmay@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/05/02 15:30:00 by mhuthmay          #+#    #+#              #
-#    Updated: 2025/05/02 15:32:46 by mhuthmay         ###   ########.fr        #
+#    Updated: 2025/05/02 18:12:49 by mhuthmay         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
-
-#include "minishell.h"
-
-t_token_list *init_token_list(void)
-{
-    t_token_list    *list;
-
-    list = malloc(sizeof(t_token_list));
-    if (!list)
-        return (NULL);
-    list->tokens = malloc(sizeof(char *) * 10);
-    if (!list->tokens)
-        return (free(list), NULL);
-    list->count = 0;
-    list->capacity = 10;
-    return (list);
-}
-
-int add_token(t_token_list *tokens, char *buffer)
-{
-    char    **new_tokens;
-    char    *token;
-    size_t  i;
-
-    token = ft_strdup(buffer);
-    if (!token)
-        return (0);
-    if (tokens->count >= tokens->capacity)
-    {
-        tokens->capacity *= 2;
-        new_tokens = malloc(sizeof(char *) * tokens->capacity);
-        if (!new_tokens)
-            return (free(token), 0);
-        i = 0;
-        while (i < tokens->count)
-        {
-            new_tokens[i] = tokens->tokens[i];
-            i++;
-        }
-        free(tokens->tokens);
-        tokens->tokens = new_tokens;
-    }
-    tokens->tokens[tokens->count] = token;
-    tokens->count++;
-    return (1);
-}
-
-void free_token_list(t_token_list *tokens)
-{
-    size_t  i;
-
-    i = 0;
-    while (i < tokens->count)
-    {
-        free(tokens->tokens[i]);
-        i++;
-    }
-    free(tokens->tokens);
-    free(tokens);
-}
-
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   lexer_main.c                                       :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: feanor <feanor@student.42.fr>              +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/05/02 15:30:00 by mhuthmay          #+#    #+#             */
-/*   Updated: 2025/05/02 13:18:18 by feanor           ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
-
-#include "minishell.h"
-
-int process_char(t_lexer_data *data)
-{
-    if (*(data->state) == NORMAL)
-        return (handle_normal(data));
-    if (*(data->state) == IN_SINGLE_QUOTE)
-        return (handle_single_quote(data));
-    if (*(data->state) == IN_DOUBLE_QUOTE)
-        return (handle_double_quote(data));
-    if (*(data->state) == IN_WORD)
-        return (handle_word(data));
-    return (handle_operator(data));
-}
-
-t_token_list *lexer(char const *input)
-{
-    t_state         state;
-    char            *buffer;
-    size_t          buf_pos;
-    t_token_list    *tokens;
-    t_lexer_data    data;
-
-    if (!input)
-        return (NULL);
-    
-    state = NORMAL;
-    buffer = malloc(1024);
-    if (!buffer)
-        return (NULL);
-    buf_pos = 0;
-    tokens = init_token_list();
-    if (!tokens)
-    {
-        free(buffer);
-        return (NULL);
-    }
-    data.state = &state;
-    data.input = &input;
-    data.tokens = tokens;
-    data.buffer = buffer;
-    data.buf_pos = &buf_pos;
-
-    while (*input)
-    {
-        if (!process_char(&data))
-        {
-            free(buffer);
-            free_token_list(tokens);
-            return (NULL);
-        }
-    }
-    if (buf_pos > 0 && state == IN_WORD)
-    {
-
-        buffer[buf_pos] = '\0';
-        if (!add_token(tokens, buffer))
-        {
-            free(buffer);
-            free_token_list(tokens);
-            return (NULL);
-        }
-    }
-    
-    free(buffer);
-    return (tokens);
-}
-
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   lexer_state_normal.c                              :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: mhuthmay <mhuthmay@student.42.fr>          +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/05/02 15:30:00 by mhuthmay          #+#    #+#             */
-/*   Updated: 2025/05/02 15:30:00 by mhuthmay         ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
-
-#include "minishell.h"
-
-int handle_normal(t_lexer_data *data)
-{
-    if (**(data->input) == ' ')
-    {
-        (*(data->input))++;
-        return (1);
-    }
-    
-    if (**(data->input) == '"')
-    {
-        *(data->state) = IN_DOUBLE_QUOTE;
-        (data->buffer)[*(data->buf_pos)] = **(data->input);
-        (*(data->buf_pos))++;
-        (*(data->input))++;
-        return (1);
-    }
-    
-    if (**(data->input) == '\'')
-    {
-        *(data->state) = IN_SINGLE_QUOTE;
-        (data->buffer)[*(data->buf_pos)] = **(data->input);
-        (*(data->buf_pos))++;
-        (*(data->input))++;
-        return (1);
-    }
-    
-    if (**(data->input) == '|' || **(data->input) == '<' || 
-        **(data->input) == '>')
-    {
-        *(data->state) = IN_OPERATOR;
-        (data->buffer)[*(data->buf_pos)] = **(data->input);
-        (*(data->buf_pos))++;
-        (*(data->input))++;
-        return (1);
-    }
-    
-    *(data->state) = IN_WORD;
-    (data->buffer)[*(data->buf_pos)] = **(data->input);
-    (*(data->buf_pos))++;
-    (*(data->input))++;
-    return (1);
-}
-
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   lexer_state_quotes.c                              :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: mhuthmay <mhuthmay@student.42.fr>          +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/05/02 15:30:00 by mhuthmay          #+#    #+#             */
-/*   Updated: 2025/05/02 15:30:00 by mhuthmay         ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
-
-#include "minishell.h"
-
-int handle_double_quote(t_lexer_data *data)
-{
-    const char **input_ptr = data->input;
-    size_t *pos_ptr = data->buf_pos;
-    data->buffer[*pos_ptr] = **input_ptr;
-    (*pos_ptr)++;
-    (*input_ptr)++;
-    while (**input_ptr && **input_ptr != '"')
-    {
-        data->buffer[*pos_ptr] = **input_ptr;
-        (*pos_ptr)++;
-        (*input_ptr)++;
-    }
-    
-    if (**input_ptr == '"')
-    {
-        data->buffer[*pos_ptr] = **input_ptr;
-        (*pos_ptr)++;
-        (*input_ptr)++;
-        if (!**input_ptr || **input_ptr == ' ' || **input_ptr == '|' || 
-            **input_ptr == '<' || **input_ptr == '>')
-        {
-            *(data->state) = NORMAL;
-            data->buffer[*pos_ptr] = '\0';
-            
-            write(1, "handle_double_quote adding token: ", 34);
-            write(1, data->buffer, ft_strlen(data->buffer));
-            write(1, "\n", 1);
-            
-            if (!add_token(data->tokens, data->buffer))
-                return (0);
-            *pos_ptr = 0;
-        }
-        else
-        {
-            *(data->state) = IN_WORD;
-        }
-    }
-    else
-    {
-        *(data->state) = NORMAL;
-        data->buffer[*pos_ptr] = '\0';
-        
-        write(1, "handle_double_quote adding token (unclosed): ", 45);
-        write(1, data->buffer, ft_strlen(data->buffer));
-        write(1, "\n", 1);
-        
-        if (!add_token(data->tokens, data->buffer))
-            return (0);
-        *pos_ptr = 0;
-    }
-    
-    return (1);
-}
-
-int handle_single_quote(t_lexer_data *data)
-{
-    const char **input_ptr = data->input;
-    size_t *pos_ptr = data->buf_pos;
-    data->buffer[*pos_ptr] = **input_ptr;
-    (*pos_ptr)++;
-    (*input_ptr)++;
-    while (**input_ptr && **input_ptr != '\'')
-    {
-        data->buffer[*pos_ptr] = **input_ptr;
-        (*pos_ptr)++;
-        (*input_ptr)++;
-    }
-    
-    if (**input_ptr == '\'')
-    {
-        data->buffer[*pos_ptr] = **input_ptr;
-        (*pos_ptr)++;
-        (*input_ptr)++;
-        if (!**input_ptr || **input_ptr == ' ' || **input_ptr == '|' || 
-            **input_ptr == '<' || **input_ptr == '>')
-        {
-            *(data->state) = NORMAL;
-            data->buffer[*pos_ptr] = '\0';
-            
-            write(1, "handle_single_quote adding token: ", 34);
-            write(1, data->buffer, ft_strlen(data->buffer));
-            write(1, "\n", 1);
-            
-            if (!add_token(data->tokens, data->buffer))
-                return (0);
-            *pos_ptr = 0;
-        }
-        else
-        {
-            *(data->state) = IN_WORD;
-        }
-    }
-    else
-    {
-        *(data->state) = NORMAL;
-        data->buffer[*pos_ptr] = '\0';
-        
-        write(1, "handle_single_quote adding token (unclosed): ", 45);
-        write(1, data->buffer, ft_strlen(data->buffer));
-        write(1, "\n", 1);
-        
-        if (!add_token(data->tokens, data->buffer))
-            return (0);
-        *pos_ptr = 0;
-    }
-    
-    return (1);
-}
-
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   lexer_state_word.c                                :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: mhuthmay <mhuthmay@student.42.fr>          +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/05/02 15:30:00 by mhuthmay          #+#    #+#             */
-/*   Updated: 2025/05/02 15:30:00 by mhuthmay         ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
-
-#include "minishell.h"
-
-int handle_word(t_lexer_data *data)
-{
-    if (!data || !data->buffer || !data->buf_pos || !data->input || !*(data->input))
-        return (0);
-    if (**(data->input) == ' ' || **(data->input) == '|' || 
-        **(data->input) == '<' || **(data->input) == '>')
-    {
-        *(data->state) = NORMAL;
-        (data->buffer)[*(data->buf_pos)] = '\0';
-        
-        write(1, "handle_word adding token: ", 26);
-        write(1, data->buffer, ft_strlen(data->buffer));
-        write(1, "\n", 1);
-        
-        if (!add_token(data->tokens, data->buffer))
-            return (0);
-        *(data->buf_pos) = 0;
-        return (1);
-    }
-    if (*(data->buf_pos) < 1023)
-    {
-        (data->buffer)[*(data->buf_pos)] = **(data->input);
-        (*(data->buf_pos))++;
-        (*(data->input))++;
-    }
-    else
-    {
-        (*(data->input))++;
-    }
-    return (1);
-}
-
-int handle_operator(t_lexer_data *data)
-{
-    if (!data || !data->buffer || !data->buf_pos || !data->input || !*(data->input) || !data->state)
-        return (0);
-    
-    if (*(data->buf_pos) == 1 && 
-        (((data->buffer)[0] == '>' && **(data->input) == '>') ||
-         ((data->buffer)[0] == '<' && **(data->input) == '<')))
-    {
-        if (*(data->buf_pos) < 1023)
-        {
-            (data->buffer)[*(data->buf_pos)] = **(data->input);
-            (*(data->buf_pos))++;
-            (*(data->input))++;
-        }
-        else
-        {
-            (*(data->input))++;
-        }
-    }
-    else
-    {
-        *(data->state) = NORMAL;
-        if (*(data->buf_pos) < 1024)
-            (data->buffer)[*(data->buf_pos)] = '\0';
-        
-        write(1, "handle_operator adding token: ", 30);
-        write(1, data->buffer, ft_strlen(data->buffer));
-        write(1, "\n", 1);
-        
-        if (!add_token(data->tokens, data->buffer))
-            return (0);
-        *(data->buf_pos) = 0;
-    }
-    return (1);
-}
-
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   parser_init.c                                      :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: feanor <feanor@student.42.fr>              +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/05/02 15:30:00 by mhuthmay          #+#    #+#             */
-/*   Updated: 2025/05/02 11:13:46 by feanor           ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
 
 #include "minishell.h"
 
@@ -486,6 +70,9 @@ int add_arg(t_command *cmd, char *arg)
     char    *dup;
     char    **new_args;
 
+    if (!arg || arg[0] == '\0')
+        return (1);
+
     dup = ft_strdup(arg);
     if (!dup)
         return (0);
@@ -516,10 +103,10 @@ int add_arg(t_command *cmd, char *arg)
 /*                                                        :::      ::::::::   */
 /*   parser_main.c                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: feanor <feanor@student.42.fr>              +#+  +:+       +#+        */
+/*   By: mhuthmay <mhuthmay@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/02 15:30:00 by mhuthmay          #+#    #+#             */
-/*   Updated: 2025/05/02 11:43:25 by feanor           ###   ########.fr       */
+/*   Updated: 2025/05/02 15:49:22 by mhuthmay         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -554,12 +141,16 @@ static void validate_command(t_command *cmd)
     }
     if (is_builtin(cmd->args[0]))
     {
+        free(cmd->cmdpath);
         cmd->cmdpath = ft_strdup(cmd->args[0]);
+        free(cmd->errormsg);
         cmd->errormsg = NULL;
     }
     else
     {
+        free(cmd->cmdpath);
         cmd->cmdpath = NULL;
+        free(cmd->errormsg);
         cmd->errormsg = ft_strdup("command not found");
     }
 }
@@ -633,7 +224,7 @@ t_command *parser(t_token_list *tokens, t_master *master)
 /*   By: mhuthmay <mhuthmay@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/02 15:30:00 by mhuthmay          #+#    #+#             */
-/*   Updated: 2025/05/02 15:15:41 by mhuthmay         ###   ########.fr       */
+/*   Updated: 2025/05/02 17:29:44 by mhuthmay         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -644,12 +235,10 @@ char	*strip_quotes(char *token)
 	size_t	len;
 	char	*result;
 
-	size_t i;
-	size_t j;
 	if (!token)
 		return (NULL);
 	len = ft_strlen(token);
-	if (len < 1)
+	if (len == 0)
 		return (ft_strdup(""));
 	if (len >= 2 && ((token[0] == '"' && token[len - 1] == '"')
 			|| (token[0] == '\'' && token[len - 1] == '\'')))
@@ -660,38 +249,9 @@ char	*strip_quotes(char *token)
 		if (!result)
 			return (NULL);
 		ft_strlcpy(result, token + 1, len - 1);
-		i = 0;
-		j = 0;
-		while (result[i])
-		{
-			if ((i + 1 < len - 2) && ((result[i] == '"' && result[i + 1] == '"')
-					|| (result[i] == '\'' && result[i + 1] == '\'')))
-			{
-				i += 2;
-				continue ;
-			}
-			result[j++] = result[i++];
-		}
-		result[j] = '\0';
 		return (result);
 	}
-	result = malloc(len + 1);
-	if (!result)
-		return (NULL);
-	i = 0;
-	j = 0;
-	while (i < len)
-	{
-		if ((i + 1 < len) && ((token[i] == '"' && token[i + 1] == '"')
-				|| (token[i] == '\'' && token[i + 1] == '\'')))
-		{
-			i += 2;
-			continue ;
-		}
-		result[j++] = token[i++];
-	}
-	result[j] = '\0';
-	return (result);
+	return (ft_strdup(token));
 }
 
 int	is_variable(char *token)
@@ -709,21 +269,27 @@ static char	*get_var_name(char *token, size_t *var_len)
 	size_t	i;
 
 	*var_len = 0;
-	for (i = 1; token[i]; i++)
+	i = 1;
+	while (token[i])
 	{
 		if (!(token[i] >= 'A' && token[i] <= 'Z') && !(token[i] >= 'a'
 				&& token[i] <= 'z') && !(token[i] >= '0' && token[i] <= '9')
 			&& token[i] != '_')
 			break ;
 		(*var_len)++;
+		i++;
 	}
 	if (*var_len == 0)
 		return (NULL);
 	var_name = malloc(*var_len + 1);
 	if (!var_name)
 		return (NULL);
-	for (i = 0; i < *var_len; i++)
+	i = 0;
+	while (i < *var_len)
+	{
 		var_name[i] = token[i + 1];
+		i++;
+	}
 	var_name[*var_len] = '\0';
 	return (var_name);
 }
@@ -869,10 +435,10 @@ int set_redirect(t_command *cmd, char *token, char *next_token)
 /*                                                        :::      ::::::::   */
 /*   parser_tokens.c                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: feanor <feanor@student.42.fr>              +#+  +:+       +#+        */
+/*   By: mhuthmay <mhuthmay@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/02 15:30:00 by mhuthmay          #+#    #+#             */
-/*   Updated: 2025/05/02 13:19:17 by feanor           ###   ########.fr       */
+/*   Updated: 2025/05/02 17:43:13 by mhuthmay         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -898,52 +464,48 @@ static int process_token_redirect(t_parser_data *data)
     return (0);
 }
 
-static int process_token_squote(t_parser_data *data)
+static int process_token_word(t_parser_data *data)
 {
     char *stripped;
-    
-    if (data->token[0] == '\'' && ft_strchr(data->token, '\'') > 1)
+
+    stripped = strip_quotes(data->token);
+    if (!stripped)
+        return (0);
+
+    if (stripped[0] != '\0')
     {
-        stripped = strip_quotes(data->token);
-        if (!stripped)
-            return (0);
         if (!add_arg(*(data->cmd), stripped))
         {
             free(stripped);
             return (0);
         }
-        free(stripped);
-        return (1);
     }
-    return (0);
+    free(stripped);
+    return (1);
 }
 
 int process_token(t_command **cmd, char *token, int *pipe_flag, t_master *master)
 {
     t_parser_data data;
     int result;
-    
+
     data.cmd = cmd;
     data.token = token;
     data.pipe_flag = pipe_flag;
     data.master = master;
-    
+
     result = process_token_pipe(&data);
     if (result)
         return (result);
-    
+
     result = process_token_redirect(&data);
     if (result)
         return (result);
-    
-    result = process_token_squote(&data);
-    if (result)
-        return (result);
-    
+
     if (ft_strchr(token, '$') && (token[0] != '\'' || !ft_strchr(token + 1, '\'')))
         return (process_token_variable(&data));
-    else
-        return (process_token_normal(&data));
+
+    return (process_token_word(&data));
 }
 
 /* ************************************************************************** */
@@ -954,112 +516,124 @@ int process_token(t_command **cmd, char *token, int *pipe_flag, t_master *master
 /*   By: mhuthmay <mhuthmay@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/02 15:30:00 by mhuthmay          #+#    #+#             */
-/*   Updated: 2025/05/02 15:01:24 by mhuthmay         ###   ########.fr       */
+/*   Updated: 2025/05/02 17:23:29 by mhuthmay         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-int process_token_normal(t_parser_data *data)
+static char	*get_var_name(char *token, size_t *var_len)
 {
-    char *stripped;
-    
-    stripped = strip_quotes(data->token);
-    if (!stripped)
-        return (0);
-    
-    if (!add_arg(*(data->cmd), stripped))
-    {
-        free(stripped);
-        return (0);
-    }
-    
-    free(stripped);
-    return (1);
+	char	*var_name;
+	size_t	i;
+
+	*var_len = 0;
+	i = 1;
+	while (token[i])
+	{
+		if (!(token[i] >= 'A' && token[i] <= 'Z') && !(token[i] >= 'a'
+				&& token[i] <= 'z') && !(token[i] >= '0' && token[i] <= '9')
+			&& token[i] != '_')
+			break ;
+		(*var_len)++;
+		i++;
+	}
+	if (*var_len == 0)
+		return (NULL);
+	var_name = malloc(*var_len + 1);
+	if (!var_name)
+		return (NULL);
+	i = 0;
+	while (i < *var_len)
+	{
+		var_name[i] = token[i + 1];
+		i++;
+	}
+	var_name[*var_len] = '\0';
+	return (var_name);
 }
 
-static char *get_prefix(char *token, size_t *prefix_len)
+int	process_token_variable(t_parser_data *data)
 {
-    *prefix_len = 0;
-    while (token[*prefix_len] && token[*prefix_len] != '$')
-        (*prefix_len)++;
-    
-    return (ft_strndup(token, *prefix_len));
-}
+	char *expanded, *result, *temp_token;
+	t_token_list *new_tokens;
+	size_t i, pos, var_len;
+	char *new_result;
 
-static size_t get_var_end(char *token, size_t start)
-{
-    size_t i;
-    
-    i = start;
-    while (token[i] && (
-           (token[i] >= 'A' && token[i] <= 'Z') || 
-           (token[i] >= 'a' && token[i] <= 'z') || 
-           (token[i] >= '0' && token[i] <= '9') || 
-           token[i] == '_' || token[i] == '$' || 
-           token[i] == '?'))
-        i++;
-    
-    return (i);
-}
+	result = ft_strdup("");
+	if (!result)
+		return (0);
+	temp_token = data->token;
+	pos = 0;
+	while (temp_token[pos])
+	{
+		if (temp_token[pos] == '$')
+		{
+			expanded = expand_variable(temp_token + pos, data->master);
+			if (!expanded)
+			{
+				free(result);
+				return (0);
+			}
 
-int process_token_variable(t_parser_data *data)
-{
-    char *expanded, *prefix, *suffix, *joined, *stripped;
-    t_token_list *new_tokens;
-    size_t i, prefix_len, suffix_start;
-    
-    prefix = get_prefix(data->token, &prefix_len);
-    
-    suffix_start = get_var_end(data->token, prefix_len);
-    
-    expanded = expand_variable(data->token + prefix_len, data->master);
-    
-    suffix = ft_strdup(data->token + suffix_start);
-    
-    if (!prefix || !expanded || !suffix)
-    {
-        free(prefix);
-        free(expanded);
-        free(suffix);
-        return (0);
-    }
-    
-    joined = ft_strjoin3(prefix, expanded, suffix);
-    free(prefix);
-    free(expanded);
-    free(suffix);
-    
-    if (!joined)
-        return (0);
-    
-    new_tokens = lexer(joined);
-    free(joined);
-    
-    if (!new_tokens)
-        return (0);
-    
-    i = 0;
-    while (i < new_tokens->count)
-    {
-        stripped = strip_quotes(new_tokens->tokens[i]);
-        if (!stripped)
-        {
-            free_token_list(new_tokens);
-            return (0);
-        }
-        
-        if (!add_arg(*(data->cmd), stripped))
-        {
-            free(stripped);
-            free_token_list(new_tokens);
-            return (0);
-        }
-        
-        free(stripped);
-        i++;
-    }
-    
-    free_token_list(new_tokens);
-    return (1);
+			new_result = ft_strjoin(result, expanded);
+			free(result);
+			free(expanded);
+			if (!new_result)
+				return (0);
+			result = new_result;
+
+			get_var_name(temp_token + pos, &var_len);
+			pos += var_len + 1;
+		}
+		else
+		{
+			size_t start = pos;
+			while (temp_token[pos] && temp_token[pos] != '$')
+				pos++;
+
+			char *prefix = ft_strndup(temp_token + start, pos - start);
+			if (!prefix)
+			{
+				free(result);
+				return (0);
+			}
+			new_result = ft_strjoin(result, prefix);
+			free(result);
+			free(prefix);
+			if (!new_result)
+				return (0);
+			result = new_result;
+		}
+	}
+
+	new_tokens = lexer(result);
+	free(result);
+
+	if (!new_tokens)
+		return (0);
+
+	i = 0;
+	while (i < new_tokens->count)
+	{
+		char *stripped = strip_quotes(new_tokens->tokens[i]);
+		if (!stripped)
+		{
+			free_token_list(new_tokens);
+			return (0);
+		}
+
+		if (!add_arg(*(data->cmd), stripped))
+		{
+			free(stripped);
+			free_token_list(new_tokens);
+			return (0);
+		}
+
+		free(stripped);
+		i++;
+	}
+
+	free_token_list(new_tokens);
+	return (1);
 }

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: feanor <feanor@student.42.fr>              +#+  +:+       +#+        */
+/*   By: mhuthmay <mhuthmay@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/02 15:30:00 by mhuthmay          #+#    #+#             */
-/*   Updated: 2025/05/02 13:19:44 by feanor           ###   ########.fr       */
+/*   Updated: 2025/05/02 18:43:27 by mhuthmay         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -77,7 +77,7 @@ static void process_command_line(t_master *master, char *line)
         
         if (master->cmds)
         {
-            handle_heredoc(master->cmds);
+            handle_heredoc(master->cmds, master); // Updated call
             set_errorcode(master);
             debug_shell_state(NULL, NULL, master, "Before Executor");
             // executor(master);

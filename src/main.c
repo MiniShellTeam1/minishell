@@ -3,60 +3,20 @@
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mhuthmay <mhuthmay@student.42.fr>          +#+  +:+       +#+        */
+/*   By: feanor <feanor@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/04/16 13:23:07 by mhuthmay          #+#    #+#             */
-/*   Updated: 2025/04/23 14:09:33 by mhuthmay         ###   ########.fr       */
+/*   Created: 2025/05/02 15:30:00 by mhuthmay          #+#    #+#             */
+/*   Updated: 2025/05/02 13:19:44 by feanor           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-static void handle_heredoc(t_command *cmd)
-{
-    char    *line;
-    char    *temp;
-    char    *heredoc_content;
-    size_t  len;
-
-    if (cmd->infiles && cmd->infiles[0] && !ft_strncmp(cmd->infiles[0], "<<", 2))
-    {
-        heredoc_content = NULL;
-        while (1)
-        {
-            write(1, "heredoc> ", 9);
-            line = readline("");
-            if (!line)
-                break;
-            len = ft_strlen(line);
-            if (len > 0 && line[len - 1] == '\n')
-                line[len - 1] = '\0';
-            if (!ft_strncmp(line, cmd->infiles[0] + 2, ft_strlen(cmd->infiles[0] + 2)))
-            {
-                free(line);
-                break;
-            }
-            if (!heredoc_content)
-            {
-                heredoc_content = ft_strjoin(line, "\n");
-            }
-            else
-            {
-                temp = ft_strjoin(heredoc_content, line);
-                free(heredoc_content);
-                heredoc_content = ft_strjoin(temp, "\n");
-                free(temp);
-            }
-            free(line);
-        }
-        cmd->heredoc_input = heredoc_content;
-    }
-}
-
 static void set_errorcode(t_master *master)
 {
-    t_command *cmd = master->cmds;
+    t_command *cmd;
 
+    cmd = master->cmds;
     master->errorcode = 0;
     while (cmd)
     {
@@ -71,21 +31,27 @@ static void set_errorcode(t_master *master)
 
 t_master *init_master(void)
 {
-    t_master *master = malloc(sizeof(t_master));
-    if (!master) return NULL;
+    t_master *master;
+    
+    master = malloc(sizeof(t_master));
+    if (!master)
+        return (NULL);
     master->cmds = NULL;
     master->env = NULL;
     master->errorcode = 0;
-    return master;
+    return (master);
 }
 
 void free_master(t_master *master)
 {
-    if (!master) return;
+    t_env *tmp;
+    
+    if (!master)
+        return;
     free_command(master->cmds);
     while (master->env)
     {
-        t_env *tmp = master->env;
+        tmp = master->env;
         master->env = master->env->next;
         free(tmp->key);
         free(tmp->value);
@@ -94,36 +60,70 @@ void free_master(t_master *master)
     free(master);
 }
 
-int main(int argc, char *argv[], char *envp[])
+static void process_command_line(t_master *master, char *line)
 {
-    (void)argc; // prevent unused args
-    (void)argv;
-    t_master *master = init_master();
-    if (!master) return 1;
-    master->env = ft_createenvlist(envp);
+    t_token_list *tokens;
+
+    if (*line)
+        add_history(line);
+    
+    tokens = lexer(line);
+    debug_shell_state(tokens, NULL, NULL, "After Lexing");
+    
+    if (tokens)
+    {
+        master->cmds = parser(tokens, master);
+        debug_shell_state(NULL, master->cmds, NULL, "After Parsing");
+        
+        if (master->cmds)
+        {
+            handle_heredoc(master->cmds);
+            set_errorcode(master);
+            debug_shell_state(NULL, NULL, master, "Before Executor");
+            // executor(master);
+            free_command(master->cmds);
+            master->cmds = NULL;
+        }
+        free_token_list(tokens);
+    }
+}
+
+int main(int argc, char *argv[])
+{
+    t_master *master;
     char *line;
+    char **env;
+
+    (void)argc;
+    (void)argv;
+    
+    master = init_master();
+    if (!master)
+        return (1);
+    
+    env = __environ;
+    master->env = ft_createenvlist(env);
+    
+    setup_signals();
+    
     while ((line = readline("minishell> ")) != NULL)
     {
-        if (*line) add_history(line);
-        t_token_list *tokens = lexer(line);
-        debug_shell_state(tokens, NULL, NULL, "After Lexing");
-        if (tokens)
+        if (!line)
         {
-            master->cmds = parser(tokens, master);
-            debug_shell_state(NULL, master->cmds, NULL, "After Parsing");
-            if (master->cmds)
-            {
-                handle_heredoc(master->cmds);
-                set_errorcode(master);
-                debug_shell_state(NULL, NULL, master, "Before Executor");
-                // executor(master);
-                free_command(master->cmds);
-                master->cmds = NULL;
-            }
-            free_token_list(tokens);
+            write(1, "exit\n", 5);
+            break;
         }
+        
+        if (check_signal())
+        {
+            free(line);
+            continue;
+        }
+        
+        process_command_line(master, line);
         free(line);
     }
+    
     free_master(master);
-    return 0;
+    return (0);
 }

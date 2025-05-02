@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   minishell.h                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mhuthmay <mhuthmay@student.42.fr>          +#+  +:+       +#+        */
+/*   By: feanor <feanor@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/16 13:23:29 by mhuthmay          #+#    #+#             */
-/*   Updated: 2025/04/23 11:55:08 by mhuthmay         ###   ########.fr       */
+/*   Updated: 2025/05/02 11:25:30 by feanor           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -79,50 +79,92 @@ typedef struct s_master {
     unsigned char    errorcode;  // Last exit status code
 } t_master;
 
+/* Additional structures for norminette compliance */
+typedef struct s_lexer_data {
+    t_state         *state;
+    const char      **input;
+    t_token_list    *tokens;
+    char            *buffer;
+    size_t          *buf_pos;
+} t_lexer_data;
+
+typedef struct s_parser_data {
+    t_command       **cmd;
+    char            *token;
+    int             *pipe_flag;
+    t_master        *master;
+} t_parser_data;
+
 /* ---------------------------- Function Prototypes -------------------------- */
 
-/* Utility Functions */
-void    ft_putstr_fd(char *str, int fd);           // Write string to file descriptor
-int     ft_strcmp(char *str1, char *str2);         // Compare two strings
-char    *ft_itoa(int num);                         // Convert integer to string
+/* Utility Functions - utils_str1.c */
 int     ft_strlen(const char *str);                // Get string length
-char *ft_strjoin3(char *str1, char *str2, char *str3);
+int     ft_strcmp(char *str1, char *str2);         // Compare two strings
+char    *ft_strjoin(const char *s1, const char *s2); // Join two strings
+
+/* Utility Functions - utils_str2.c */
+char    *ft_strdup(const char *s1);                // Duplicate a string
 size_t  ft_strlcpy(char *dst, const char *src, size_t size); // Safe string copy
 size_t  ft_strlcat(char *dst, const char *src, size_t size); // Safe string concatenation
-char    *ft_strjoin(const char *s1, const char *s2); // Join two strings
-char    *ft_strdup(const char *s1);                // Duplicate a string
-int     ft_strncmp(const char *s1, const char *s2, size_t n); // Compare n chars of two strings
-char    *ft_strndup(const char *s, size_t n);      // Duplicate n chars of a string
-int ft_strchr(char *str, char c);
 
-/* Lexer Functions */
-t_token_list    *lexer(const char *input);			// Tokenize input string
+/* Utility Functions - utils_str3.c */
+int     ft_strncmp(const char *s1, const char *s2, size_t n); // Compare n chars of two strings
+int     ft_strchr(char *str, char c);              // Find character in string
+char    *ft_strndup(const char *s, size_t n);      // Duplicate n chars of a string
+
+/* Utility Functions - utils_io.c */
+void    ft_putstr_fd(char *str, int fd);           // Write string to file descriptor
+
+/* Utility Functions - utils_convert.c */
+char    *ft_itoa(int num);                         // Convert integer to string
+char    *ft_strjoin3(char *str1, char *str2, char *str3); // Join three strings
+
+/* Lexer Functions - lexer_init.c */
 t_token_list    *init_token_list(void);            // Initialize token list
 int             add_token(t_token_list *tokens, char *buffer); // Add token to list
 void            free_token_list(t_token_list *tokens); // Free token list memory
-int             process_char(t_state *state, const char **input, t_token_list *tokens, char *buffer, size_t *buf_pos); // Process a single character
-int             handle_normal(t_state *state, const char **input, t_token_list *tokens, char *buffer, size_t *buf_pos); // Handle normal state
-int             handle_single_quote(t_state *state, const char **input, t_token_list *tokens, char *buffer, size_t *buf_pos); // Handle single quotes
-int             handle_double_quote(t_state *state, const char **input, t_token_list *tokens, char *buffer, size_t *buf_pos); // Handle double quotes
-int             handle_word(t_state *state, const char **input, t_token_list *tokens, char *buffer, size_t *buf_pos); // Handle word tokens
-int             handle_operator(t_state *state, const char **input, t_token_list *tokens, char *buffer, size_t *buf_pos); // Handle operators
 
-/* Parser Functions */
-t_command       *parser(t_token_list *tokens, t_master *master);     // Parse tokens into commands
+/* Lexer Functions - lexer_main.c */
+t_token_list    *lexer(const char *input);         // Tokenize input string
+int             process_char(t_lexer_data *data);  // Process a single character
+
+/* Lexer Functions - lexer_state_normal.c */
+int             handle_normal(t_lexer_data *data); // Handle normal state
+
+/* Lexer Functions - lexer_state_quotes.c */
+int             handle_single_quote(t_lexer_data *data); // Handle single quotes
+int             handle_double_quote(t_lexer_data *data); // Handle double quotes
+
+/* Lexer Functions - lexer_state_word.c */
+int             handle_word(t_lexer_data *data);   // Handle word tokens
+int             handle_operator(t_lexer_data *data); // Handle operators
+
+/* Parser Functions - parser_init.c */
 t_command       *init_command(void);               // Initialize a command structure
 void            free_command(t_command *cmd);      // Free command memory
 int             add_arg(t_command *cmd, char *arg); // Add argument to command
-int             process_token(t_command **cmd, char *token, int *pipe_flag, t_master *master); // Process a token during parsing
-int             set_redirect(t_command *cmd, char *token, char *next_token); // Set redirection for command
+
+/* Parser Functions - parser_main.c */
+t_command       *parser(t_token_list *tokens, t_master *master); // Parse tokens into commands
+
+/* Parser Functions - parser_tokens.c */
+int             process_token(t_command **cmd, char *token, int *pipe_flag, t_master *master); // Process a token
+int             process_token_normal(t_parser_data *data); // Process normal token
+int             process_token_variable(t_parser_data *data); // Process variable token
+
+/* Parser Functions - parser_redirects.c */
+int             set_redirect(t_command *cmd, char *token, char *next_token); // Set redirection
+
+/* Parser Functions - parser_quotes.c */
 char            *strip_quotes(char *token);        // Remove quotes from token
 int             is_variable(char *token);          // Check if token is a variable
-char            *expand_variable(char *token, t_master *master);     // Expand variable in token
+char            *expand_variable(char *token, t_master *master); // Expand variable
 
-/* Executor Function */
+/* Executor Functions */
+void            handle_heredoc(t_command *cmd);    // Handle heredoc input
 void            executor(t_master *master);        // Execute parsed commands
 
 /* Built-in Functions */
-// int             ft_cd(t_master *master);           // Change directory built-in
 void            ft_echo(t_command cmd);            // Echo command built-in
 void            ft_env(t_master master);           // Print environment variables
 void            ft_exit(t_command cmd);            // Exit shell built-in
@@ -142,6 +184,15 @@ void 			ft_freeenv(t_master *master);
 char			**ft_getenvarray(t_master *master);
 int				ft_lstlen(t_master master);
 char            *ft_addlvl(char *stringlvl);       // Increment SHLVL value
+
+/* Signal Handling Functions */
+void	setup_signals(void);
+void	reset_signals(void);
+int	check_signal(void);
+
+/* Main Functions */
+t_master        *init_master(void);                // Initialize master structure
+void            free_master(t_master *master);     // Free master structure
 
 /* Error Handling */
 void            ft_printerror(char *cmd, char *errfile, char *errormsg); // Print error message

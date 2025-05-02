@@ -1,6 +1,6 @@
 # Compiler and flags
 CC = gcc
-CFLAGS = -Wall -Wextra -Werror -Iinclude -g
+CFLAGS = -Wall -Wextra -Werror -Iinclude -g -D_POSIX_C_SOURCE=200809L
 LDFLAGS = -lreadline
 
 # Project name
@@ -18,6 +18,7 @@ BUILTINS_DIR = $(SRC_DIR)/builtins
 ENV_DIR = $(SRC_DIR)/environment
 ERROR_DIR = $(SRC_DIR)/error
 DEBUG_DIR = $(SRC_DIR)/debug
+SIGNAL_DIR = signal
 
 # Source files
 SRCS = \
@@ -25,11 +26,19 @@ SRCS = \
 	$(FUNCTIONS_DIR)/functions_01.c \
 	$(FUNCTIONS_DIR)/functions_02.c \
 	$(FUNCTIONS_DIR)/functions_03.c \
-	$(LEXER_DIR)/lexer.c \
-	$(LEXER_DIR)/lexer_utils.c \
-	$(PARSER_DIR)/parser.c \
-	$(PARSER_DIR)/parser_utils.c \
+	$(LEXER_DIR)/lexer_init.c \
+	$(LEXER_DIR)/lexer_main.c \
+	$(LEXER_DIR)/lexer_state_normal.c \
+	$(LEXER_DIR)/lexer_state_quotes.c \
+	$(LEXER_DIR)/lexer_state_word.c \
+	$(PARSER_DIR)/parser_init.c \
+	$(PARSER_DIR)/parser_main.c \
+	$(PARSER_DIR)/parser_tokens.c \
+	$(PARSER_DIR)/parser_vars.c \
+	$(PARSER_DIR)/parser_quotes.c \
+	$(PARSER_DIR)/parser_redirects.c \
 	$(EXECUTOR_DIR)/executor.c \
+	$(EXECUTOR_DIR)/heredoc.c \
 	$(BUILTINS_DIR)/cd.c \
 	$(BUILTINS_DIR)/echo.c \
 	$(BUILTINS_DIR)/env.c \
@@ -40,14 +49,19 @@ SRCS = \
 	$(ENV_DIR)/environment.c \
 	$(ENV_DIR)/environment_utils.c \
 	$(ERROR_DIR)/error.c \
-	$(DEBUG_DIR)/debug.c
+	$(DEBUG_DIR)/debug.c \
+	$(SIGNAL_DIR)/signal.c
 
 # Object files
-OBJS = $(SRCS:$(SRC_DIR)/%.c=$(OBJ_DIR)/%.o)
+OBJS = $(SRCS:%.c=$(OBJ_DIR)/%.o)
 
 # Header files
-HEADERS = \
-	$(INCLUDE_DIR)/minishell.h \
+HEADERS = $(INCLUDE_DIR)/minishell.h
+
+# Debug command
+debug: CFLAGS += -g -DDEBUG
+debug: clean $(NAME)
+	gdb --args ./$(NAME)
 
 # Rules
 all: $(NAME)
@@ -55,7 +69,7 @@ all: $(NAME)
 $(NAME): $(OBJS)
 	$(CC) $(OBJS) $(LDFLAGS) -o $(NAME)
 
-$(OBJ_DIR)/%.o: $(SRC_DIR)/%.c $(HEADERS)
+$(OBJ_DIR)/%.o: %.c $(HEADERS)
 	@mkdir -p $(@D)
 	$(CC) $(CFLAGS) -c $< -o $@
 
@@ -69,4 +83,4 @@ re: fclean all
 
 bonus: all
 
-.PHONY: all clean fclean re bonus
+.PHONY: all clean fclean re bonus debug

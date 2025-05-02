@@ -25,7 +25,7 @@
 //     }
 //     if (!cmd->args[1])
 //     {
-//         if (chdir(getenv("HOME")) == -1)
+//         if (chdir(getenv("HOME")) == -1) //! ohne getenv sondern direkt in der envlist suchen!
 //         {
 //             ft_printerror(cmd->args[0], "$HOME", NO_SUCH_FILE_OR_DIRECTORY);
 //             return (1);
@@ -69,9 +69,9 @@
 //     char cwd[1024];
 
 //     tmp = master->env;
-//     while (tmp && !ft_strcmp(tmp->key, "PWD"))
+//     while (tmp && ft_strcmp(tmp->key, "PWD"))
 //         tmp = tmp->next;
-//     while (master->env && !ft_strcmp(master->env, "OLDPWD"))
+//     while (master->env && ft_strcmp(master->env, "OLDPWD"))
 //         master->env = master->env->next;
 //     if (tmp && master->env)
 //     {
@@ -89,10 +89,31 @@
 
 // void ft_setpwd(t_master *master, char *newpwd)
 // {
-//     while (master->env && ft_strcmp(master->env->value, "PWD"))
+//     while (master->env && ft_strcmp(master->env->key, "PWD"))
 //         master->env = master->env->next;
 //     if (master->env)
 //     {
-        
+//         free(master->env->value);
+// 		master->env->value = ft_getpwd();
 //     }
+// }
+
+// char *ft_getpwd()
+// {
+// 	char cwd[1024];
+// 	char *pwd;
+// 	int x;
+
+// 	x = 0;
+// 	if (getcwd(cwd, sizeof(cwd)) != NULL)
+// 	{
+// 		pwd = malloc(sizeof(char) * ft_strlen(cwd) + 1);
+// 		if (!pwd)
+// 			return (NULL);
+// 		while (cwd[x])
+// 			pwd[x] = cwd[x];
+// 		x++;
+// 	}
+// 	pwd[x] = 0;
+// 	return (pwd);
 // }

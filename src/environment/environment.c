@@ -30,7 +30,9 @@ t_env *ft_createenvlist(char **envp)
 		x++;
 	}
     if (!shlvlexist)
-        {ft_addvar(&env, ft_getstralloc("SHLVL"), ft_getstralloc("1"));}
+	{
+        ft_addvar(&env, ft_getstralloc("SHLVL"), ft_getstralloc("1"));
+	}
 	return (env);
 }
 

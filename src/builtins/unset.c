@@ -1,6 +1,5 @@
 #include "minishell.h"
 
-
 void ft_unset(t_master *master)
 {
     int x;

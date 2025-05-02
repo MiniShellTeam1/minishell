@@ -6,7 +6,7 @@
 /*   By: mhuthmay <mhuthmay@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/02 15:30:00 by mhuthmay          #+#    #+#             */
-/*   Updated: 2025/05/02 18:43:27 by mhuthmay         ###   ########.fr       */
+/*   Updated: 2025/05/02 19:29:32 by mhuthmay         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -80,7 +80,7 @@ static void process_command_line(t_master *master, char *line)
             handle_heredoc(master->cmds, master); // Updated call
             set_errorcode(master);
             debug_shell_state(NULL, NULL, master, "Before Executor");
-            // executor(master);
+            ft_exec(master);
             free_command(master->cmds);
             master->cmds = NULL;
         }

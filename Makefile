@@ -37,8 +37,10 @@ SRCS = \
 	$(PARSER_DIR)/parser_vars.c \
 	$(PARSER_DIR)/parser_quotes.c \
 	$(PARSER_DIR)/parser_redirects.c \
-	$(EXECUTOR_DIR)/executor.c \
+	$(EXECUTOR_DIR)/execution.c \
 	$(EXECUTOR_DIR)/heredoc.c \
+	$(EXECUTOR_DIR)/free.c \
+	$(EXECUTOR_DIR)/execution_utils.c \
 	$(BUILTINS_DIR)/cd.c \
 	$(BUILTINS_DIR)/echo.c \
 	$(BUILTINS_DIR)/env.c \

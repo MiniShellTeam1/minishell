@@ -6,7 +6,7 @@
 /*   By: mhuthmay <mhuthmay@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/16 13:23:29 by mhuthmay          #+#    #+#             */
-/*   Updated: 2025/05/02 18:29:54 by mhuthmay         ###   ########.fr       */
+/*   Updated: 2025/05/02 19:27:24 by mhuthmay         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,6 +22,7 @@
 #include <readline/readline.h> // For readline functionality
 #include <readline/history.h>  // For command history management
 #include <stdio.h>            // For standard I/O operations
+#include <fcntl.h>
 
 /* ---------------------------- Error Message Macros ------------------------- */
 /* Macros for standard error messages used throughout the Minishell project */
@@ -78,6 +79,7 @@ typedef struct s_master {
     struct s_command *cmds;      // Linked list of parsed commands
     struct s_env     *env;       // Linked list of environment variables
     unsigned char    errorcode;  // Last exit status code
+	int				*pids;
 } t_master;
 
 /* Additional structures for norminette compliance */
@@ -162,13 +164,20 @@ int             is_variable(char *token);          // Check if token is a variab
 char            *expand_variable(char *token, t_master *master); // Expand variable
 
 /* Executor Functions */
-void            executor(t_master *master);        // Execute parsed commands
+void			ft_exec(t_master *master);
+void			ft_execpipe(t_master *master);
+void			ft_execbuiltin(t_master *master);
+int				ft_openinfiles(t_master *master, t_command currentcmd);
+int				ft_openoutfiles(t_master *master, t_command currentcmd);
+void			ft_checkcmdpath(t_master *master, t_command currentcmd);
+int				ft_isbuiltin(t_command cmd);
 
 /* Heredoc functions*/
 void            handle_heredoc(t_command *cmd, t_master *master);    // Handle heredoc input
 int				is_quoted_delimiter(char *delimiter);
 
 /* Built-in Functions */
+int				ft_cd(t_master *master);
 void            ft_echo(t_command cmd);            // Echo command built-in
 void            ft_env(t_master master);           // Print environment variables
 void            ft_exit(t_command cmd);            // Exit shell built-in
@@ -197,6 +206,11 @@ int	check_signal(void);
 /* Main Functions */
 t_master        *init_master(void);                // Initialize master structure
 void            free_master(t_master *master);     // Free master structure
+
+/* Free functions */
+void ft_freeandexit(t_master *master, unsigned char exitcode);
+void ft_freecmds(t_master *master);
+void ft_freechararr(char **array);
 
 /* Error Handling */
 void            ft_printerror(char *cmd, char *errfile, char *errormsg); // Print error message

@@ -76,9 +76,9 @@ int	handle_single_quote(t_lexer_data *data)
 		data->buffer[*pos_ptr] = '\0';
 		*(data->state) = NORMAL;
 
-		write(1, "handle_single_quote adding token: ", 34);
-		write(1, data->buffer, ft_strlen(data->buffer));
-		write(1, "\n", 1);
+		// write(1, "handle_single_quote adding token: ", 34);
+		// write(1, data->buffer, ft_strlen(data->buffer));
+		// write(1, "\n", 1);
 
 		if (!add_token(data->tokens, data->buffer))
 			return (0);
@@ -89,9 +89,9 @@ int	handle_single_quote(t_lexer_data *data)
 		*(data->state) = NORMAL;
 		data->buffer[*pos_ptr] = '\0';
 
-		write(1, "handle_single_quote adding token (unclosed): ", 45);
-		write(1, data->buffer, ft_strlen(data->buffer));
-		write(1, "\n", 1);
+		// write(1, "handle_single_quote adding token (unclosed): ", 45);
+		// write(1, data->buffer, ft_strlen(data->buffer));
+		// write(1, "\n", 1);
 
 		if (!add_token(data->tokens, data->buffer))
 			return (0);

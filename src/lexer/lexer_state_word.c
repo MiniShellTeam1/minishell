@@ -23,9 +23,9 @@ int handle_word(t_lexer_data *data)
         *(data->state) = NORMAL;
         (data->buffer)[*(data->buf_pos)] = '\0';
         
-        write(1, "handle_word adding token: ", 26);
-        write(1, data->buffer, ft_strlen(data->buffer));
-        write(1, "\n", 1);
+        // write(1, "handle_word adding token: ", 26);
+        // write(1, data->buffer, ft_strlen(data->buffer));
+        // write(1, "\n", 1);
         
         if (!add_token(data->tokens, data->buffer))
             return (0);
@@ -38,9 +38,9 @@ int handle_word(t_lexer_data *data)
         if (*(data->buf_pos) > 0)
         {
             (data->buffer)[*(data->buf_pos)] = '\0';
-            write(1, "handle_word adding token: ", 26);
-            write(1, data->buffer, ft_strlen(data->buffer));
-            write(1, "\n", 1);
+            // write(1, "handle_word adding token: ", 26);
+            // write(1, data->buffer, ft_strlen(data->buffer));
+            // write(1, "\n", 1);
             if (!add_token(data->tokens, data->buffer))
                 return (0);
             *(data->buf_pos) = 0;
@@ -56,9 +56,9 @@ int handle_word(t_lexer_data *data)
         if (*(data->buf_pos) > 0)
         {
             (data->buffer)[*(data->buf_pos)] = '\0';
-            write(1, "handle_word adding token: ", 26);
-            write(1, data->buffer, ft_strlen(data->buffer));
-            write(1, "\n", 1);
+            // write(1, "handle_word adding token: ", 26);
+            // write(1, data->buffer, ft_strlen(data->buffer));
+            // write(1, "\n", 1);
             if (!add_token(data->tokens, data->buffer))
                 return (0);
             *(data->buf_pos) = 0;
@@ -108,9 +108,9 @@ int handle_operator(t_lexer_data *data)
         if (*(data->buf_pos) < 1024)
             (data->buffer)[*(data->buf_pos)] = '\0';
         
-        write(1, "handle_operator adding token: ", 30);
-        write(1, data->buffer, ft_strlen(data->buffer));
-        write(1, "\n", 1);
+        // write(1, "handle_operator adding token: ", 30);
+        // write(1, data->buffer, ft_strlen(data->buffer));
+        // write(1, "\n", 1);
         
         if (!add_token(data->tokens, data->buffer))
             return (0);

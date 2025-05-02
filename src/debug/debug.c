@@ -6,7 +6,7 @@
 /*   By: mhuthmay <mhuthmay@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/16 13:23:12 by mhuthmay          #+#    #+#             */
-/*   Updated: 2025/04/23 16:38:40 by mhuthmay         ###   ########.fr       */
+/*   Updated: 2025/05/02 19:16:40 by mhuthmay         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,7 +23,7 @@ void print_tokens(t_token_list *tokens)
 {
     size_t i;
 
-    if (!DEBUG)
+    if (DEBUG)
         return;
     if (!tokens)
     {
@@ -50,7 +50,7 @@ void print_parsed_commands(t_command *cmd)
     t_command *current;
     size_t i;
 
-    if (!DEBUG)
+    if (DEBUG)
         return;
     if (!cmd)
     {
@@ -104,7 +104,7 @@ void print_parsed_commands(t_command *cmd)
 
 void print_master(t_master *master)
 {
-    if (!DEBUG)
+    if (DEBUG)
         return;
     if (!master)
     {
@@ -120,7 +120,7 @@ void print_master(t_master *master)
 
 void debug_shell_state(t_token_list *tokens, t_command *cmd, t_master *master, const char *stage)
 {
-    if (!DEBUG)
+    if (DEBUG)
         return;
     printf("\n=== Debug: %s ===\n", stage);
     if (tokens)

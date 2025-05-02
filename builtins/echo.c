@@ -1,4 +1,4 @@
-#include "executor.h"
+#include "../executor.h"
 
 static int ft_countargs(char **args);
 static int ft_checkminusnl(char **args);

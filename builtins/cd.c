@@ -1,5 +1,5 @@
-#include "executor.h"
-#include "errormsg.h"
+#include "../executor.h"
+#include "../errormsg.h"
 
 static int ft_checkdir(t_command *cmd);
 static int ft_checkargs(t_command *cmd);

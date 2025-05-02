@@ -1,5 +1,5 @@
-#include "executor.h"
-#include "errormsg.h"
+#include "../executor.h"
+#include "../errormsg.h"
 
 void ft_exit(t_command cmd)
 {
@@ -21,14 +21,4 @@ void ft_exit(t_command cmd)
     //! errno = 2;
     //! return ;
     exit(errorcode);
-}
-
-int main()
-{
-    /* t_command test;
-    char *args3[] = {"exit", "-222", "", NULL};
-    test.args = args3;
-    ft_exit(test);
-    return (errno); */
-    return -1;
 }

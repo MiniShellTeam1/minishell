@@ -36,10 +36,8 @@ typedef struct s_env {
     struct s_env *next;
 }   t_env;
 
+//error
 void ft_printerror(char *cmd, char *errfile, char *errormsg);
-
-//env
-void ft_env(t_master master);
 
 //libft
 void ft_putstr_fd(char *str, int fd);
@@ -66,14 +64,24 @@ char **ft_getenvarray(t_master *master);
 int ft_lstlen(t_master master);
 
 //builtins
+void ft_env(t_master master);
 void ft_unset(t_master *master);
 void ft_export(t_master *master);
 int ft_pwd();
 int ft_cd(t_master *master);
+void ft_exit(t_command cmd);
+void ft_echo(t_command cmd);
 
 //execution
+void ft_exec(t_master *master);
+void ft_execpipe(t_master *master);
+void ft_execbuiltin(t_master *master);
+
+//execution utils
 int ft_openinfiles(t_master *master, t_command currentcmd);
 int ft_openoutfiles(t_master *master, t_command currentcmd);
+void ft_checkcmdpath(t_master *master, t_command currentcmd);
+int ft_isbuiltin(t_command cmd);
 
 //free
 void ft_freeandexit(t_master *master, unsigned char exitcode);

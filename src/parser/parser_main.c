@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   parser_main.c                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: feanor <feanor@student.42.fr>              +#+  +:+       +#+        */
+/*   By: mhuthmay <mhuthmay@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/02 15:30:00 by mhuthmay          #+#    #+#             */
-/*   Updated: 2025/05/02 11:43:25 by feanor           ###   ########.fr       */
+/*   Updated: 2025/05/02 15:49:22 by mhuthmay         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,12 +41,16 @@ static void validate_command(t_command *cmd)
     }
     if (is_builtin(cmd->args[0]))
     {
+        free(cmd->cmdpath);
         cmd->cmdpath = ft_strdup(cmd->args[0]);
+        free(cmd->errormsg);
         cmd->errormsg = NULL;
     }
     else
     {
+        free(cmd->cmdpath);
         cmd->cmdpath = NULL;
+        free(cmd->errormsg);
         cmd->errormsg = ft_strdup("command not found");
     }
 }

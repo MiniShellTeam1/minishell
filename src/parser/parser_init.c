@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   parser_init.c                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: feanor <feanor@student.42.fr>              +#+  +:+       +#+        */
+/*   By: mhuthmay <mhuthmay@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/02 15:30:00 by mhuthmay          #+#    #+#             */
-/*   Updated: 2025/05/02 11:13:46 by feanor           ###   ########.fr       */
+/*   Updated: 2025/05/02 15:48:08 by mhuthmay         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -69,6 +69,9 @@ int add_arg(t_command *cmd, char *arg)
     size_t  i;
     char    *dup;
     char    **new_args;
+
+    if (!arg || arg[0] == '\0')
+        return (1);
 
     dup = ft_strdup(arg);
     if (!dup)

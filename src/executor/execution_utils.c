@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   execution_utils.c                                  :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mhuthmay <mhuthmay@student.42.fr>          +#+  +:+       +#+        */
+/*   By: nico <nico@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/02 18:41:11 by ncantona          #+#    #+#             */
-/*   Updated: 2025/05/02 19:32:43 by mhuthmay         ###   ########.fr       */
+/*   Updated: 2025/05/04 19:10:50 by nico             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -76,20 +76,23 @@ int ft_openoutfiles(t_master *master, t_command currentcmd)
 
 /* checks if there is a path to the cmd and prints errormsg on error */
 
-void ft_checkcmdpath(t_master *master, t_command currentcmd)
+void ft_checkcmdpath(t_master *master, t_command *currentcmd)
 {
-	if (ft_isbuiltin(currentcmd))
-		return ;
-	else if (!currentcmd.cmdpath)
-	{
-		ft_printerror(currentcmd.args[0], NULL, COMMAND_NOT_FOUND);
-		ft_freeandexit(master, 127);
-	}
-	else if (access(currentcmd.cmdpath, X_OK) != 0)
-	{
-		ft_printerror(currentcmd.args[0], NULL, PERMISSION_DENIED);
-		ft_freeandexit(master, 126);
-	}
+    if (ft_isbuiltin(*currentcmd))
+        return ;
+    ft_checkforcmdpath(master, currentcmd);
+	if (access(master->cmds->cmdpath, F_OK) != 0)
+    {
+        ft_printerror(master->cmds->args[0], NULL, COMMAND_NOT_FOUND);
+        free(master->cmds->cmdpath);
+        ft_freeandexit(master, 127);
+    }
+    else if (access(master->cmds->cmdpath, X_OK) != 0)
+    {
+        ft_printerror(master->cmds->args[0], NULL, PERMISSION_DENIED);
+        free(master->cmds->cmdpath);
+        ft_freeandexit(master, 126);
+    }
 }
 
 /* checking if the given command is a builtin function */

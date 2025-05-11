@@ -3,122 +3,148 @@
 void ft_execbuiltin(t_master *master);
 void ft_execpipe(t_master *master);
 int ft_isbuiltin(t_command cmd);
-void ft_checkcmdpath(t_master *master, t_command currentcmd);
+void ft_checkcmdpath(t_master *master, t_command *currentcmd);
 
 void ft_exec(t_master *master)
 {
 	if ((master->cmds->next && master->cmds->next->args) || !ft_isbuiltin(*master->cmds))
 		ft_execpipe(master);
-	else if (ft_isbuiltin(*master->cmds))
+	else
 		ft_execbuiltin(master);
 } 
-
 void ft_execpipe(t_master *master)
 {
-	static int pid = -1;
-	int infilefd;
+    int pipes[2][2];
+    int infilefd;
 	int outfilefd;
-	char **env;
-	int x;
-	int pipes[4];
+	int pid;
+    char **env;
+    int x;
 
 	x = 0;
-	while (master->cmds && master->cmds->args)
-	{
-		if (x % 2 == 0 && master->cmds->next->args)
-		{
-			printf("%d\n", x);
-			write(1, "open pipe1\n", 12);
-			pipe(&pipes[0]);
-		}
-		else if (x % 2 != 0 && master->cmds->next->args)
-		{
-			printf("%d\n", x);
-			write(1, "open pipe2\n", 12);
-			pipe(&pipes[2]);
-		}
-		master->pids[++pid] = fork();
-		if (master->pids[pid] == -1)
-			ft_freeandexit(master, 1);
-		if (master->pids[pid] == 0)
-		{
-			infilefd = ft_openinfiles(master, *master->cmds);
-			outfilefd = ft_openoutfiles(master, *master->cmds);
-			ft_checkcmdpath(master, *master->cmds);
-			if (infilefd)
-			{
-				printf("%d\n", x);
-				write(1, "dup infile\n", 12);
-				dup2(infilefd, STDOUT_FILENO);
-			}
-			else if (!infilefd && x != 0 && x % 2 != 0)
-			{
-				printf("%d\n", x);
-				write(1, "dup pipe1\n", 11);
-				dup2(pipes[0], STDIN_FILENO);
-			}
-			else if (!infilefd && x != 0 && x % 2 == 0)
-			{
-				printf("%d\n", x);
-				write(1, "dup pipe2\n", 11);
-				dup2(pipes[2], STDIN_FILENO);
-			}
-			if (outfilefd)
-			{
-				printf("%d\n", x);
-				write(1, "dup outfile\n", 13);
-				dup2(outfilefd, STDOUT_FILENO);
-			}
-			else if (!outfilefd && master->cmds && x % 2 == 0)
-			{
-				printf("%d\n", x);
-				write(1, "dup pipe1 out\n", 15);
-				dup2(pipes[1], STDOUT_FILENO);
-			}
-			else if (!outfilefd && master->cmds->next->args && master->cmds && x % 2 != 0)
-			{
-				printf("%d\n", x);
-				write(1, "dup pipe2 out\n", 15);
-				dup2(pipes[3], STDOUT_FILENO);
-			}
- 			if (x % 2 == 0 && master->cmds)
-			{
-				close(pipes[0]);
-				//close(pipes[1]);
-			}
-			if (x % 2 != 0 && master->cmds)
-			{
-				close(pipes[2]);
-				close(pipes[1]);
-			}
-			env = ft_getenvarray(master);
-			if (!env)
-				ft_freeandexit(master, 1);
-			execve(master->cmds->cmdpath, master->cmds->args, env);
-			close (infilefd);
-			close (outfilefd);
-			ft_freechararr(env);
-			ft_freeandexit(master, 1);
-		}
-		master->cmds = master->cmds->next;
-		x++;
-	}
+    while (master->cmds && master->cmds->args)
+    {
+        if (master->cmds->next && master->cmds->next->args)
+            if (pipe(pipes[x % 2]) == -1)
+                ft_freeandexit(master, 1);
+        pid = fork();
+        if (pid == -1)
+            ft_freeandexit(master, 1);
+        if (pid == 0)
+        {
+            infilefd = ft_openinfiles(master, *master->cmds);
+            outfilefd = ft_openoutfiles(master, *master->cmds);
+            ft_checkcmdpath(master, master->cmds);
+            if (infilefd > 0)
+                dup2(infilefd, STDIN_FILENO); //! protecten nicht vergessen
+            else if (x > 0)
+                dup2(pipes[(x + 1) % 2][0], STDIN_FILENO); //! protecten nicht vergessen
+            if (outfilefd > 0)
+                dup2(outfilefd, STDOUT_FILENO); //! protecten nicht vergessen
+            else if (master->cmds->next && master->cmds->next->args)
+                dup2(pipes[x % 2][1], STDOUT_FILENO); //! protecten nicht vergessen
+            if (pipes[0][0] != -1)
+                close(pipes[0][0]);
+            if (pipes[0][1] != -1)
+                close(pipes[0][1]);
+            if (pipes[1][0] != -1)
+                close(pipes[1][0]);
+            if (pipes[1][1] != -1)
+                close(pipes[1][1]);
+            env = ft_getenvarray(master);
+            if (!env)
+                ft_freeandexit(master, 1);
+            if (ft_isbuiltin(*master->cmds))
+                ft_execbuiltin(master);
+            else
+                execve(master->cmds->cmdpath, master->cmds->args, env);
+			if (infilefd > 0)
+            	close(infilefd);
+            if (outfilefd > 0)
+				close(outfilefd);
+            ft_freechararr(env);
+            ft_freeandexit(master, 1);
+        }
+        if (x > 0)
+        {
+            close(pipes[(x + 1) % 2][0]);
+            close(pipes[(x + 1) % 2][1]);
+        }
+        master->cmds = master->cmds->next;
+        x++;
+    }
 }
 
 void ft_execbuiltin(t_master *master)
 {
-	if (!ft_strcmp(master->cmds->args[0], "unset"))
+    if (!ft_strcmp(master->cmds->args[0], "unset"))
 		ft_unset(master);
 	else if (!ft_strcmp(master->cmds->args[0], "export"))
 		ft_export(master);
-	// else if (!ft_strcmp(master->cmds->args[0], "pwd"))
-		// ft_pwd();
-	//else if (!ft_strcmp(master->cmds->args[0], "cd"))
-		//ft_cd(master);
-	//else if (!ft_strcmp(master->cmds->args[0], "echo"))
-		//ft_echo(master);
+	else if (!ft_strcmp(master->cmds->args[0], "pwd"))
+		ft_pwd();
+	else if (!ft_strcmp(master->cmds->args[0], "cd")) //!fixen
+		ft_cd(master);
+	else if (!ft_strcmp(master->cmds->args[0], "echo"))
+		ft_echo(*master->cmds);
 	//else if (!ft_strcmp(master->cmds->args[0], "exit"))
 		//ft_exit(master);
 	else if (!ft_strcmp(master->cmds->args[0], "env"))
 		ft_env(*master);
+}
+
+char	**ft_getpathsarr(t_master master)
+{
+	char	**paths;
+    
+	while (master.env->next)
+	{
+		if (!ft_strcmp(master.env->key, "PATH"))
+        {
+			paths = ft_split(master.env->value, ':');
+            if (!paths)
+                ft_freeandexit(&master, 1);
+			return (paths);
+        }
+        master.env = master.env->next;
+    }
+	return (NULL);
+}
+
+/* checks for the finalpath access */
+
+void	ft_checkforcmdpath(t_master *master, t_command *currentcmd)
+{
+	int		x;
+    char **paths;
+    char cwd[1024];
+
+	x = 0;
+    paths = ft_getpathsarr(*master);
+    if (!paths)
+    {
+        ft_freeandexit(master, 1);
+    }
+	while (paths && paths[x])
+	{
+        currentcmd->cmdpath = ft_strjoin3(paths[x], "/", currentcmd->args[0]);
+		if (!currentcmd->cmdpath)
+        {
+            ft_freechararr(paths);
+            ft_freeandexit(master, 1);
+        }
+        if (access(currentcmd->cmdpath, X_OK) == 0)
+			return ;
+		free(currentcmd->cmdpath);
+		x++;
+	}
+    ft_freechararr(paths);
+    if (!getcwd(cwd, sizeof(cwd)))
+    {
+        currentcmd->cmdpath = NULL;
+        return ;
+    }
+    currentcmd->cmdpath = ft_strjoin3(cwd, "/", currentcmd->args[0]);
+	if (!currentcmd->cmdpath)
+		ft_freeandexit(master, 1);
 }

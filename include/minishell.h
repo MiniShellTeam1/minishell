@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   minishell.h                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mhuthmay <mhuthmay@student.42.fr>          +#+  +:+       +#+        */
+/*   By: nico <nico@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/16 13:23:29 by mhuthmay          #+#    #+#             */
-/*   Updated: 2025/05/02 19:27:24 by mhuthmay         ###   ########.fr       */
+/*   Updated: 2025/05/04 00:00:17 by nico             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -117,6 +117,7 @@ char    *ft_strndup(const char *s, size_t n);      // Duplicate n chars of a str
 
 /* Utility Functions - utils_io.c */
 void    ft_putstr_fd(char *str, int fd);           // Write string to file descriptor
+char	**ft_split(char *tosplit, char seperator);
 
 /* Utility Functions - utils_convert.c */
 char    *ft_itoa(int num);                         // Convert integer to string
@@ -169,8 +170,10 @@ void			ft_execpipe(t_master *master);
 void			ft_execbuiltin(t_master *master);
 int				ft_openinfiles(t_master *master, t_command currentcmd);
 int				ft_openoutfiles(t_master *master, t_command currentcmd);
-void			ft_checkcmdpath(t_master *master, t_command currentcmd);
+void			ft_checkcmdpath(t_master *master, t_command *currentcmd);
 int				ft_isbuiltin(t_command cmd);
+void	        ft_checkforcmdpath(t_master *master, t_command *currentcmd);
+char	        **ft_getpathsarr(t_master master);
 
 /* Heredoc functions*/
 void            handle_heredoc(t_command *cmd, t_master *master);    // Handle heredoc input

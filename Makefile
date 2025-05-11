@@ -61,9 +61,9 @@ OBJS = $(SRCS:%.c=$(OBJ_DIR)/%.o)
 HEADERS = $(INCLUDE_DIR)/minishell.h
 
 # Debug command
-debug: CFLAGS += -g -DDEBUG
-debug: clean $(NAME)
-	gdb --args ./$(NAME)
+#debug: CFLAGS += -g -DDEBUG
+#debug: clean $(NAME)
+#	gdb --args ./$(NAME)
 
 # Rules
 all: $(NAME)

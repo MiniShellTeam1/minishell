@@ -1,23 +1,35 @@
 #include "minishell.h"
 
 static int ft_checkdir(t_command *cmd);
-static int ft_checkargs(t_command *cmd);
+static int ft_checkargs(t_command *cmd, t_master master);
+void ft_setoldpwd(t_master *master);
+void ft_setpwd(t_master *master);
 
 /* builtin cd function like in bash */
 
 int ft_cd(t_master *master)
 {
-    if (ft_checkargs(master->cmds) || ft_checkdir(master->cmds) || chdir(master->cmds->args[1]) == -1)
+    int argenum;
+
+    argenum = ft_checkargs(master->cmds, *master);
+    ft_setoldpwd(master);
+    if (argenum == 2)
+    {
+        ft_setpwd(master);
+        return (0);
+    }
+    else if (argenum == 1 || ft_checkdir(master->cmds) || chdir(master->cmds->args[1]) == -1)
         return (1);
-    //ft_setoldpwd(&master);
-    //ft_setpwd(&master, master->cmds->args[1]);
+    ft_setpwd(master);
     return (0);
 }
 
 /* checks the arguments of cd | if there is no or more than 1 */
 
-static int ft_checkargs(t_command *cmd)
+static int ft_checkargs(t_command *cmd, t_master master)
 {
+    t_env *envvar;
+
     if (cmd->args[2])
     {
         ft_printerror(cmd->args[0], NULL, TOO_MANY_ARGUMENTS);
@@ -25,11 +37,15 @@ static int ft_checkargs(t_command *cmd)
     }
     if (!cmd->args[1])
     {
-        if (chdir(getenv("HOME")) == -1) //! ohne getenv sondern direkt in der envlist suchen!
+        envvar = ft_getvar(master.env, "HOME");
+        if (envvar)
         {
-            ft_printerror(cmd->args[0], "$HOME", NO_SUCH_FILE_OR_DIRECTORY);
-            return (1);
+            if(chdir(envvar->value) == -1)
+                return (1);
+            return (2);
         }
+        ft_printerror(cmd->args[0], "$HOME", NO_SUCH_FILE_OR_DIRECTORY);
+        return (1);
     }
     return (0);
 }
@@ -61,59 +77,38 @@ static int ft_checkdir(t_command *cmd)
     return (0);
 }
 
-// /* sets the OLDPWD in the enviroment if PWD var exists else empty string */
+/* sets the OLDPWD in the enviroment list*/
 
-// void ft_setoldpwd(t_master *master)
-// {
-//     t_env *tmp;
-//     char cwd[1024];
+void ft_setoldpwd(t_master *master)
+{
+    char cwd[1024];
+    t_env *oldpwdvar;
 
-//     tmp = master->env;
-//     while (tmp && ft_strcmp(tmp->key, "PWD"))
-//         tmp = tmp->next;
-//     while (master->env && ft_strcmp(master->env, "OLDPWD"))
-//         master->env = master->env->next;
-//     if (tmp && master->env)
-//     {
-//         free(master->env->value);
-//         master->env->value = tmp->value;
-//     }
-//     else if (tmp)
-//         ft_addvar(master->env, "OLDPWD", tmp->value);
-//     else if (master->env)
-//     {
-//         free(master->env->value);
-//         ft_addvar(master->env, "OLDPWD", "");
-//     }
-// }
+    oldpwdvar = ft_getvar(master->env, "OLDPWD");
+    getcwd(cwd, sizeof(cwd)); //! protecten!!!
+    if (oldpwdvar)
+    {
+        free(oldpwdvar->value);
+        oldpwdvar->value = ft_getstralloc(cwd); //! protecten!!!
+    }
+    else
+        ft_addvar(&master->env, "OLDPWD", ft_getstralloc(cwd)); //! protecten!!
+}
 
-// void ft_setpwd(t_master *master, char *newpwd)
-// {
-//     while (master->env && ft_strcmp(master->env->key, "PWD"))
-//         master->env = master->env->next;
-//     if (master->env)
-//     {
-//         free(master->env->value);
-// 		master->env->value = ft_getpwd();
-//     }
-// }
+/* sets the current pwd in the enviroment list */
 
-// char *ft_getpwd()
-// {
-// 	char cwd[1024];
-// 	char *pwd;
-// 	int x;
+void ft_setpwd(t_master *master)
+{
+    char cwd[1024];
+    t_env *pwdvar;
 
-// 	x = 0;
-// 	if (getcwd(cwd, sizeof(cwd)) != NULL)
-// 	{
-// 		pwd = malloc(sizeof(char) * ft_strlen(cwd) + 1);
-// 		if (!pwd)
-// 			return (NULL);
-// 		while (cwd[x])
-// 			pwd[x] = cwd[x];
-// 		x++;
-// 	}
-// 	pwd[x] = 0;
-// 	return (pwd);
-// }
+    pwdvar = ft_getvar(master->env, "PWD");
+    getcwd(cwd, sizeof(cwd)); //! protecten!!!
+    if (pwdvar)
+    {
+        free(pwdvar->value);
+        pwdvar->value = ft_getstralloc(cwd); //! protecten!!!
+    }
+    else
+        ft_addvar(&master->env, "PWD", ft_getstralloc(cwd)); //! protecten!!
+}

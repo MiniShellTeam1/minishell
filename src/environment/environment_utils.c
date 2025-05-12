@@ -118,7 +118,7 @@ char **ft_getenvarray(t_master *master)
 		x++;
 		tmp = tmp->next;
 	}
-	envarr[x] = 0;
+	envarr[x] = NULL;
 	return (envarr);
 }
 
@@ -133,4 +133,18 @@ int ft_lstlen(t_master master)
 		master.env = master.env->next;
 	}
 	return (x);
+}
+
+t_env *ft_getvar(t_env *env, char *key)
+{
+	t_env *tmpenv;
+
+	tmpenv = env;
+	while (tmpenv)
+	{
+		if (!ft_strcmp(tmpenv->key, key))
+			return (tmpenv);
+		tmpenv = tmpenv->next;
+	}
+	return (NULL);
 }

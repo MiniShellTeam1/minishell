@@ -6,7 +6,7 @@
 /*   By: nico <nico@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/16 13:23:29 by mhuthmay          #+#    #+#             */
-/*   Updated: 2025/05/04 00:00:17 by nico             ###   ########.fr       */
+/*   Updated: 2025/05/12 14:37:25 by nico             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,6 +23,7 @@
 #include <readline/history.h>  // For command history management
 #include <stdio.h>            // For standard I/O operations
 #include <fcntl.h>
+#include <sys/wait.h>
 
 /* ---------------------------- Error Message Macros ------------------------- */
 /* Macros for standard error messages used throughout the Minishell project */
@@ -79,7 +80,7 @@ typedef struct s_master {
     struct s_command *cmds;      // Linked list of parsed commands
     struct s_env     *env;       // Linked list of environment variables
     unsigned char    errorcode;  // Last exit status code
-	int				*pids;
+	pid_t				*pids;
 } t_master;
 
 /* Additional structures for norminette compliance */
@@ -200,6 +201,7 @@ void 			ft_freeenv(t_master *master);
 char			**ft_getenvarray(t_master *master);
 int				ft_lstlen(t_master master);
 char            *ft_addlvl(char *stringlvl);       // Increment SHLVL value
+t_env           *ft_getvar(t_env *env, char *key);
 
 /* Signal Handling Functions */
 void	setup_signals(void);

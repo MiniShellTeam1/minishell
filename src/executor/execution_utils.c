@@ -6,7 +6,7 @@
 /*   By: nico <nico@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/02 18:41:11 by ncantona          #+#    #+#             */
-/*   Updated: 2025/05/04 19:10:50 by nico             ###   ########.fr       */
+/*   Updated: 2025/05/12 18:22:23 by nico             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,7 @@ int ft_openinfiles(t_master *master, t_command currentcmd)
 	int fd;
 
 	x = 0;
-	if (!currentcmd.infiles || (!currentcmd.infiles && !currentcmd.infiles[x]))
+	if (!currentcmd.infiles || !currentcmd.infiles[x])
 		return (0);
 	while (currentcmd.infiles[x])
 	{
@@ -52,7 +52,7 @@ int ft_openoutfiles(t_master *master, t_command currentcmd)
 	int fd;
 
 	x = 0;
-	if (!currentcmd.outfiles || (!currentcmd.outfiles && !currentcmd.outfiles[x]))
+	if (!currentcmd.outfiles || !currentcmd.outfiles[x])
 		return (0);
 	while (currentcmd.outfiles[x])
 	{
@@ -85,12 +85,14 @@ void ft_checkcmdpath(t_master *master, t_command *currentcmd)
     {
         ft_printerror(master->cmds->args[0], NULL, COMMAND_NOT_FOUND);
         free(master->cmds->cmdpath);
+		master->cmds->cmdpath = NULL;
         ft_freeandexit(master, 127);
     }
     else if (access(master->cmds->cmdpath, X_OK) != 0)
     {
         ft_printerror(master->cmds->args[0], NULL, PERMISSION_DENIED);
         free(master->cmds->cmdpath);
+		master->cmds->cmdpath = NULL;
         ft_freeandexit(master, 126);
     }
 }

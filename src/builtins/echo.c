@@ -64,7 +64,10 @@ static void ft_printargs(int nlparam, int argsnum, char **args)
 
     x = 1;
     if (argsnum == 1)
+    {
         write(1, "\n", 1);
+        return ;
+    }
     if (argsnum - nlparam == 1)
         return ;
     if (nlparam > 0)

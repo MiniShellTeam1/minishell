@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mhuthmay <mhuthmay@student.42.fr>          +#+  +:+       +#+        */
+/*   By: nico <nico@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/02 15:30:00 by mhuthmay          #+#    #+#             */
-/*   Updated: 2025/05/02 19:29:32 by mhuthmay         ###   ########.fr       */
+/*   Updated: 2025/05/12 14:22:28 by nico             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -69,7 +69,6 @@ static void process_command_line(t_master *master, char *line)
     
     tokens = lexer(line);
     debug_shell_state(tokens, NULL, NULL, "After Lexing");
-    
     if (tokens)
     {
         master->cmds = parser(tokens, master);
@@ -77,7 +76,7 @@ static void process_command_line(t_master *master, char *line)
         
         if (master->cmds)
         {
-            handle_heredoc(master->cmds, master); // Updated call
+            handle_heredoc(master->cmds, master);
             set_errorcode(master);
             debug_shell_state(NULL, NULL, master, "Before Executor");
             ft_exec(master);
@@ -88,42 +87,34 @@ static void process_command_line(t_master *master, char *line)
     }
 }
 
-int main(int argc, char *argv[])
+int main(int argc, char *argv[], char **env)
 {
     t_master *master;
     char *line;
-    char **env;
 
     (void)argc;
     (void)argv;
-    
     master = init_master();
     if (!master)
         return (1);
-    
-    env = __environ;
     master->env = ft_createenvlist(env);
-    
     setup_signals();
-    
-    while ((line = readline("minishell> ")) != NULL)
+    while (1)
     {
+        line = readline("minishell> ");
         if (!line)
         {
             write(1, "exit\n", 5);
             break;
         }
-        
         if (check_signal())
         {
             free(line);
             continue;
         }
-        
         process_command_line(master, line);
         free(line);
     }
-    
     free_master(master);
     return (0);
 }

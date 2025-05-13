@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   parser_vars.c                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mhuthmay <mhuthmay@student.42.fr>          +#+  +:+       +#+        */
+/*   By: nico <nico@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/02 15:30:00 by mhuthmay          #+#    #+#             */
-/*   Updated: 2025/05/02 17:23:29 by mhuthmay         ###   ########.fr       */
+/*   Updated: 2025/05/13 02:04:36 by nico             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,7 +23,7 @@ static char	*get_var_name(char *token, size_t *var_len)
 	{
 		if (!(token[i] >= 'A' && token[i] <= 'Z') && !(token[i] >= 'a'
 				&& token[i] <= 'z') && !(token[i] >= '0' && token[i] <= '9')
-			&& token[i] != '_')
+			&& token[i] != '_' && token[i] != '?')
 			break ;
 		(*var_len)++;
 		i++;

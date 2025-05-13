@@ -6,7 +6,7 @@
 /*   By: nico <nico@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/16 13:23:29 by mhuthmay          #+#    #+#             */
-/*   Updated: 2025/05/12 14:37:25 by nico             ###   ########.fr       */
+/*   Updated: 2025/05/13 01:55:32 by nico             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -79,8 +79,9 @@ typedef struct s_command {
 typedef struct s_master {
     struct s_command *cmds;      // Linked list of parsed commands
     struct s_env     *env;       // Linked list of environment variables
-    unsigned char    errorcode;  // Last exit status code
+  // Last exit status code
 	pid_t				*pids;
+    int errorcode;
 } t_master;
 
 /* Additional structures for norminette compliance */

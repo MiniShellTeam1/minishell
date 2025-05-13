@@ -6,7 +6,7 @@
 /*   By: nico <nico@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/02 18:41:11 by ncantona          #+#    #+#             */
-/*   Updated: 2025/05/12 18:22:23 by nico             ###   ########.fr       */
+/*   Updated: 2025/05/13 01:55:41 by nico             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,12 +29,16 @@ int ft_openinfiles(t_master *master, t_command currentcmd)
 		if (access(currentcmd.infiles[x], F_OK) < 0)
 		{
 			ft_printerror(NULL, currentcmd.infiles[x], NO_SUCH_FILE_OR_DIRECTORY);
-			ft_freeandexit(master, 1);
+			master->errorcode = 1;
+			return (-1);
+			//ft_freeandexit(master, 1);
 		}
 		else if (fd == -1)
 		{
 			ft_printerror(NULL, currentcmd.infiles[x], PERMISSION_DENIED);
-			ft_freeandexit(master, 1);
+			master->errorcode = 1;
+			return (-1);
+			//ft_freeandexit(master, 1);
 		}
 		else if (currentcmd.infiles[x + 1])
 			close (fd);
@@ -65,7 +69,9 @@ int ft_openoutfiles(t_master *master, t_command currentcmd)
 		if (fd == -1)
 		{
 			ft_printerror(NULL, currentcmd.outfiles[x], PERMISSION_DENIED);
-			ft_freeandexit(master, 1);
+			master->errorcode = 1;
+			return (-1);
+			//ft_freeandexit(master, 1);
 		}
 		if (currentcmd.outfiles[x + 1])
 			close (fd);

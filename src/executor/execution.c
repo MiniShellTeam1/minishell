@@ -19,7 +19,11 @@ void ft_exec(t_master *master)
 	else
     {
         infilefd = ft_openinfiles(master, *master->cmds);
+        if (infilefd == -1)
+            return ;
         outfilefd = ft_openoutfiles(master, *master->cmds);
+        if (outfilefd == -1)
+            return ;
         if (infilefd > 0)
         {
             saved_stdin = dup(STDIN_FILENO);
@@ -45,11 +49,14 @@ void ft_exec(t_master *master)
         }
     }
     int i = 0;
+    int status;
     while (master->pids && master->pids[i])
     {
-        waitpid(master->pids[i], NULL, 0);
+        waitpid(master->pids[i], &status, 0);
         i++;
     }
+    if (i)
+        master->errorcode = WEXITSTATUS(status);
 } 
 void ft_execpipe(t_master *master)
 {
@@ -73,7 +80,11 @@ void ft_execpipe(t_master *master)
         if (master->pids[x] == 0)
         {
             infilefd = ft_openinfiles(master, *master->cmds);
+            if (infilefd == -1)
+                ft_freeandexit(master, master->errorcode);
             outfilefd = ft_openoutfiles(master, *master->cmds);
+            if (outfilefd == -1)
+                ft_freeandexit(master, master->errorcode);
             ft_checkcmdpath(master, master->cmds);
             if (infilefd > 0)
                 dup2(infilefd, STDIN_FILENO); //! protecten nicht vergessen

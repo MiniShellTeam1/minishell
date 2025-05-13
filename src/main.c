@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nico <nico@student.42.fr>                  +#+  +:+       +#+        */
+/*   By: ncantona <ncantona@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/02 15:30:00 by mhuthmay          #+#    #+#             */
-/*   Updated: 2025/05/12 14:22:28 by nico             ###   ########.fr       */
+/*   Updated: 2025/05/13 18:41:56 by ncantona         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,19 +14,19 @@
 
 static void set_errorcode(t_master *master)
 {
-    t_command *cmd;
+    // t_command *cmd;
 
-    cmd = master->cmds;
+    // cmd = master->cmds;
     master->errorcode = 0;
-    while (cmd)
-    {
-        if (cmd->errormsg)
-        {
-            master->errorcode = 1;
-            break;
-        }
-        cmd = cmd->next;
-    }
+    // while (cmd)
+    // {
+    //     if (cmd->errormsg)
+    //     {
+    //         master->errorcode = 1;
+    //         break;
+    //     }
+    //     cmd = cmd->next;
+    // }
 }
 
 t_master *init_master(void)
@@ -116,5 +116,5 @@ int main(int argc, char *argv[], char **env)
         free(line);
     }
     free_master(master);
-    return (0);
+    return (master->errorcode);
 }

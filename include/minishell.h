@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   minishell.h                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nico <nico@student.42.fr>                  +#+  +:+       +#+        */
+/*   By: ncantona <ncantona@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/16 13:23:29 by mhuthmay          #+#    #+#             */
-/*   Updated: 2025/05/13 01:55:32 by nico             ###   ########.fr       */
+/*   Updated: 2025/05/13 17:56:32 by ncantona         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -182,7 +182,7 @@ void            handle_heredoc(t_command *cmd, t_master *master);    // Handle h
 int				is_quoted_delimiter(char *delimiter);
 
 /* Built-in Functions */
-int				ft_cd(t_master *master);
+void			ft_cd(t_master *master);
 void            ft_echo(t_command cmd);            // Echo command built-in
 void            ft_env(t_master master);           // Print environment variables
 void            ft_exit(t_command cmd);            // Exit shell built-in

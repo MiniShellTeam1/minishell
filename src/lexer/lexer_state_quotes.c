@@ -33,9 +33,9 @@ int	handle_double_quote(t_lexer_data *data)
 		// Terminate buffer and add token
 		data->buffer[*pos_ptr] = '\0';
 		*(data->state) = NORMAL;
-		write(1, "handle_double_quote adding token: ", 34);
-		write(1, data->buffer, ft_strlen(data->buffer));
-		write(1, "\n", 1);
+		//write(1, "handle_double_quote adding token: ", 34);
+		//write(1, data->buffer, ft_strlen(data->buffer));
+		//write(1, "\n", 1);
 		if (!add_token(data->tokens, data->buffer))
 			return (0);
 		*pos_ptr = 0; // Reset buffer position

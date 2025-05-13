@@ -47,7 +47,7 @@ static int ft_checkminusnl(char **args)
             while (args[x][y] && args[x][y] == 'n')
                 y++;
         }
-        if (y >= 1 && !args[x][y])
+        if (y >= 2 && !args[x][y])
             nlparam++;
         else
             break;

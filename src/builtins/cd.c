@@ -7,7 +7,7 @@ void ft_setpwd(t_master *master);
 
 /* builtin cd function like in bash */
 
-int ft_cd(t_master *master)
+void ft_cd(t_master *master)
 {
     int argenum;
 
@@ -16,12 +16,14 @@ int ft_cd(t_master *master)
     if (argenum == 2)
     {
         ft_setpwd(master);
-        return (0);
+        return ;
     }
     else if (argenum == 1 || ft_checkdir(master->cmds) || chdir(master->cmds->args[1]) == -1)
-        return (1);
+    {
+		master->errorcode = 1;
+		return ;
+	}
     ft_setpwd(master);
-    return (0);
 }
 
 /* checks the arguments of cd | if there is no or more than 1 */

@@ -2,14 +2,8 @@
 
 void ft_putstr_fd(char *str, int fd)
 {
-    int x;
-
-    x = 0;
-    while (str[x])
-    {
-        write(fd, &str[x], 1);
-        x++;
-    }
+    if (str)
+        write(fd, str, ft_strlen(str));
 }
 
 int ft_strcmp(char *str1, char *str2)

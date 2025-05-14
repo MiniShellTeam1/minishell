@@ -1,23 +1,74 @@
 #include "minishell.h"
 
-void ft_exit(t_command cmd)
-{
-    unsigned char errorcode; //! diese variable in einer struct speichern und dort setzen
+long ft_atol(char *str, int *overflow);
 
-    if (!cmd.args[1])
-        errorcode = 0;
-    else
-        errorcode = (unsigned char)atoi(cmd.args[1]); //!mit ft_atoi ersetzen aus libft
-    ft_putstr_fd("exit\n", 1);
-    if (cmd.args[2])
+void ft_exit(t_master master)
+{
+    long errorcode;
+    int overflow;
+
+    overflow = 0;
+    if (!master.cmds->args[1])
     {
-        ft_printerror(cmd.args[0], NULL, TOO_MANY_ARGUMENTS);
-        errno = 1;
-        return ;
+        master.errorcode = 0;
+        exit (0);
     }
-    //!Overflow check hinzufügen
-    //! if (overflow true)
-    //! errno = 2;
-    //! return ;
-    exit(errorcode);
+    if (master.cmds->args[2])
+    {
+        ft_printerror(master.cmds->args[0], NULL, TOO_MANY_ARGUMENTS);
+        master.errorcode = 1;
+        exit (1);
+    }
+    errorcode = ft_atol(master.cmds->args[1], &overflow);
+    if (overflow == 1)
+    {
+        ft_printerror(master.cmds->args[0], master.cmds->args[1], NUMERIC_ARGUMENT_REQUIRED);
+        master.errorcode = 2;
+        exit (2);
+    }
+    ft_putstr_fd("exit\n", 1);
+    master.errorcode = (unsigned char)errorcode;
+    exit(master.errorcode);
+}
+
+long ft_atol(char *str, int *overflow)
+{
+    long result;
+    int sign;
+    int digit;
+    
+    result = 0;
+    sign = 1;
+    *overflow = 0;
+    while ((*str >= '\a' && *str <= '\n') || *str == ' ')
+        str ++;
+    if (*str == '+' || *str == '-')
+    {
+        if (*str == '-')
+            sign = -1;
+        str++;
+    }
+    while (*str >= '0' && *str <= '9')
+    {
+        digit = *str - '0';
+        if (sign == 1)
+        {
+            if (result > (LONG_MAX - digit) / 10)
+            {
+                *overflow = 1;
+                return (0);
+            }
+        }
+        else
+        {
+            if (result > (-(LONG_MIN + digit)) / 10)
+            {
+                *overflow = 1;
+                return (0);
+            }
+        }
+        result = result * 10 + digit;
+        str++;
+    }
+    return (sign * result);
 }

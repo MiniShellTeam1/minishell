@@ -6,7 +6,7 @@
 /*   By: nico <nico@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/16 13:23:29 by mhuthmay          #+#    #+#             */
-/*   Updated: 2025/05/14 00:00:03 by nico             ###   ########.fr       */
+/*   Updated: 2025/05/14 14:55:00 by nico             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,6 +24,7 @@
 #include <stdio.h>            // For standard I/O operations
 #include <fcntl.h>
 #include <sys/wait.h>
+#include <limits.h>
 
 /* ---------------------------- Error Message Macros ------------------------- */
 /* Macros for standard error messages used throughout the Minishell project */
@@ -35,6 +36,7 @@
 # define TOO_MANY_LEVELS_OF_SYMB_LINK "Too many levels of symbolic links\n" // Exit code: 1
 # define FILE_NAME_TOO_LONG "File name too long\n" // Exit code: 1
 # define COMMAND_NOT_FOUND "command not found\n" // Exit code: 127
+# define NUMERIC_ARGUMENT_REQUIRED "numeric argument required\n" // errorcode 2
 
 /* ------------------------- Enums and Struct Definitions -------------------- */
 
@@ -185,7 +187,7 @@ int				is_quoted_delimiter(char *delimiter);
 int 			ft_cd(t_master *master);
 int             ft_echo(t_command cmd);            // Echo command built-in
 int             ft_env(t_master master);           // Print environment variables
-void            ft_exit(t_command cmd);            // Exit shell built-in
+void            ft_exit(t_master master);            // Exit shell built-in
 int             ft_export(t_master *master);       // Export environment variable
 int             ft_pwd(void);                      // Print working directory
 int             ft_unset(t_master *master);        // Unset environment variable

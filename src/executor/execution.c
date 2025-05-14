@@ -158,8 +158,8 @@ void ft_execbuiltin(t_master *master)
 		ft_cd(master);
 	else if (!ft_strcmp(master->cmds->args[0], "echo"))
 		ft_echo(*master->cmds);
-	//else if (!ft_strcmp(master->cmds->args[0], "exit"))
-		//ft_exit(master);
+    else if (!ft_strcmp(master->cmds->args[0], "exit"))
+		ft_exit(*master);
 	else if (!ft_strcmp(master->cmds->args[0], "env"))
 		ft_env(*master);
 }

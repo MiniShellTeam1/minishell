@@ -138,7 +138,7 @@ int ft_countcmd(t_command *cmds)
 
     tmp = cmds;
     count = 0;
-    while (tmp)
+    while (tmp && !ft_isbuiltin(*tmp))
     {
         count++;
         tmp = tmp->next;

@@ -1,13 +1,12 @@
 #include "minishell.h"
 
 long ft_atol(char *str, int *overflow);
+static void ft_checknumeric(t_master master, long *errorcode);
 
 void ft_exit(t_master master)
 {
     long errorcode;
-    int overflow;
 
-    overflow = 0;
     if (!master.cmds->args[1])
     {
         master.errorcode = 0;
@@ -19,16 +18,35 @@ void ft_exit(t_master master)
         master.errorcode = 1;
         exit (1);
     }
-    errorcode = ft_atol(master.cmds->args[1], &overflow);
+    ft_checknumeric(master, &errorcode);
+    ft_putstr_fd("exit\n", 1);
+    master.errorcode = (unsigned char)errorcode;
+    exit(master.errorcode);
+}
+
+static void ft_checknumeric(t_master master, long *errorcode)
+{
+    int overflow;
+    int x;
+
+    x = 0;
+    while (master.cmds->args[1][x])
+    {
+        if (master.cmds->args[1][x] <= '0' || master.cmds->args[1][x] >= '9')
+        {
+            ft_printerror(master.cmds->args[0], master.cmds->args[1], NUMERIC_ARGUMENT_REQUIRED);
+            master.errorcode = 2;
+            exit (2);
+        }
+        x++;
+    }
+    *errorcode = ft_atol(master.cmds->args[1], &overflow);
     if (overflow == 1)
     {
         ft_printerror(master.cmds->args[0], master.cmds->args[1], NUMERIC_ARGUMENT_REQUIRED);
         master.errorcode = 2;
         exit (2);
     }
-    ft_putstr_fd("exit\n", 1);
-    master.errorcode = (unsigned char)errorcode;
-    exit(master.errorcode);
 }
 
 long ft_atol(char *str, int *overflow)

@@ -6,7 +6,7 @@
 /*   By: nico <nico@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/16 13:23:29 by mhuthmay          #+#    #+#             */
-/*   Updated: 2025/05/14 14:55:00 by nico             ###   ########.fr       */
+/*   Updated: 2025/05/14 17:34:12 by nico             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -118,6 +118,7 @@ size_t  ft_strlcat(char *dst, const char *src, size_t size); // Safe string conc
 int     ft_strncmp(const char *s1, const char *s2, size_t n); // Compare n chars of two strings
 int     ft_strchr(char *str, char c);              // Find character in string
 char    *ft_strndup(const char *s, size_t n);      // Duplicate n chars of a string
+long    ft_atol(char *str, int *overflow);
 
 /* Utility Functions - utils_io.c */
 void    ft_putstr_fd(char *str, int fd);           // Write string to file descriptor

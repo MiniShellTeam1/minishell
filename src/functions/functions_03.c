@@ -6,7 +6,7 @@
 /*   By: nico <nico@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/16 14:47:45 by mhuthmay          #+#    #+#             */
-/*   Updated: 2025/05/03 23:55:35 by nico             ###   ########.fr       */
+/*   Updated: 2025/05/14 17:25:08 by nico             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -155,4 +155,46 @@ char	**ft_split(char *tosplit, char seperator)
 	if (!splitted)
 		return (NULL);
 	return (splitted);
+}
+
+long ft_atol(char *str, int *overflow)
+{
+    long result;
+    int sign;
+    int digit;
+    
+    result = 0;
+    sign = 1;
+    *overflow = 0;
+    while ((*str >= '\a' && *str <= '\n') || *str == ' ')
+        str ++;
+    if (*str == '+' || *str == '-')
+    {
+        if (*str == '-')
+            sign = -1;
+        str++;
+    }
+    while (*str >= '0' && *str <= '9')
+    {
+        digit = *str - '0';
+        if (sign == 1)
+        {
+            if (result > (LONG_MAX - digit) / 10)
+            {
+                *overflow = 1;
+                return (0);
+            }
+        }
+        else
+        {
+            if (result > (-(LONG_MIN + digit)) / 10)
+            {
+                *overflow = 1;
+                return (0);
+            }
+        }
+        result = result * 10 + digit;
+        str++;
+    }
+    return (sign * result);
 }

@@ -1,6 +1,5 @@
 #include "minishell.h"
 
-long ft_atol(char *str, int *overflow);
 static void ft_checknumeric(t_master master, long *errorcode);
 
 void ft_exit(t_master master)
@@ -30,9 +29,14 @@ static void ft_checknumeric(t_master master, long *errorcode)
     int x;
 
     x = 0;
+    while (master.cmds->args[1][x] && ((master.cmds->args[1][x] >= '\a' && master.cmds->args[1][x] <= '\n') 
+    || master.cmds->args[1][x] == ' '))
+        x++;
+    if (master.cmds->args[1][x] != '+' || master.cmds->args[1][x] != '-')
+        x++;
     while (master.cmds->args[1][x])
     {
-        if (master.cmds->args[1][x] <= '0' || master.cmds->args[1][x] >= '9')
+        if (master.cmds->args[1][x] < '0' || master.cmds->args[1][x] > '9')
         {
             ft_printerror(master.cmds->args[0], master.cmds->args[1], NUMERIC_ARGUMENT_REQUIRED);
             master.errorcode = 2;
@@ -47,46 +51,4 @@ static void ft_checknumeric(t_master master, long *errorcode)
         master.errorcode = 2;
         exit (2);
     }
-}
-
-long ft_atol(char *str, int *overflow)
-{
-    long result;
-    int sign;
-    int digit;
-    
-    result = 0;
-    sign = 1;
-    *overflow = 0;
-    while ((*str >= '\a' && *str <= '\n') || *str == ' ')
-        str ++;
-    if (*str == '+' || *str == '-')
-    {
-        if (*str == '-')
-            sign = -1;
-        str++;
-    }
-    while (*str >= '0' && *str <= '9')
-    {
-        digit = *str - '0';
-        if (sign == 1)
-        {
-            if (result > (LONG_MAX - digit) / 10)
-            {
-                *overflow = 1;
-                return (0);
-            }
-        }
-        else
-        {
-            if (result > (-(LONG_MIN + digit)) / 10)
-            {
-                *overflow = 1;
-                return (0);
-            }
-        }
-        result = result * 10 + digit;
-        str++;
-    }
-    return (sign * result);
 }

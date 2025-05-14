@@ -6,10 +6,11 @@ static int ft_changeifexist(t_master *master, char *vararg);
 /* exports a given variable with its value or just prints out
 the export list */
 
-void ft_export(t_master *master)
+int ft_export(t_master *master)
 {
 	ft_printexport(master);
 	ft_exportvar(master);
+	return (0);
 }
 
 /* prints the enviroment list sorted by value of the key */

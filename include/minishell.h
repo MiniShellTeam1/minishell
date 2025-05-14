@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   minishell.h                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ncantona <ncantona@student.42vienna.com    +#+  +:+       +#+        */
+/*   By: nico <nico@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/16 13:23:29 by mhuthmay          #+#    #+#             */
-/*   Updated: 2025/05/13 17:56:32 by ncantona         ###   ########.fr       */
+/*   Updated: 2025/05/14 00:00:03 by nico             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -182,13 +182,13 @@ void            handle_heredoc(t_command *cmd, t_master *master);    // Handle h
 int				is_quoted_delimiter(char *delimiter);
 
 /* Built-in Functions */
-void			ft_cd(t_master *master);
-void            ft_echo(t_command cmd);            // Echo command built-in
-void            ft_env(t_master master);           // Print environment variables
+int 			ft_cd(t_master *master);
+int             ft_echo(t_command cmd);            // Echo command built-in
+int             ft_env(t_master master);           // Print environment variables
 void            ft_exit(t_command cmd);            // Exit shell built-in
-void            ft_export(t_master *master);       // Export environment variable
+int             ft_export(t_master *master);       // Export environment variable
 int             ft_pwd(void);                      // Print working directory
-void            ft_unset(t_master *master);        // Unset environment variable
+int             ft_unset(t_master *master);        // Unset environment variable
 
 /* Environment Functions */
 t_env           *ft_createenvlist(char **envp);    // Create env list from envp

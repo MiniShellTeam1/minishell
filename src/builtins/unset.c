@@ -1,6 +1,6 @@
 #include "minishell.h"
 
-void ft_unset(t_master *master)
+int ft_unset(t_master *master)
 {
     int x;
 
@@ -10,4 +10,5 @@ void ft_unset(t_master *master)
         ft_delvar(&master->env, master->cmds->args[x]);
         x++;
     }
+    return (0);
 }

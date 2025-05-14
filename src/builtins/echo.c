@@ -6,7 +6,7 @@ static void ft_printargs(int nlparam, int argsnum, char **args);
 
 /* prints out the arguments given if its not a valid -n flag */
 
-void ft_echo(t_command cmd)
+int ft_echo(t_command cmd)
 {
     int argsnum;
     int nlparam;
@@ -14,6 +14,7 @@ void ft_echo(t_command cmd)
     argsnum = ft_countargs(cmd.args);
     nlparam = ft_checkminusnl(cmd.args);
     ft_printargs(nlparam, argsnum, cmd.args);
+    return (0);
 }
 
 /* counts the amount of arguments given */

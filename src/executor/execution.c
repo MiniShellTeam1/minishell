@@ -196,6 +196,11 @@ void	ft_checkforcmdpath(t_master *master, t_command *currentcmd)
     {
         ft_freeandexit(master, 1);
     }
+    if (access(currentcmd->args[0], X_OK) == 0)
+    {
+        currentcmd->cmdpath = ft_getstralloc(currentcmd->args[0]);
+        return ;
+    }
 	while (paths && paths[x])
 	{
         currentcmd->cmdpath = ft_strjoin3(paths[x], "/", currentcmd->args[0]);

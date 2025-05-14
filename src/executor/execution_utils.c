@@ -6,7 +6,7 @@
 /*   By: nico <nico@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/02 18:41:11 by ncantona          #+#    #+#             */
-/*   Updated: 2025/05/13 01:55:41 by nico             ###   ########.fr       */
+/*   Updated: 2025/05/13 02:20:44 by nico             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,14 +31,12 @@ int ft_openinfiles(t_master *master, t_command currentcmd)
 			ft_printerror(NULL, currentcmd.infiles[x], NO_SUCH_FILE_OR_DIRECTORY);
 			master->errorcode = 1;
 			return (-1);
-			//ft_freeandexit(master, 1);
 		}
 		else if (fd == -1)
 		{
 			ft_printerror(NULL, currentcmd.infiles[x], PERMISSION_DENIED);
 			master->errorcode = 1;
 			return (-1);
-			//ft_freeandexit(master, 1);
 		}
 		else if (currentcmd.infiles[x + 1])
 			close (fd);
@@ -48,7 +46,7 @@ int ft_openinfiles(t_master *master, t_command currentcmd)
 }
 
 /* tries to open every outfileredirection and prints error on error and returns
-the last opened filedescriptor */
+the last opened filedescriptor, sets the errorcode in master on error*/
 
 int ft_openoutfiles(t_master *master, t_command currentcmd)
 {
@@ -71,7 +69,6 @@ int ft_openoutfiles(t_master *master, t_command currentcmd)
 			ft_printerror(NULL, currentcmd.outfiles[x], PERMISSION_DENIED);
 			master->errorcode = 1;
 			return (-1);
-			//ft_freeandexit(master, 1);
 		}
 		if (currentcmd.outfiles[x + 1])
 			close (fd);
@@ -80,7 +77,7 @@ int ft_openoutfiles(t_master *master, t_command currentcmd)
 	return (fd);
 }
 
-/* checks if there is a path to the cmd and prints errormsg on error */
+/* checks if there is a path to the cmd and prints errormsg and exits on error */
 
 void ft_checkcmdpath(t_master *master, t_command *currentcmd)
 {

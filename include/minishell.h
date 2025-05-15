@@ -6,7 +6,7 @@
 /*   By: nico <nico@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/16 13:23:29 by mhuthmay          #+#    #+#             */
-/*   Updated: 2025/05/14 17:34:12 by nico             ###   ########.fr       */
+/*   Updated: 2025/05/15 00:15:40 by nico             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,6 +37,7 @@
 # define FILE_NAME_TOO_LONG "File name too long\n" // Exit code: 1
 # define COMMAND_NOT_FOUND "command not found\n" // Exit code: 127
 # define NUMERIC_ARGUMENT_REQUIRED "numeric argument required\n" // errorcode 2
+# define NOT_A_VALID_IDENTIFIER "not a valid identifier\n" //errorcode 1
 
 /* ------------------------- Enums and Struct Definitions -------------------- */
 

@@ -155,7 +155,7 @@ void ft_execbuiltin(t_master *master)
 	else if (!ft_strcmp(master->cmds->args[0], "pwd"))
 		ft_pwd();
 	else if (!ft_strcmp(master->cmds->args[0], "cd"))
-		ft_cd(master);
+		master->errorcode = ft_cd(master);
 	else if (!ft_strcmp(master->cmds->args[0], "echo"))
 		ft_echo(*master->cmds);
     else if (!ft_strcmp(master->cmds->args[0], "exit"))

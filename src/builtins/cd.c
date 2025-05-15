@@ -20,8 +20,13 @@ int ft_cd(t_master *master)
     if (!master->cmds->args[1])
         return (ft_gospecial(master, "HOME", pwd));
     if (!ft_strcmp(master->cmds->args[1], "-"))
-        return (ft_gospecial(master, "OLDPWD", pwd));
-    if (ft_checkdir(master->cmds) || chdir(master->cmds->args[1]) == -1)
+    {
+        if (ft_gospecial(master, "OLDPWD", pwd) == 1)
+            return (1);
+        ft_pwd();    
+        return (0);
+    }
+        if (ft_checkdir(master->cmds) || chdir(master->cmds->args[1]) == -1)
 		return (1);
     ft_setoldpwd(master, pwd);
     ft_setpwd(master);

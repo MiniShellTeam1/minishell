@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   minishell.h                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nico <nico@student.42.fr>                  +#+  +:+       +#+        */
+/*   By: ncantona <ncantona@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/16 13:23:29 by mhuthmay          #+#    #+#             */
-/*   Updated: 2025/05/18 17:07:23 by nico             ###   ########.fr       */
+/*   Updated: 2025/05/22 18:57:20 by ncantona         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -71,7 +71,7 @@ typedef struct s_command {
     char            **args;        // Array of command arguments
     char            **infiles;     // Array of input file redirections
     char            **outfiles;    // Array of output file redirections
-    char            *errormsg;     // Error message if command fails
+    char            *errormsg;     // Error message if command fails //!kann man löschen glaub ich muss ich schauen
     int             append;        // Flag for append mode (>>)
     char            *heredoc_input;// Heredoc input string
 	int				is_heredoc;
@@ -180,6 +180,7 @@ void			ft_checkcmdpath(t_master *master, t_command *currentcmd);
 int				ft_isbuiltin(t_command cmd);
 void	        ft_checkforcmdpath(t_master *master, t_command *currentcmd);
 char	        **ft_getpathsarr(t_master master);
+int 			ft_heredoc(char *delimiter);
 
 /* Heredoc functions*/
 void            handle_heredoc(t_command *cmd, t_master *master);    // Handle heredoc input

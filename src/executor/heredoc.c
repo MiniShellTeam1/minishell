@@ -3,14 +3,85 @@
 /*                                                        :::      ::::::::   */
 /*   heredoc.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nico <nico@student.42.fr>                  +#+  +:+       +#+        */
+/*   By: ncantona <ncantona@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/02 15:30:00 by mhuthmay          #+#    #+#             */
-/*   Updated: 2025/05/13 02:19:45 by nico             ###   ########.fr       */
+/*   Updated: 2025/05/22 18:55:23 by ncantona         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
+
+int ft_heredoc(char *delimiter)
+{
+	char *line;
+	int pipes[2];
+	char buff[11];
+	int size = 1;
+	int i;
+
+	if (pipe(pipes) == -1)
+		return (-1);
+	while (1)
+	{
+		i = 0;
+		line = readline("> ");
+		if (!line)
+			return (-1);
+		while (line[i])
+		{
+			write(pipes[1], &line[i], 1);
+			i++;
+		}
+		write(pipes[1], "\n", 1);
+		if (!ft_strcmp(line, delimiter))
+		{
+			free(line);
+			close (pipes[1]);
+			return (pipes[0]);
+		}
+		free(line);
+	}
+	return (-1);
+}
+
+/* 	(void)argc;
+    (void)argv;
+	(void)env;
+	char *line;
+	int pipes[2];
+	pipe(pipes);
+	char buff[11];
+	int size = 1;
+	int i = 0;
+	while (1)
+	{
+		line = readline("> ");
+		if (!line)
+			return (1);
+		while (line[i])
+		{
+			write(pipes[1], &line[i], 1);
+			i++;
+		}
+		write(pipes[1], "\n", 1);
+		i = 0;
+		if (!ft_strcmp(line, "hello"))
+		{
+			free(line);
+			close (pipes[1]);
+			while (size > 0)
+			{
+				size = read(pipes[0], buff, 10);
+				buff[size] = 0;
+				ft_putstr_fd(buff, 2);
+			}
+			close (pipes[0]);
+			return (0);
+		}
+		free(line);
+	}
+	return (0); */
 
 int is_quoted_delimiter(char *delimiter)
 {

@@ -21,15 +21,17 @@ int ft_cd(t_master *master)
         return (ft_gospecial(master, "HOME", pwd));
     if (!ft_strcmp(master->cmds->args[1], "-"))
     {
-        if (ft_gospecial(master, "OLDPWD", pwd) == 1)
+        if (ft_gospecial(master, "OLDPWD", pwd) == 1) //!alles freen hier!!!
             return (1);
         ft_pwd();    
         return (0);
     }
-        if (ft_checkdir(master->cmds) || chdir(master->cmds->args[1]) == -1)
+    if (ft_checkdir(master->cmds) || chdir(master->cmds->args[1]) == -1)
 		return (1);
-    ft_setoldpwd(master, pwd);
-    ft_setpwd(master);
+    if (ft_setoldpwd(master, pwd)) //!alles freen hier!!
+        return (1);
+    if (ft_setpwd(master)) //! alles freen hier!!!
+        return (1);
     return (0);
 }
 
@@ -45,8 +47,10 @@ static int ft_gospecial(t_master *master, char *varpath, t_env *pwd)
     {
         if(chdir(envvar->value) == -1)
             return (1);
-        ft_setoldpwd(master, pwd);
-        ft_setpwd(master);
+        if (ft_setoldpwd(master, pwd))
+            return (1);
+        if (ft_setpwd(master))
+            return (1);
         return (0);
     }
     ft_printerror(master->cmds->args[0], NULL, NULL);
@@ -92,7 +96,7 @@ static int ft_setpwd(t_master *master)
 
     pwdvar = ft_getvar(master->env, "PWD");
     cwd = getcwd(NULL, 0);
-    if (!cwd) //! freen alles!
+    if (!cwd)
         return (1);
     if (pwdvar)
     {
@@ -101,11 +105,10 @@ static int ft_setpwd(t_master *master)
     }
     else
     {
-        ft_addvar(&master->env, ft_getstralloc("PWD"), cwd); //!richtig protecten!
-        if (!ft_getvar(master->env, "PWD") || !ft_getvar(master->env, "PWD")->key || !ft_getvar(master->env, "PWD")->value)
-        {
-            return (1); //! freen alles!!!
-        }
+        if (!ft_addvar(&master->env, ft_getstralloc("PWD"), cwd))
+            return (1);
+/*         if (!ft_getvar(master->env, "PWD") || !ft_getvar(master->env, "PWD")->key || !ft_getvar(master->env, "PWD")->value)
+            return (1); */
     }
     return (0);
 }
@@ -122,7 +125,7 @@ static int ft_setoldpwd(t_master *master, t_env *pwdvar)
     if (!pwdvar)
         return (0);
     oldpwdpath = ft_getstralloc(pwdvar->value);
-    if (!oldpwdpath) //! freen alles!
+    if (!oldpwdpath)
         return (1);
     if (oldpwdvar)
     {
@@ -131,11 +134,10 @@ static int ft_setoldpwd(t_master *master, t_env *pwdvar)
     }
     else
     {
-        ft_addvar(&master->env, ft_getstralloc("OLDPWD"), oldpwdpath); //!richtig protecten!
-        if (!ft_getvar(master->env, "OLDPWD") || !ft_getvar(master->env, "OLDPWD")->key || !ft_getvar(master->env, "OLDPWD")->value)
-        {
-            return (1); //! freen alles!!!
-        }
+        if (!ft_addvar(&master->env, ft_getstralloc("OLDPWD"), oldpwdpath))
+            return (1);
+/*         if (!ft_getvar(master->env, "OLDPWD") || !ft_getvar(master->env, "OLDPWD")->key || !ft_getvar(master->env, "OLDPWD")->value)
+            return (1); */
     }
     return (0);
 }

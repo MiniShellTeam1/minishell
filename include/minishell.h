@@ -6,7 +6,7 @@
 /*   By: nico <nico@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/16 13:23:29 by mhuthmay          #+#    #+#             */
-/*   Updated: 2025/05/15 00:15:40 by nico             ###   ########.fr       */
+/*   Updated: 2025/05/18 17:07:23 by nico             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -196,13 +196,13 @@ int             ft_unset(t_master *master);        // Unset environment variable
 
 /* Environment Functions */
 t_env           *ft_createenvlist(char **envp);    // Create env list from envp
-void            ft_addvar(t_env **env, char *key, char *value); // Add env variable
+t_env           *ft_addvar(t_env **env, char *key, char *value); // Add env variable
 void            ft_delvar(t_env **env, char *key); // Delete env variable
 char            *ft_getkey(char *var);             // Get key from env string
 char            *ft_getvalue(char *var);           // Get value from env string
 void            ft_freevar(t_env *var);            // Free an env variable
 char			*ft_getstralloc(char *str);
-void 			ft_freeenv(t_master *master);
+void 			ft_freeenv(t_env *env);
 char			**ft_getenvarray(t_master *master);
 int				ft_lstlen(t_master master);
 char            *ft_addlvl(char *stringlvl);       // Increment SHLVL value

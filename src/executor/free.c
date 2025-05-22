@@ -4,7 +4,7 @@
 
 void ft_freeandexit(t_master *master, unsigned char exitcode)
 {
-	ft_freeenv(master);
+	ft_freeenv(master->env);
 	ft_freecmds(master);
 	free(master);
 	exit (exitcode);

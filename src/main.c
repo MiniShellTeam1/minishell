@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ncantona <ncantona@student.42vienna.com    +#+  +:+       +#+        */
+/*   By: nico <nico@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/02 15:30:00 by mhuthmay          #+#    #+#             */
-/*   Updated: 2025/05/13 18:41:56 by ncantona         ###   ########.fr       */
+/*   Updated: 2025/05/18 17:10:40 by nico             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -98,6 +98,8 @@ int main(int argc, char *argv[], char **env)
     if (!master)
         return (1);
     master->env = ft_createenvlist(env);
+    if (!master->env)
+        ft_freeandexit(master, 1);
     setup_signals();
     while (1)
     {

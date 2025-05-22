@@ -14,7 +14,11 @@ t_env *ft_createenvlist(char **envp)
     shlvlexist = 0;
 	if (!envp || !envp[x]) //!PWD setzen
 	{
-		ft_addvar(&env, ft_getstralloc("SHLVL"), ft_getstralloc("1"));
+		if(!ft_addvar(&env, ft_getstralloc("SHLVL"), ft_getstralloc("1")))
+		{
+			ft_freeenv(env);
+			return (NULL);
+		}
 		shlvlexist++;
 		return (env);
 	}
@@ -22,23 +26,68 @@ t_env *ft_createenvlist(char **envp)
 	{
         if (!ft_strncmp(envp[x], "SHLVL=", 5))
         {
-            ft_addvar(&env, ft_getkey(envp[x]), ft_addlvl(ft_getvalue(envp[x])));
+            if (!ft_addvar(&env, ft_getkey(envp[x]), ft_addlvl(ft_getvalue(envp[x]))))
+			{
+				ft_freeenv(env);
+				return (NULL);
+			}
             shlvlexist++;
         }
         else
-		    ft_addvar(&env, ft_getkey(envp[x]), ft_getvalue(envp[x]));
+		    if (!ft_addvar(&env, ft_getkey(envp[x]), ft_getvalue(envp[x])))
+			{
+				ft_freeenv(env);
+				return (NULL);
+			}
 		x++;
 	}
     if (!shlvlexist)
 	{
-        ft_addvar(&env, ft_getstralloc("SHLVL"), ft_getstralloc("1"));
+        if (!ft_addvar(&env, ft_getstralloc("SHLVL"), ft_getstralloc("1")))
+		{
+			ft_freeenv(env);
+			return (NULL);
+		}
 	}
 	return (env);
 }
 
+t_env  *ft_addvar(t_env **env, char *key, char *value)
+{
+	t_env *addedvar;
+	t_env *temp = *env;
+
+	if (!key || !value)
+	{
+		if (key)
+			free(key);
+		if (value)
+			free(value);
+		return (NULL);
+	}
+	addedvar = malloc(sizeof(t_env));
+	if (!addedvar)
+		return (NULL);
+	addedvar->key = key;
+	addedvar->value = value;
+	addedvar->next = NULL;
+	if (!env || !*env)
+	{
+		*env = addedvar;
+		addedvar->prev = NULL;
+	}
+	else
+	{
+        while (temp->next)
+            temp = temp->next;
+        temp->next = addedvar;
+        addedvar->prev = temp;
+	}
+	return (addedvar);
+}
 
 /* adds a variable to the enviroment linked list at the end */
-
+/* 
 void  ft_addvar(t_env **env, char *key, char *value)
 {
 	t_env *addedvar;
@@ -62,7 +111,7 @@ void  ft_addvar(t_env **env, char *key, char *value)
         temp->next = addedvar;
         addedvar->prev = temp;
 	}
-}
+} */
 
 /* deletes a variable from the linked list with the right key,
 if the key's not found nothing happens */

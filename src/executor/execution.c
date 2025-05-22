@@ -67,7 +67,7 @@ void ft_execpipe(t_master *master)
     int x;
 
 	x = 0;
-    master->pids = malloc(sizeof(pid_t) * ft_countcmd(master->cmds) + 1);
+    master->pids = malloc(sizeof(pid_t) * ft_countcmd(master->cmds) + 1); //!protecten!!!!
     master->pids[ft_countcmd(master->cmds)] = 0;
     while (master->cmds && master->cmds->args)
     {

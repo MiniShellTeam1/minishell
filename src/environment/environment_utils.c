@@ -11,6 +11,8 @@ char *ft_getkey(char *var)
 	while (var[x] && var[x] != '=')
 		x++;
 	key = malloc(sizeof(char) * x + 1);
+	if (!key)
+		return (NULL);
 	x = 0;
 	while (var[x] && var[x] != '=')
 	{
@@ -55,12 +57,14 @@ char *ft_getvalue(char *var)
 
 void ft_freevar(t_env *var)
 {
-    if (var->key)
-        free(var->key);
-    if (var->value)
-        free(var->value);
-    if (var)
+	if (var)
+	{
+    	if (var->key)
+        	free(var->key);
+    	if (var->value)
+        	free(var->value);
         free(var);
+	}
 }
 
 /* takes the string of $SHLVL and checks if +1 is in ranged of maximum SHLVL
@@ -86,17 +90,17 @@ char *ft_addlvl(char *stringlvl)
     return (newstringlvl);
 }
 
-void ft_freeenv(t_master *master)
+void ft_freeenv(t_env *env)
 {
 	t_env *tmp;
 
-	while (master->env)
+	while (env)
 	{
-		free(master->env->key);
-		free(master->env->value);
-		tmp = master->env->next;
-		free(master->env);
-		master->env = tmp;
+		free(env->key);
+		free(env->value);
+		tmp = env->next;
+		free(env);
+		env = tmp;
 	}
 }
 
@@ -113,8 +117,8 @@ char **ft_getenvarray(t_master *master)
 	tmp = master->env;
 	while (tmp)
 	{
-		envarr[x] = malloc(sizeof(char) * (ft_strlen(tmp->key) + ft_strlen(tmp->value) + 2));
-		envarr[x] = ft_strjoin3(tmp->key, "=", tmp->value);
+		envarr[x] = malloc(sizeof(char) * (ft_strlen(tmp->key) + ft_strlen(tmp->value) + 2)); //!protecten!!!
+		envarr[x] = ft_strjoin3(tmp->key, "=", tmp->value); //! protecten!!!!
 		x++;
 		tmp = tmp->next;
 	}

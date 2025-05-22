@@ -3,16 +3,16 @@
 /*                                                        :::      ::::::::   */
 /*   heredoc.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ncantona <ncantona@student.42vienna.com    +#+  +:+       +#+        */
+/*   By: nico <nico@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/02 15:30:00 by mhuthmay          #+#    #+#             */
-/*   Updated: 2025/05/22 18:55:23 by ncantona         ###   ########.fr       */
+/*   Updated: 2025/05/22 22:06:58 by nico             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-int ft_heredoc(char *delimiter)
+int ft_heredoc(char **delimiter)
 {
 	char *line;
 	int pipes[2];
@@ -20,11 +20,11 @@ int ft_heredoc(char *delimiter)
 	int size = 1;
 	int i;
 
-	if (pipe(pipes) == -1)
-		return (-1);
-	while (1)
+	while (delimiter)
 	{
 		i = 0;
+        if (pipe(pipes) == -1)
+		    return (-1);
 		line = readline("> ");
 		if (!line)
 			return (-1);
@@ -34,15 +34,17 @@ int ft_heredoc(char *delimiter)
 			i++;
 		}
 		write(pipes[1], "\n", 1);
-		if (!ft_strcmp(line, delimiter))
+		if (!ft_strcmp(line, *delimiter))
 		{
 			free(line);
 			close (pipes[1]);
-			return (pipes[0]);
+            *delimiter++;
+            if (delimiter)
+			    close (pipes[0]);
 		}
 		free(line);
 	}
-	return (-1);
+	return (pipes[0]);
 }
 
 /* 	(void)argc;

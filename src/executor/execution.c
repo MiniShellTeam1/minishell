@@ -168,7 +168,7 @@ char	**ft_getpathsarr(t_master master)
 {
 	char	**paths;
     
-	while (master.env->next)
+	while (master.env) //! umändern in getvar()
 	{
 		if (!ft_strcmp(master.env->key, "PATH"))
         {
@@ -179,7 +179,9 @@ char	**ft_getpathsarr(t_master master)
         }
         master.env = master.env->next;
     }
-	return (NULL);
+	paths = malloc(sizeof(char *));
+	*paths = NULL;
+	return (paths);
 }
 
 /* checks for the finalpath access */
@@ -199,7 +201,7 @@ void	ft_checkforcmdpath(t_master *master, t_command *currentcmd)
     if (access(currentcmd->args[0], X_OK) == 0)
     {
         currentcmd->cmdpath = ft_getstralloc(currentcmd->args[0]);
-        return ;
+		return ;
     }
 	while (paths && paths[x])
 	{

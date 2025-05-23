@@ -55,6 +55,11 @@ void ft_exec(t_master *master)
         waitpid(master->pids[i], &status, 0);
         i++;
     }
+    if (master->pids)
+    {
+        free(master->pids);
+        master->pids = NULL;
+    }
     if (i)
         master->errorcode = WEXITSTATUS(status);
 } 
@@ -106,7 +111,10 @@ void ft_execpipe(t_master *master)
             if (!env)
                 ft_freeandexit(master, 1);
             if (ft_isbuiltin(*master->cmds))
+            {
                 ft_execbuiltin(master);
+                exit (master->errorcode);
+            }
             else
                 execve(master->cmds->cmdpath, master->cmds->args, env);
 			if (infilefd > 0)
@@ -149,19 +157,19 @@ int ft_countcmd(t_command *cmds)
 void ft_execbuiltin(t_master *master)
 {
     if (!ft_strcmp(master->cmds->args[0], "unset"))
-		ft_unset(master);
+		master->errorcode = ft_unset(master);
 	else if (!ft_strcmp(master->cmds->args[0], "export"))
-		ft_export(master);
+		master->errorcode = ft_export(master);
 	else if (!ft_strcmp(master->cmds->args[0], "pwd"))
-		ft_pwd();
+		master->errorcode = ft_pwd();
 	else if (!ft_strcmp(master->cmds->args[0], "cd"))
 		master->errorcode = ft_cd(master);
 	else if (!ft_strcmp(master->cmds->args[0], "echo"))
-		ft_echo(*master->cmds);
+		master->errorcode = ft_echo(*master->cmds);
     else if (!ft_strcmp(master->cmds->args[0], "exit"))
 		ft_exit(*master);
 	else if (!ft_strcmp(master->cmds->args[0], "env"))
-		ft_env(*master);
+		master->errorcode = ft_env(*master);
 }
 
 char	**ft_getpathsarr(t_master master)
@@ -198,10 +206,18 @@ void	ft_checkforcmdpath(t_master *master, t_command *currentcmd)
     {
         ft_freeandexit(master, 1);
     }
-    if (access(currentcmd->args[0], X_OK) == 0)
+    if (currentcmd->args && (currentcmd->args[0][0] == '.' || currentcmd->args[0][0] == '/'))
     {
-        currentcmd->cmdpath = ft_getstralloc(currentcmd->args[0]);
-		return ;
+        if (access(currentcmd->args[0], X_OK) == 0)
+        {
+            currentcmd->cmdpath = ft_getstralloc(currentcmd->args[0]);
+            return ;
+        }
+        else
+        {
+            ft_printerror(currentcmd->args[0], NULL, NO_SUCH_FILE_OR_DIRECTORY);
+            ft_freeandexit(master, 127);
+        }
     }
 	while (paths && paths[x])
 	{

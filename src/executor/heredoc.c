@@ -6,12 +6,12 @@
 /*   By: nico <nico@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/02 15:30:00 by mhuthmay          #+#    #+#             */
-/*   Updated: 2025/05/22 22:06:58 by nico             ###   ########.fr       */
+/*   Updated: 2025/05/23 01:00:14 by nico             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
-
+/* 
 int ft_heredoc(char **delimiter)
 {
 	char *line;
@@ -45,7 +45,7 @@ int ft_heredoc(char **delimiter)
 		free(line);
 	}
 	return (pipes[0]);
-}
+} */
 
 /* 	(void)argc;
     (void)argv;

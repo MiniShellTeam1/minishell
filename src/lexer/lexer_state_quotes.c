@@ -12,91 +12,69 @@
 
 #include "minishell.h"
 
-int	handle_double_quote(t_lexer_data *data)
+int handle_double_quote(t_lexer_data *data)
 {
-	const char	**input_ptr = data->input;
-	size_t		*pos_ptr;
-
-	pos_ptr = data->buf_pos;
-	// Collect characters until closing quote
-	while (**input_ptr && **input_ptr != '"')
-	{
-		data->buffer[*pos_ptr] = **input_ptr;
-		(*pos_ptr)++;
-		(*input_ptr)++;
-	}
-	if (**input_ptr == '"')
-	{
-		data->buffer[*pos_ptr] = **input_ptr;
-		(*pos_ptr)++;
-		(*input_ptr)++;
-		// Terminate buffer and add token
-		data->buffer[*pos_ptr] = '\0';
-		*(data->state) = NORMAL;
-		//write(1, "handle_double_quote adding token: ", 34);
-		//write(1, data->buffer, ft_strlen(data->buffer));
-		//write(1, "\n", 1);
-		if (!add_token(data->tokens, data->buffer))
-			return (0);
-		*pos_ptr = 0; // Reset buffer position
-	}
-	else
-	{
-		// Handle unclosed quote
-		*(data->state) = NORMAL;
-		data->buffer[*pos_ptr] = '\0';
-		write(1, "handle_double_quote adding token (unclosed): ", 45);
-		write(1, data->buffer, ft_strlen(data->buffer));
-		write(1, "\n", 1);
-		if (!add_token(data->tokens, data->buffer))
-			return (0);
-		*pos_ptr = 0; // Reset buffer position
-	}
-	return (1);
+	debug_lexer_step(data, "ENTERING handle_word");
+    const char **input_ptr = data->input;
+    size_t *pos_ptr = data->buf_pos;
+    
+    // ADD opening quote to buffer
+    data->buffer[*pos_ptr] = '"';
+    (*pos_ptr)++;
+    (*input_ptr)++; // Skip past opening quote in input
+    
+    // Collect characters until closing quote
+    while (**input_ptr && **input_ptr != '"')
+    {
+        data->buffer[*pos_ptr] = **input_ptr;
+        (*pos_ptr)++;
+        (*input_ptr)++;
+    }
+    
+    if (**input_ptr == '"')
+    {
+        // ADD closing quote to buffer
+        data->buffer[*pos_ptr] = '"';
+        (*pos_ptr)++;
+        (*input_ptr)++; // Skip closing quote in input
+        *(data->state) = IN_WORD; // Continue building same token
+    }
+    else
+    {
+        *(data->state) = IN_WORD; // Continue as word if unclosed
+    }
+    return (1);
 }
 
-int	handle_single_quote(t_lexer_data *data)
+int handle_single_quote(t_lexer_data *data)
 {
-	const char **input_ptr = data->input;
-	size_t *pos_ptr = data->buf_pos;
-
-	while (**input_ptr && **input_ptr != '\'')
-	{
-		data->buffer[*pos_ptr] = **input_ptr;
-		(*pos_ptr)++;
-		(*input_ptr)++;
-	}
-
-	if (**input_ptr == '\'')
-	{
-		data->buffer[*pos_ptr] = **input_ptr;
-		(*pos_ptr)++;
-		(*input_ptr)++;
-
-		data->buffer[*pos_ptr] = '\0';
-		*(data->state) = NORMAL;
-
-		// write(1, "handle_single_quote adding token: ", 34);
-		// write(1, data->buffer, ft_strlen(data->buffer));
-		// write(1, "\n", 1);
-
-		if (!add_token(data->tokens, data->buffer))
-			return (0);
-		*pos_ptr = 0;
-	}
-	else
-	{
-		*(data->state) = NORMAL;
-		data->buffer[*pos_ptr] = '\0';
-
-		// write(1, "handle_single_quote adding token (unclosed): ", 45);
-		// write(1, data->buffer, ft_strlen(data->buffer));
-		// write(1, "\n", 1);
-
-		if (!add_token(data->tokens, data->buffer))
-			return (0);
-		*pos_ptr = 0;
-	}
-
-	return (1);
+	debug_lexer_step(data, "ENTERING handle_word");
+    const char **input_ptr = data->input;
+    size_t *pos_ptr = data->buf_pos;
+    
+    // ADD opening quote to buffer
+    data->buffer[*pos_ptr] = '\'';
+    (*pos_ptr)++;
+    (*input_ptr)++; // Skip past opening quote in input
+    
+    while (**input_ptr && **input_ptr != '\'')
+    {
+        data->buffer[*pos_ptr] = **input_ptr;
+        (*pos_ptr)++;
+        (*input_ptr)++;
+    }
+    
+    if (**input_ptr == '\'')
+    {
+        // ADD closing quote to buffer
+        data->buffer[*pos_ptr] = '\'';
+        (*pos_ptr)++;
+        (*input_ptr)++; // Skip closing quote in input
+        *(data->state) = IN_WORD; // Continue building same token
+    }
+    else
+    {
+        *(data->state) = IN_WORD; // Continue as word if unclosed
+    }
+    return (1);
 }

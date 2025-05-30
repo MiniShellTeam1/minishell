@@ -3,14 +3,23 @@
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ncantona <ncantona@student.42vienna.com    +#+  +:+       +#+        */
+/*   By: mhuthmay <mhuthmay@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/02 15:30:00 by mhuthmay          #+#    #+#             */
-/*   Updated: 2025/05/22 19:00:52 by ncantona         ###   ########.fr       */
+/*   Updated: 2025/05/30 15:46:33 by mhuthmay         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
+
+// static void debug_tokens(t_token_list *tokens, char *input)
+// {
+//     printf("DEBUG - Input: '%s'\n", input);
+//     printf("DEBUG - Token count: %zu\n", tokens->count);
+//     for (size_t i = 0; i < tokens->count; i++)
+//         printf("DEBUG - Token[%zu]: '%s'\n", i, tokens->tokens[i]);
+//     printf("DEBUG - End\n\n");
+// }
 
 static void set_errorcode(t_master *master)
 {
@@ -68,7 +77,8 @@ static void process_command_line(t_master *master, char *line)
         add_history(line);
     
     tokens = lexer(line);
-    debug_shell_state(tokens, NULL, NULL, "After Lexing");
+    // debug_tokens(tokens, line);  // ADD THIS LINE
+	debug_shell_state(tokens, NULL, NULL, "After Lexing");
     if (tokens)
     {
         master->cmds = parser(tokens, master);

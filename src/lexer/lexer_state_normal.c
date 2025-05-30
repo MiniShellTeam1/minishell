@@ -23,18 +23,14 @@ int handle_normal(t_lexer_data *data)
     if (**(data->input) == '"')
     {
         *(data->state) = IN_DOUBLE_QUOTE;
-        (data->buffer)[*(data->buf_pos)] = **(data->input);
-        (*(data->buf_pos))++;
-        (*(data->input))++;
+        // DON'T skip quote here - let handle_double_quote do it
         return (1);
     }
     
     if (**(data->input) == '\'')
     {
         *(data->state) = IN_SINGLE_QUOTE;
-        (data->buffer)[*(data->buf_pos)] = **(data->input);
-        (*(data->buf_pos))++;
-        (*(data->input))++;
+        // DON'T skip quote here - let handle_single_quote do it
         return (1);
     }
     

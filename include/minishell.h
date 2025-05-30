@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   minishell.h                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ncantona <ncantona@student.42vienna.com    +#+  +:+       +#+        */
+/*   By: mhuthmay <mhuthmay@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/16 13:23:29 by mhuthmay          #+#    #+#             */
-/*   Updated: 2025/05/22 18:57:20 by ncantona         ###   ########.fr       */
+/*   Updated: 2025/05/30 14:41:41 by mhuthmay         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -135,6 +135,7 @@ int             add_token(t_token_list *tokens, char *buffer); // Add token to l
 void            free_token_list(t_token_list *tokens); // Free token list memory
 
 /* Lexer Functions - lexer_main.c */
+void debug_lexer_step(t_lexer_data *data, char *step_name);
 t_token_list    *lexer(const char *input);         // Tokenize input string
 int             process_char(t_lexer_data *data);  // Process a single character
 

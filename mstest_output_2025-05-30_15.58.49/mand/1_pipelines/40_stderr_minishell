@@ -1,0 +1,4 @@
+minishell: <<"asd": No such file or directory
+cat: Makefile: No such file or directory
+minishell: mhuthmay: command not found
+minishell: asd: command not found

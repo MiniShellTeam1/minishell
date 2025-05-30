@@ -1,0 +1,14 @@
+minishell: <<stop: No such file or directory
+minishell: <<stop1: No such file or directory
+minishell: <<stop2: No such file or directory
+minishell: <<'stop3': No such file or directory
+minishell: mhuthmay: command not found
+minishell: ad: command not found
+minishell: stop: command not found
+minishell: dsa: command not found
+minishell: stop1: command not found
+minishell: sad: command not found
+minishell: stop2: command not found
+Assembler messages:
+Error: can't read from /home/mhuthmay: Is a directory
+minishell: stop3: command not found

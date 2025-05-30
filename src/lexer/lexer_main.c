@@ -6,11 +6,21 @@
 /*   By: mhuthmay <mhuthmay@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/02 15:30:00 by mhuthmay          #+#    #+#             */
-/*   Updated: 2025/05/02 17:42:56 by mhuthmay         ###   ########.fr       */
+/*   Updated: 2025/05/30 16:03:16 by mhuthmay         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
+
+void debug_lexer_step(t_lexer_data *data, char *step_name)
+{
+    printf("LEXER DEBUG - %s\n", step_name);
+    printf("  Current char: '%c' (%d)\n", **(data->input), **(data->input));
+    printf("  State: %d\n", *(data->state));
+    printf("  Buffer so far: '%.*s'\n", (int)*(data->buf_pos), data->buffer);
+    printf("  Buffer pos: %zu\n", *(data->buf_pos));
+    printf("\n");
+}
 
 int	process_char(t_lexer_data *data)
 {
@@ -53,9 +63,11 @@ t_token_list	*lexer(char const *input)
 	data.buf_pos = &buf_pos;
 	while (*input)
 	{
-		if (*input == ' ' && state == NORMAL)
+		if ((*input == ' ' || *input == '\t') && state == NORMAL)
 		{
-			input++;
+			// Skip ALL consecutive whitespace
+			while (*input == ' ' || *input == '\t')
+				input++;
 			if (buf_pos > 0)
 			{
 				buffer[buf_pos] = '\0';

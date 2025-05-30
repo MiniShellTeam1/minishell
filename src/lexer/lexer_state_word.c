@@ -14,61 +14,39 @@
 
 int handle_word(t_lexer_data *data)
 {
+    debug_lexer_step(data, "ENTERING handle_word");
     if (!data || !data->buffer || !data->buf_pos || !data->input || !*(data->input))
         return (0);
-
-    if (**(data->input) == ' ' || **(data->input) == '|' || 
-        **(data->input) == '<' || **(data->input) == '>')
+    
+    // End token on whitespace or operators
+    if (**(data->input) == ' ' || **(data->input) == '\t' ||
+        **(data->input) == '|' || **(data->input) == '<' ||
+        **(data->input) == '>')
     {
         *(data->state) = NORMAL;
         (data->buffer)[*(data->buf_pos)] = '\0';
-        
-        // write(1, "handle_word adding token: ", 26);
-        // write(1, data->buffer, ft_strlen(data->buffer));
-        // write(1, "\n", 1);
-        
         if (!add_token(data->tokens, data->buffer))
             return (0);
         *(data->buf_pos) = 0;
         return (1);
     }
+    
+    // Transition to quotes WITHOUT skipping quote character
     if (**(data->input) == '"')
     {
-        // Add current word as token if any
-        if (*(data->buf_pos) > 0)
-        {
-            (data->buffer)[*(data->buf_pos)] = '\0';
-            // write(1, "handle_word adding token: ", 26);
-            // write(1, data->buffer, ft_strlen(data->buffer));
-            // write(1, "\n", 1);
-            if (!add_token(data->tokens, data->buffer))
-                return (0);
-            *(data->buf_pos) = 0;
-        }
         *(data->state) = IN_DOUBLE_QUOTE;
-        (data->buffer)[*(data->buf_pos)] = **(data->input);
-        (*(data->buf_pos))++;
-        (*(data->input))++;
+        // DON'T skip quote here - let handle_double_quote handle it
         return (1);
     }
+    
     if (**(data->input) == '\'')
     {
-        if (*(data->buf_pos) > 0)
-        {
-            (data->buffer)[*(data->buf_pos)] = '\0';
-            // write(1, "handle_word adding token: ", 26);
-            // write(1, data->buffer, ft_strlen(data->buffer));
-            // write(1, "\n", 1);
-            if (!add_token(data->tokens, data->buffer))
-                return (0);
-            *(data->buf_pos) = 0;
-        }
         *(data->state) = IN_SINGLE_QUOTE;
-        (data->buffer)[*(data->buf_pos)] = **(data->input);
-        (*(data->buf_pos))++;
-        (*(data->input))++;
+        // DON'T skip quote here - let handle_single_quote handle it
         return (1);
     }
+    
+    // Add regular character to buffer
     if (*(data->buf_pos) < 1023)
     {
         (data->buffer)[*(data->buf_pos)] = **(data->input);
@@ -107,10 +85,6 @@ int handle_operator(t_lexer_data *data)
         *(data->state) = NORMAL;
         if (*(data->buf_pos) < 1024)
             (data->buffer)[*(data->buf_pos)] = '\0';
-        
-        // write(1, "handle_operator adding token: ", 30);
-        // write(1, data->buffer, ft_strlen(data->buffer));
-        // write(1, "\n", 1);
         
         if (!add_token(data->tokens, data->buffer))
             return (0);

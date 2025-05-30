@@ -1,11 +1,9 @@
 #include "minishell.h"
+
 static void ft_printexport(t_master *master);
 static void ft_exportvar(t_master *master);
 static int ft_changeifexist(t_master *master, char *vararg);
-int ft_checkexportvar(char *str);
-
-/* exports a given variable with its value or just prints out
-the export list */
+static int ft_checkexportvar(char *str);
 
 int ft_export(t_master *master)
 {
@@ -14,8 +12,6 @@ int ft_export(t_master *master)
 	return (0);
 }
 
-/* prints the enviroment list sorted by value of the key */
- //! 25lines
 static void ft_printexport(t_master *master)
 {
 	char *lastprinted;
@@ -35,8 +31,8 @@ static void ft_printexport(t_master *master)
 			min = NULL;
 			while (tmp)
 			{
-				if (!lastprinted || strcmp(tmp->key, lastprinted) > 0) //! durch eigenes strcmp ersetzen welches den wertunterschied zurückgibt und nicht wie meines nur 1 oder 0 
-					if (!min || strcmp(tmp->key, min->key) < 0) //! durch eigenes strcmp ersetzen welches den wertunterschied zurückgibt und nicht wie meines nur 1 oder 0
+				if (!lastprinted || strcmp(tmp->key, lastprinted) > 0)
+					if (!min || strcmp(tmp->key, min->key) < 0)
 						min = tmp;
 				tmp = tmp->next;
 			}
@@ -45,6 +41,7 @@ static void ft_printexport(t_master *master)
 				if (!ft_strcmp(min->key, "_"))
 				{
 					lastprinted = min->key;
+					i++;
 					continue;
 				}
 				ft_putstr_fd("declare -x ", 1);
@@ -58,48 +55,81 @@ static void ft_printexport(t_master *master)
 		}
 }
 
-/* export the variable if it contains an equal sign, if it already exists
-it will get overwritten */
-
 static void ft_exportvar(t_master *master)
 {
 	int x;
+	char *key;
+	int equals_pos;
 
 	x = 1;
 	while (master->cmds->args[x])
 	{
-		if (!ft_checkexportvar(master->cmds->args[x]))
+		equals_pos = 0;
+		while (master->cmds->args[x][equals_pos] && master->cmds->args[x][equals_pos] != '=')
+			equals_pos++;
+		
+		if (master->cmds->args[x][equals_pos] == '=')
 		{
-			if (!ft_changeifexist(master, master->cmds->args[x]))
-				ft_addvar(&master->env, ft_getkey(master->cmds->args[x]), ft_getvalue(master->cmds->args[x]));
+			key = malloc(equals_pos + 1);
+			if (!key)
+			{
+				master->errorcode = 1;
+				return;
+			}
+			ft_strlcpy(key, master->cmds->args[x], equals_pos + 1);
+			
+			if (ft_checkexportvar(key))
+			{
+				master->errorcode = 1;
+				ft_printerror(master->cmds->args[0], master->cmds->args[x], NOT_A_VALID_IDENTIFIER);
+				free(key);
+			}
+			else
+			{
+				if (!ft_changeifexist(master, master->cmds->args[x]))
+					ft_addvar(&master->env, ft_getkey(master->cmds->args[x]), ft_getvalue(master->cmds->args[x]));
+				free(key);
+			}
 		}
-		else if (ft_checkexportvar(master->cmds->args[x]) == 1)
+		else
 		{
-			master->errorcode = 1;
-			ft_printerror(master->cmds->args[0], master->cmds->args[x], NOT_A_VALID_IDENTIFIER);
+			if (ft_checkexportvar(master->cmds->args[x]))
+			{
+				master->errorcode = 1;
+				ft_printerror(master->cmds->args[0], master->cmds->args[x], NOT_A_VALID_IDENTIFIER);
+			}
 		}
 		x++;
 	}
 }
 
-int ft_checkexportvar(char *str)
+static int ft_checkexportvar(char *str)
 {
-	if (*str == '=' || (*str >= '0' && *str <= '9'))
+	int i;
+	
+	if (!str || !str[0])
 		return (1);
-	while(*str)
+	
+	if (str[0] == '=' || (str[0] >= '0' && str[0] <= '9'))
+		return (1);
+	
+	if (!((str[0] >= 'A' && str[0] <= 'Z') || 
+		  (str[0] >= 'a' && str[0] <= 'z') || 
+		  str[0] == '_'))
+		return (1);
+	
+	i = 1;
+	while (str[i])
 	{
-		if ((*str < 'A' || (*str > 'Z' && *str < 'a') || *str > 'z') && (*str < '0' ||
-		*str > '9') && *str != '_' && *str != '=')
+		if (!((str[i] >= 'A' && str[i] <= 'Z') || 
+			  (str[i] >= 'a' && str[i] <= 'z') || 
+			  (str[i] >= '0' && str[i] <= '9') || 
+			  str[i] == '_'))
 			return (1);
-		if (*str == '=')
-			return (0);
-		str++;
+		i++;
 	}
-	return (2);
+	return (0);
 }
-
-/* checks if the variable already exists in the env list, if so it will get
-overwritten and returns a 1 for overwritten */
 
 static int ft_changeifexist(t_master *master, char *vararg)
 {

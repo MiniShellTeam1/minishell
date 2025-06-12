@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   lexer_operators.c                                  :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: feanor <feanor@student.42.fr>              +#+  +:+       +#+        */
+/*   By: mhuthmay <mhuthmay@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/03 15:30:00 by mhuthmay          #+#    #+#             */
-/*   Updated: 2025/06/03 08:18:52 by feanor           ###   ########.fr       */
+/*   Updated: 2025/06/12 10:41:24 by mhuthmay         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -72,8 +72,8 @@ int	get_operator_length(const char *input)
 {
 	if (!input)
 		return (0);
-	if ((input[0] == '<' && input[1] == '<') ||
-		(input[0] == '>' && input[1] == '>'))
+	if ((input[0] == '<' && input[1] == '<') || (input[0] == '>'
+			&& input[1] == '>'))
 		return (2);
 	if (input[0] == '|' || input[0] == '<' || input[0] == '>')
 		return (1);

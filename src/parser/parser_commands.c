@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   parser_commands.c                                  :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: feanor <feanor@student.42.fr>              +#+  +:+       +#+        */
+/*   By: mhuthmay <mhuthmay@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/03 17:00:00 by mhuthmay          #+#    #+#             */
-/*   Updated: 2025/06/03 09:24:46 by feanor           ###   ########.fr       */
+/*   Updated: 2025/06/12 10:47:21 by mhuthmay         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,8 +31,8 @@ void	validate_command_path(t_command *cmd, t_master *master)
 
 int	is_builtin_command(const char *cmd_name)
 {
-	const char	*builtins[] = {"echo", "cd", "pwd", "export", 
-								"unset", "env", "exit", NULL};
+	const char	*builtins[] = {"echo", "cd", "pwd", "export", "unset", "env",
+		"exit", NULL};
 	int			i;
 
 	if (!cmd_name)

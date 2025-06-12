@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   quote_removal.c                                    :+:      :+:    :+:   */
+/*   expand_quote_removal.c                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: feanor <feanor@student.42.fr>              +#+  +:+       +#+        */
+/*   By: mhuthmay <mhuthmay@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/03 16:30:00 by mhuthmay          #+#    #+#             */
-/*   Updated: 2025/06/03 09:17:11 by feanor           ###   ########.fr       */
+/*   Updated: 2025/06/12 10:43:42 by mhuthmay         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,6 @@ char	*remove_quotes(const char *token)
 
 	if (!token)
 		return (NULL);
-	
 	result_len = calculate_unquoted_length(token);
 	result = malloc(result_len + 1);
 	if (!result)

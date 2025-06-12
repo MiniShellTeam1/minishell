@@ -1,27 +1,36 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   parser_utils_2.c                                   :+:      :+:    :+:   */
+/*   lexer_helpers.c                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: mhuthmay <mhuthmay@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/06/12 10:46:24 by mhuthmay          #+#    #+#             */
-/*   Updated: 2025/06/12 10:46:25 by mhuthmay         ###   ########.fr       */
+/*   Created: 2025/06/12 11:30:00 by mhuthmay          #+#    #+#             */
+/*   Updated: 2025/06/12 11:05:58 by mhuthmay         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-void	set_command_error(t_command *cmd, const char *error_msg)
+int	advance_input(t_lexer_data *data)
 {
-	if (cmd->errormsg)
-		free(cmd->errormsg);
-	cmd->errormsg = ft_strdup(error_msg);
+	if (!data || !data->input || !*(data->input))
+		return (0);
+	(*(data->input))++;
+	return (1);
 }
 
-void	resolve_command_in_path(t_command *cmd, t_master *master)
+char	get_current_char(t_lexer_data *data)
 {
-	if (!cmd || !master)
-		return ;
-	ft_checkforcmdpath(master, cmd);
+	if (!data || !data->input || !*(data->input))
+		return ('\0');
+	return (**(data->input));
+}
+
+int	lexer_error(const char *message)
+{
+	if (message)
+		ft_putstr_fd((char *)message, 2);
+	ft_putstr_fd("\n", 2);
+	return (0);
 }

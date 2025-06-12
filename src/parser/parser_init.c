@@ -3,97 +3,105 @@
 /*                                                        :::      ::::::::   */
 /*   parser_init.c                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: feanor <feanor@student.42.fr>              +#+  +:+       +#+        */
+/*   By: mhuthmay <mhuthmay@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/02 15:30:00 by mhuthmay          #+#    #+#             */
-/*   Updated: 2025/06/03 08:37:31 by feanor           ###   ########.fr       */
+/*   Updated: 2025/06/12 11:03:39 by mhuthmay         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-t_command *init_command(void)
+t_command	*init_command(void)
 {
-    t_command   *cmd;
+	t_command	*cmd;
 
-    cmd = malloc(sizeof(t_command));
-    if (!cmd)
-        return (NULL);
-    cmd->args = malloc(sizeof(char *) * 10);
-    if (!cmd->args)
-        return (free(cmd), NULL);
-    cmd->args[0] = NULL;
-    cmd->infiles = malloc(sizeof(char *) * 2);
-    if (!cmd->infiles)
-        return (free(cmd->args), free(cmd), NULL);
-    cmd->infiles[0] = NULL;
-    cmd->outfiles = malloc(sizeof(char *) * 2);
-    if (!cmd->outfiles)
-        return (free(cmd->args), free(cmd->infiles), free(cmd), NULL);
-    cmd->outfiles[0] = NULL;
-    cmd->cmdpath = NULL;
-    cmd->errormsg = NULL;
-    cmd->append = 0;
-    cmd->heredoc_input = NULL;
-    cmd->next = NULL;
-    return (cmd);
+	cmd = malloc(sizeof(t_command));
+	if (!cmd)
+		return (NULL);
+	cmd->args = malloc(sizeof(char *) * 10);
+	if (!cmd->args)
+		return (free(cmd), NULL);
+	cmd->args[0] = NULL;
+	cmd->infiles = malloc(sizeof(char *) * 2);
+	if (!cmd->infiles)
+		return (free(cmd->args), free(cmd), NULL);
+	cmd->infiles[0] = NULL;
+	cmd->outfiles = malloc(sizeof(char *) * 2);
+	if (!cmd->outfiles)
+		return (free(cmd->args), free(cmd->infiles), free(cmd), NULL);
+	cmd->cmdpath = NULL;
+	cmd->errormsg = NULL;
+	cmd->append = 0;
+	cmd->heredoc_input = NULL;
+	cmd->next = NULL;
+	return (cmd);
 }
 
-void free_command(t_command *cmd)
+static void	free_string_array(char **array)
 {
-    size_t  i;
+	size_t	i;
 
-    if (!cmd)
-        return ;
-    i = 0;
-    while (cmd->args[i])
-        free(cmd->args[i++]);
-    free(cmd->args);
-    i = 0;
-    while (cmd->infiles[i])
-        free(cmd->infiles[i++]);
-    free(cmd->infiles);
-    i = 0;
-    while (cmd->outfiles[i])
-        free(cmd->outfiles[i++]);
-    free(cmd->outfiles);
-    free(cmd->cmdpath);
-    free(cmd->errormsg);
-    free(cmd->heredoc_input);
-    free_command(cmd->next);
-    free(cmd);
+	if (!array)
+		return ;
+	i = 0;
+	while (array[i])
+		free(array[i++]);
+	free(array);
 }
 
-int add_arg(t_command *cmd, char *arg)
+void	free_command(t_command *cmd)
 {
-    size_t  i;
-    char    *dup;
-    char    **new_args;
+	if (!cmd)
+		return ;
+	free_string_array(cmd->args);
+	free_string_array(cmd->infiles);
+	free_string_array(cmd->outfiles);
+	free(cmd->cmdpath);
+	free(cmd->errormsg);
+	free(cmd->heredoc_input);
+	free_command(cmd->next);
+	free(cmd);
+}
 
-    if (!arg || arg[0] == '\0')
-        return (1);
+static int	expand_args_array(t_command *cmd, size_t current_size)
+{
+	char	**new_args;
+	size_t	i;
 
-    dup = ft_strdup(arg);
-    if (!dup)
-        return (0);
-    i = 0;
-    while (cmd->args[i])
-        i++;
-    if (i >= 10)
-    {
-        new_args = malloc(sizeof(char *) * (i * 2));
-        if (!new_args)
-            return (free(dup), 0);
-        i = 0;
-        while (cmd->args[i])
-        {
-            new_args[i] = cmd->args[i];
-            i++;
-        }
-        free(cmd->args);
-        cmd->args = new_args;
-    }
-    cmd->args[i] = dup;
-    cmd->args[i + 1] = NULL;
-    return (1);
+	new_args = malloc(sizeof(char *) * (current_size * 2));
+	if (!new_args)
+		return (0);
+	i = 0;
+	while (cmd->args[i])
+	{
+		new_args[i] = cmd->args[i];
+		i++;
+	}
+	free(cmd->args);
+	cmd->args = new_args;
+	return (1);
+}
+
+int	add_arg(t_command *cmd, char *arg)
+{
+	size_t	i;
+	char	*dup;
+
+	if (!arg || arg[0] == '\0')
+		return (1);
+	dup = ft_strdup(arg);
+	if (!dup)
+		return (0);
+	i = 0;
+	while (cmd->args[i])
+		i++;
+	if (i >= 10)
+	{
+		if (!expand_args_array(cmd, i))
+			return (free(dup), 0);
+	}
+	cmd->args[i] = dup;
+	cmd->args[i + 1] = NULL;
+	return (1);
 }

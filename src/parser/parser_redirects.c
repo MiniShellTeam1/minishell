@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   parser_redirects.c                                 :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: feanor <feanor@student.42.fr>              +#+  +:+       +#+        */
+/*   By: mhuthmay <mhuthmay@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/03 17:00:00 by mhuthmay          #+#    #+#             */
-/*   Updated: 2025/06/03 08:23:30 by feanor           ###   ########.fr       */
+/*   Updated: 2025/06/12 10:42:47 by mhuthmay         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,8 +14,8 @@
 
 int	handle_redirection(t_parser_state *state, t_command *cmd)
 {
-	char		*redirect_token;
-	char		*filename_token;
+	char			*redirect_token;
+	char			*filename_token;
 	t_token_type	type;
 
 	redirect_token = get_current_token(state);
@@ -32,7 +32,8 @@ int	handle_redirection(t_parser_state *state, t_command *cmd)
 	return (advance_token_index(state));
 }
 
-int	process_redirect_by_type(t_command *cmd, t_token_type type, char *filename, t_master *master)
+int	process_redirect_by_type(t_command *cmd, t_token_type type, char *filename,
+		t_master *master)
 {
 	if (type == TOKEN_REDIRECT_IN)
 		return (add_input_redirect(cmd, filename, master));
@@ -61,7 +62,8 @@ int	add_input_redirect(t_command *cmd, char *filename, t_master *master)
 	return (1);
 }
 
-int	add_output_redirect(t_command *cmd, char *filename, t_master *master, int append)
+int	add_output_redirect(t_command *cmd, char *filename, t_master *master,
+		int append)
 {
 	char	*processed_filename;
 

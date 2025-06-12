@@ -3,14 +3,38 @@
 /*                                                        :::      ::::::::   */
 /*   lexer_main.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: feanor <feanor@student.42.fr>              +#+  +:+       +#+        */
+/*   By: mhuthmay <mhuthmay@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/03 15:30:00 by mhuthmay          #+#    #+#             */
-/*   Updated: 2025/06/03 09:18:24 by feanor           ###   ########.fr       */
+/*   Updated: 2025/06/12 11:05:35 by mhuthmay         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
+
+static int	check_unclosed_quotes(t_lexer_data *data)
+{
+	if (*(data->state) == IN_SINGLE_QUOTE || *(data->state) == IN_DOUBLE_QUOTE)
+	{
+		ft_putstr_fd("minishell: syntax error: unclosed quote\n", 2);
+		cleanup_lexer(data);
+		return (0);
+	}
+	return (1);
+}
+
+static int	process_lexer_loop(t_lexer_data *data)
+{
+	while (get_current_char(data))
+	{
+		if (!process_char(data))
+		{
+			cleanup_lexer(data);
+			return (0);
+		}
+	}
+	return (1);
+}
 
 t_token_list	*lexer(const char *input)
 {
@@ -27,23 +51,11 @@ t_token_list	*lexer(const char *input)
 		free_token_list(tokens);
 		return (NULL);
 	}
-	while (get_current_char(&data))
+	if (!process_lexer_loop(&data) || !check_unclosed_quotes(&data))
 	{
-		if (!process_char(&data))
-		{
-			cleanup_lexer(&data);
-			free_token_list(tokens);
-			return (NULL);
-		}
-	}
-	if (*(data.state) == IN_SINGLE_QUOTE || *(data.state) == IN_DOUBLE_QUOTE)
-	{
-		ft_putstr_fd("minishell: syntax error: unclosed quote\n", 2);
-		cleanup_lexer(&data);
 		free_token_list(tokens);
 		return (NULL);
 	}
-	
 	finalize_token(&data);
 	cleanup_lexer(&data);
 	return (tokens);
@@ -65,27 +77,4 @@ int	process_char(t_lexer_data *data)
 	if (current_state == IN_OPERATOR)
 		return (handle_operator_state(data));
 	return (lexer_error("Invalid lexer state"));
-}
-
-int	advance_input(t_lexer_data *data)
-{
-	if (!data || !data->input || !*(data->input))
-		return (0);
-	(*(data->input))++;
-	return (1);
-}
-
-char	get_current_char(t_lexer_data *data)
-{
-	if (!data || !data->input || !*(data->input))
-		return ('\0');
-	return (**(data->input));
-}
-
-int	lexer_error(const char *message)
-{
-	if (message)
-		ft_putstr_fd((char *)message, 2);
-	ft_putstr_fd("\n", 2);
-	return (0);
 }

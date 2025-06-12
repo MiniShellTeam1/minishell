@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   expand_main.c                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: feanor <feanor@student.42.fr>              +#+  +:+       +#+        */
+/*   By: mhuthmay <mhuthmay@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/03 16:30:00 by mhuthmay          #+#    #+#             */
-/*   Updated: 2025/06/03 08:21:28 by feanor           ###   ########.fr       */
+/*   Updated: 2025/06/12 10:43:32 by mhuthmay         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,7 +55,8 @@ char	*process_token_expansion(const char *token, t_master *master)
 	return (append_literal_part(result, token, start, pos));
 }
 
-char	*append_literal_part(char *result, const char *token, size_t start, size_t end)
+char	*append_literal_part(char *result, const char *token, size_t start,
+		size_t end)
 {
 	char	*literal;
 	char	*new_result;
@@ -69,7 +70,8 @@ char	*append_literal_part(char *result, const char *token, size_t start, size_t 
 	return (new_result);
 }
 
-char	*append_variable_part(char *result, const char *token, size_t *pos, t_master *master)
+char	*append_variable_part(char *result, const char *token, size_t *pos,
+		t_master *master)
 {
 	char	*var_expansion;
 	char	*new_result;

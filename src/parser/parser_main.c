@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   parser_main.c                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: feanor <feanor@student.42.fr>              +#+  +:+       +#+        */
+/*   By: mhuthmay <mhuthmay@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/03 17:00:00 by mhuthmay          #+#    #+#             */
-/*   Updated: 2025/06/03 09:40:20 by feanor           ###   ########.fr       */
+/*   Updated: 2025/06/12 11:01:00 by mhuthmay         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,23 +37,27 @@ t_command	*build_command_list(t_parser_state *state)
 	current = head;
 	while (state->token_index < state->tokens->count)
 	{
-		if (!process_next_token(state, current))
+		if (!process_command_token(state, current))
 		{
 			free_command(head);
 			return (NULL);
 		}
-		if (is_pipe_token(state))
-		{
-			current = handle_pipe_transition(state, current);
-			if (!current)
-			{
-				free_command(head);
-				return (NULL);
-			}
-		}
 	}
 	finalize_commands(head, state->master);
 	return (head);
+}
+
+int	process_command_token(t_parser_state *state, t_command *current)
+{
+	if (!process_next_token(state, current))
+		return (0);
+	if (is_pipe_token(state))
+	{
+		current = handle_pipe_transition(state, current);
+		if (!current)
+			return (0);
+	}
+	return (1);
 }
 
 int	process_next_token(t_parser_state *state, t_command *cmd)
@@ -68,64 +72,6 @@ int	process_next_token(t_parser_state *state, t_command *cmd)
 	if (is_pipe_token(state))
 		return (advance_token_index(state));
 	return (add_command_argument(state, cmd));
-}
-
-int	add_command_argument(t_parser_state *state, t_command *cmd)
-{
-	char	*token;
-	char	*processed_token;
-	char	**split_args;
-	size_t	i;
-
-	token = get_current_token(state);
-	if (!token)
-		return (0);
-	
-	processed_token = process_word_complete(token, state->master);
-	if (!processed_token)
-		return (0);
-	
-	// Check if we need field splitting (unquoted variables)
-	if (has_expandable_variables(token) && should_split_field(token, 0))
-	{
-		split_args = split_fields(processed_token);
-		if (split_args)
-		{
-			i = 0;
-			while (split_args[i])
-			{
-				if (!add_arg(cmd, split_args[i]))
-				{
-					free(processed_token);
-					ft_freechararr(split_args);
-					return (0);
-				}
-				i++;
-			}
-			ft_freechararr(split_args);
-		}
-		else
-		{
-			// No fields after splitting, add empty arg
-			if (!add_arg(cmd, ""))
-			{
-				free(processed_token);
-				return (0);
-			}
-		}
-	}
-	else
-	{
-		// No splitting needed
-		if (!add_arg(cmd, processed_token))
-		{
-			free(processed_token);
-			return (0);
-		}
-	}
-	
-	free(processed_token);
-	return (advance_token_index(state));
 }
 
 void	finalize_commands(t_command *head, t_master *master)

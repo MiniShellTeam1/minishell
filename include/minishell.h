@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   minishell.h                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: feanor <feanor@student.42.fr>              +#+  +:+       +#+        */
+/*   By: mhuthmay <mhuthmay@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/16 13:23:29 by mhuthmay          #+#    #+#             */
-/*   Updated: 2025/06/03 09:57:45 by feanor           ###   ########.fr       */
+/*   Updated: 2025/06/12 11:13:31 by mhuthmay         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,349 +14,433 @@
 # define MINISHELL_H
 
 /* -------------------------- System Header Includes ------------------------- */
-#include <stdlib.h>           // For memory allocation and standard utilities
-#include <stddef.h>	          // For size_t type
-#include <unistd.h>           // For POSIX system calls (e.g., write, read)
-#include <dirent.h>           // For directory handling
-#include <errno.h>            // For error number definitions
-#include <readline/readline.h> // For readline functionality
-#include <readline/history.h>  // For command history management
-#include <stdio.h>            // For standard I/O operations
-#include <fcntl.h>
-#include <sys/wait.h>
-#include <limits.h>
+# include <dirent.h> // For directory handling
+# include <errno.h>  // For error number definitions
+# include <fcntl.h>
+# include <limits.h>
+# include <readline/history.h>  // For command history management
+# include <readline/readline.h> // For readline functionality
+# include <stddef.h>            // For size_t type
+# include <stdio.h>             // For standard I/O operations
+# include <stdlib.h>            // For memory allocation and standard utilities
+# include <sys/wait.h>
+# include <unistd.h> // For POSIX system calls (e.g., write, read)
 
 /* ---------------------------- Constants and Macros ------------------------- */
-#define BUFFER_SIZE 1024
+# define BUFFER_SIZE 1024
 
 /* ---------------------------- Error Message Macros ------------------------- */
 /* Macros for standard error messages used throughout the Minishell project */
-# define NO_SUCH_FILE_OR_DIRECTORY "No such file or directory\n" // Exit code: 1 or 127
-# define PERMISSION_DENIED "Permission denied\n" // Exit code: 1 or 126
-# define NOT_A_DIRECTORY "Not a directory\n" // Exit code: 1
-# define TOO_MANY_ARGUMENTS "too many arguments\n" // Exit code: 1
-# define ARGUMENT_LIST_TOO_LONG "Argument list too long\n" // Exit code: 1
-# define TOO_MANY_LEVELS_OF_SYMB_LINK "Too many levels of symbolic links\n" // Exit code: 1
-# define FILE_NAME_TOO_LONG "File name too long\n" // Exit code: 1
-# define COMMAND_NOT_FOUND "command not found\n" // Exit code: 127
-# define NUMERIC_ARGUMENT_REQUIRED "numeric argument required\n" // errorcode 2
-# define NOT_A_VALID_IDENTIFIER "not a valid identifier\n" //errorcode 1
+# define NO_SUCH_FILE_OR_DIRECTORY "No such file or directory\n"
+// Exit code: 1 or 127
+# define PERMISSION_DENIED "Permission denied\n"
+// Exit code: 1 or 126
+# define NOT_A_DIRECTORY "Not a directory\n"
+// Exit code: 1
+# define TOO_MANY_ARGUMENTS "too many arguments\n"
+// Exit code: 1
+# define ARGUMENT_LIST_TOO_LONG "Argument list too long\n"
+// Exit code: 1
+# define TOO_MANY_LEVELS_OF_SYMB_LINK "Too many levels of symbolic links\n"
+// Exit code: 1
+# define FILE_NAME_TOO_LONG "File name too long\n"
+// Exit code: 1
+# define COMMAND_NOT_FOUND "command not found\n"
+// Exit code: 127
+# define NUMERIC_ARGUMENT_REQUIRED "numeric argument required\n"
+// errorcode 2
+# define NOT_A_VALID_IDENTIFIER "not a valid identifier\n"
+// errorcode 1
 
 /* ------------------------- Enums and Struct Definitions -------------------- */
 
 /* Enum for lexer state machine */
-typedef enum {
-    NORMAL,           // Default state for processing characters
-    IN_SINGLE_QUOTE,  // Inside single-quoted string
-    IN_DOUBLE_QUOTE,  // Inside double-quoted string
-    IN_WORD,          // Processing a word token
-    IN_OPERATOR       // Processing an operator token
-} t_state;
+typedef enum
+{
+	NORMAL,          // Default state for processing characters
+	IN_SINGLE_QUOTE, // Inside single-quoted string
+	IN_DOUBLE_QUOTE, // Inside double-quoted string
+	IN_WORD,         // Processing a word token
+	IN_OPERATOR      // Processing an operator token
+}					t_state;
 
 /* Quote context for expansion */
-typedef enum {
-    QUOTE_NONE,
-    QUOTE_SINGLE,
-    QUOTE_DOUBLE
-} t_quote_state;
+typedef enum
+{
+	QUOTE_NONE,
+	QUOTE_SINGLE,
+	QUOTE_DOUBLE
+}					t_quote_state;
 
 /* Token types for parser */
-typedef enum {
-    TOKEN_WORD,
-    TOKEN_PIPE,
-    TOKEN_REDIRECT_IN,
-    TOKEN_REDIRECT_OUT,
-    TOKEN_HEREDOC,
-    TOKEN_APPEND,
-    TOKEN_UNKNOWN
-} t_token_type;
+typedef enum
+{
+	TOKEN_WORD,
+	TOKEN_PIPE,
+	TOKEN_REDIRECT_IN,
+	TOKEN_REDIRECT_OUT,
+	TOKEN_HEREDOC,
+	TOKEN_APPEND,
+	TOKEN_UNKNOWN
+}					t_token_type;
 
 /* Structure for token list generated by the lexer */
-typedef struct {
-    char    **tokens;    // Array of token strings
-    size_t  count;       // Number of tokens
-    size_t  capacity;    // Allocated capacity of the token array
-} t_token_list;
+typedef struct
+{
+	char **tokens;   // Array of token strings
+	size_t count;    // Number of tokens
+	size_t capacity; // Allocated capacity of the token array
+}					t_token_list;
 
 /* Structure for environment variables (doubly linked list) */
-typedef struct s_env {
-    char            *key;    // Environment variable key (e.g., "PATH")
-    char            *value;  // Corresponding value
-    struct s_env    *prev;   // Pointer to previous env variable
-    struct s_env    *next;   // Pointer to next env variable
-} t_env;
+typedef struct s_env
+{
+	char *key;          // Environment variable key (e.g., "PATH")
+	char *value;        // Corresponding value
+	struct s_env *prev; // Pointer to previous env variable
+	struct s_env *next; // Pointer to next env variable
+}					t_env;
 
 /* Structure for a parsed command */
-typedef struct s_command {
-    char            *cmdpath;      // Full path to the command executable
-    char            **args;        // Array of command arguments
-    char            **infiles;     // Array of input file redirections
-    char            **outfiles;    // Array of output file redirections
-    char            *errormsg;     // Error message if command fails
-    int             append;        // Flag for append mode (>>)
-    char            *heredoc_input;// Heredoc input string
+typedef struct s_command
+{
+	char *cmdpath;       // Full path to the command executable
+	char **args;         // Array of command arguments
+	char **infiles;      // Array of input file redirections
+	char **outfiles;     // Array of output file redirections
+	char *errormsg;      // Error message if command fails
+	int append;          // Flag for append mode (>>)
+	char *heredoc_input; // Heredoc input string
 	int				is_heredoc;
-    struct s_command *next;        // Pointer to next command in pipeline
-} t_command;
+	struct s_command *next; // Pointer to next command in pipeline
+}					t_command;
 
 /* Master structure to hold the shell state */
-typedef struct s_master {
-    struct s_command *cmds;      // Linked list of parsed commands
-    struct s_env     *env;       // Linked list of environment variables
-	pid_t				*pids;
-    int errorcode;
-} t_master;
+typedef struct s_master
+{
+	struct s_command *cmds; // Linked list of parsed commands
+	struct s_env *env;      // Linked list of environment variables
+	pid_t			*pids;
+	int				errorcode;
+}					t_master;
 
 /* Lexer data structure */
-typedef struct s_lexer_data {
-    t_state         *state;
-    const char      **input;
-    t_token_list    *tokens;
-    char            *buffer;
-    size_t          *buf_pos;
-} t_lexer_data;
+typedef struct s_lexer_data
+{
+	t_state			*state;
+	const char		**input;
+	t_token_list	*tokens;
+	char			*buffer;
+	size_t			*buf_pos;
+}					t_lexer_data;
 
 /* Parser state structure */
-typedef struct s_parser_state {
-    t_token_list    *tokens;
-    t_master        *master;
-    size_t          token_index;
-    t_command       *current_cmd;
-    char            *error_msg;
-} t_parser_state;
+typedef struct s_parser_state
+{
+	t_token_list	*tokens;
+	t_master		*master;
+	size_t			token_index;
+	t_command		*current_cmd;
+	char			*error_msg;
+}					t_parser_state;
 
 /* Parser data structure (for compatibility) */
-typedef struct s_parser_data {
-    t_command       **cmd;
-    char            *token;
-    int             *pipe_flag;
-    t_master        *master;
-} t_parser_data;
+typedef struct s_parser_data
+{
+	t_command		**cmd;
+	char			*token;
+	int				*pipe_flag;
+	t_master		*master;
+}					t_parser_data;
+/* field splitting stuct*/
+
+typedef struct s_split_data
+{
+	char			**fields;
+	size_t			field_count;
+	size_t			field_index;
+	size_t			i;
+	size_t			field_start;
+	int				in_field;
+}					t_split_data;
 
 /* ---------------------------- Function Prototypes -------------------------- */
 
 /* Utility Functions - utils_str1.c */
-int     ft_strlen(const char *str);                // Get string length
-int     ft_strcmp(char *str1, char *str2);         // Compare two strings
-char    *ft_strjoin(const char *s1, const char *s2); // Join two strings
+int	ft_strlen(const char *str);                   // Get string length
+int	ft_strcmp(char *str1, char *str2);            // Compare two strings
+char	*ft_strjoin(const char *s1, const char *s2); // Join two strings
 
 /* Utility Functions - utils_str2.c */
-char    *ft_strdup(const char *s1);                // Duplicate a string
-size_t  ft_strlcpy(char *dst, const char *src, size_t size); // Safe string copy
-size_t  ft_strlcat(char *dst, const char *src, size_t size); // Safe string concatenation
+char	*ft_strdup(const char *s1);                           
+		// Duplicate a string
+size_t	ft_strlcpy(char *dst, const char *src, size_t size); // Safe string copy
+size_t	ft_strlcat(char *dst, const char *src, size_t size);
+		// Safe string concatenation
 
 /* Utility Functions - utils_str3.c */
-int     ft_strncmp(const char *s1, const char *s2, size_t n); // Compare n chars of two strings
-int     ft_strchr(char *str, char c);              // Find character in string
-char    *ft_strndup(const char *s, size_t n);      // Duplicate n chars of a string
-long    ft_atol(char *str, int *overflow);
+int	ft_strncmp(const char *s1, const char *s2, size_t n);
+		// Compare n chars of two strings
+int	ft_strchr(char *str, char c);                        
+		// Find character in string
+char	*ft_strndup(const char *s, size_t n);               
+		// Duplicate n chars of a string
 
 /* Utility Functions - utils_io.c */
-void    ft_putstr_fd(char *str, int fd);           // Write string to file descriptor
-char	**ft_split(char *tosplit, char seperator);
+void	ft_putstr_fd(char *str, int fd); // Write string to file descriptor
+
+/* String Functions - functions_03.c */
+size_t				ft_strlcpy(char *dst, const char *src, size_t size);
+size_t				ft_strlcat(char *dst, const char *src, size_t size);
+long				ft_atol(char *str, int *overflow);
+int					ft_check_overflow(long result, int digit, int sign,
+						int *overflow);
+char				**ft_split(char *tosplit, char seperator);
+
+/* Split Helper Functions - functions_04.c */
+int					ft_countwords(char *tocount, char seperator);
+char				**ft_splitstrings(char **splitted, char *tosplit,
+						char seperator, int wordcount);
 
 /* Utility Functions - utils_convert.c */
-char    *ft_itoa(int num);                         // Convert integer to string
-char    *ft_strjoin3(char *str1, char *str2, char *str3); // Join three strings
+char	*ft_itoa(int num);                               
+		// Convert integer to string
+char	*ft_strjoin3(char *str1, char *str2, char *str3); // Join three strings
 
 /* ========================= NEW LEXER FUNCTIONS ========================= */
 
 /* Lexer Main Functions - lexer_main.c */
-t_token_list	*lexer(const char *input);
-int		process_char(t_lexer_data *data);
-int		advance_input(t_lexer_data *data);
-char	get_current_char(t_lexer_data *data);
-int		lexer_error(const char *message);
+t_token_list		*lexer(const char *input);
+int					process_char(t_lexer_data *data);
+
+/* Lexer Helper Functions - lexer_helpers.c */
+int					advance_input(t_lexer_data *data);
+char				get_current_char(t_lexer_data *data);
+int					lexer_error(const char *message);
 
 /* Lexer Init Functions - lexer_init.c */
-t_token_list *init_token_list(void);
-int add_token(t_token_list *tokens, char *buffer);
-void free_token_list(t_token_list *tokens);
+t_token_list		*init_token_list(void);
+int					add_token(t_token_list *tokens, char *buffer);
+void				free_token_list(t_token_list *tokens);
 
 /* Lexer Utils Functions - lexer_utils.c */
-int		init_lexer_data(t_lexer_data *data, const char *input, t_token_list *tokens);
-void	cleanup_lexer(t_lexer_data *data);
-int		finalize_token(t_lexer_data *data);
-void	reset_buffer(t_lexer_data *data);
-int		is_operator_char(char c);
+int					init_lexer_data(t_lexer_data *data, const char *input,
+						t_token_list *tokens);
+void				cleanup_lexer(t_lexer_data *data);
+int					finalize_token(t_lexer_data *data);
+void				reset_buffer(t_lexer_data *data);
+int					is_operator_char(char c);
 
 /* Lexer Normal State Functions - lexer_normal.c */
-int		handle_normal(t_lexer_data *data);
-int		handle_whitespace(t_lexer_data *data);
-int		handle_quote_start(t_lexer_data *data);
-int		handle_operator(t_lexer_data *data);
-int		handle_word_start(t_lexer_data *data);
+int					handle_normal(t_lexer_data *data);
+int					handle_whitespace(t_lexer_data *data);
+int					handle_quote_start(t_lexer_data *data);
+int					handle_operator(t_lexer_data *data);
+int					handle_word_start(t_lexer_data *data);
 
 /* Lexer Quote Functions - lexer_quotes.c */
-int		handle_single_quote(t_lexer_data *data);
-int		handle_double_quote(t_lexer_data *data);
-int		add_quote_char(t_lexer_data *data, char quote_char);
-int		find_closing_quote(t_lexer_data *data, char quote_type);
-int		handle_unclosed_quote(t_lexer_data *data, char quote_type);
+int					handle_single_quote(t_lexer_data *data);
+int					handle_double_quote(t_lexer_data *data);
+int					add_quote_char(t_lexer_data *data, char quote_char);
+int					find_closing_quote(t_lexer_data *data, char quote_type);
+int					handle_unclosed_quote(t_lexer_data *data, char quote_type);
 
 /* Lexer Word Functions - lexer_word.c */
-int		handle_word(t_lexer_data *data);
-int		add_char_to_buffer(t_lexer_data *data, char c);
-int		check_word_end(char current_char);
-int		handle_word_quote(t_lexer_data *data);
-int		handle_word_operator(t_lexer_data *data);
+int					handle_word(t_lexer_data *data);
+int					add_char_to_buffer(t_lexer_data *data, char c);
+int					check_word_end(char current_char);
+int					handle_word_quote(t_lexer_data *data);
+int					handle_word_operator(t_lexer_data *data);
 
 /* Lexer Operator Functions - lexer_operators.c */
-int		handle_operator_state(t_lexer_data *data);
-int		is_double_operator(t_lexer_data *data, char current_char);
-int		handle_double_operator(t_lexer_data *data);
-int		is_valid_operator_sequence(const char *sequence);
-int		get_operator_length(const char *input);
+int					handle_operator_state(t_lexer_data *data);
+int					is_double_operator(t_lexer_data *data, char current_char);
+int					handle_double_operator(t_lexer_data *data);
+int					is_valid_operator_sequence(const char *sequence);
+int					get_operator_length(const char *input);
 
 /* ========================= NEW EXPANSION FUNCTIONS ========================= */
 
+/* Field Splitting Functions - expand_field_splitting.c */
+char				**split_fields(const char *str);
+
 /* Expansion Utils Functions - expand_utils.c */
-char	*get_var_name(const char *token, size_t start_pos, size_t *var_len);
-char	*get_var_value(const char *var_name, t_master *master);
-int		is_valid_var_char(char c);
-char	*create_var_name_string(const char *token, size_t start, size_t len);
-size_t	find_next_dollar(const char *token, size_t start_pos);
+char				*get_var_name(const char *token, size_t start_pos,
+						size_t *var_len);
+char				*get_var_value(const char *var_name, t_master *master);
+int					is_valid_var_char(char c);
+char				*create_var_name_string(const char *token, size_t start,
+						size_t len);
+size_t				find_next_dollar(const char *token, size_t start_pos);
 
 /* Expansion Context Functions - expand_context.c */
-int		is_in_single_quotes(const char *token, size_t pos);
-int		should_expand_variable(const char *token, size_t dollar_pos);
-t_quote_state	get_quote_state(const char *token, size_t pos);
-int		has_expandable_variables(const char *token);
-size_t	skip_quoted_section(const char *token, size_t start_pos);
+int					is_in_single_quotes(const char *token, size_t pos);
+int					should_expand_variable(const char *token,
+						size_t dollar_pos);
+t_quote_state		get_quote_state(const char *token, size_t pos);
+int					has_expandable_variables(const char *token);
+size_t				skip_quoted_section(const char *token, size_t start_pos);
 
 /* Expansion Variable Functions - expand_vars.c */
-char	*expand_single_variable(const char *token, size_t *pos, t_master *master);
-char	*expand_literal_section(const char *token, size_t start, size_t end);
-char	*join_expansion_parts(char *existing, char *new_part);
-int		find_variable_end(const char *token, size_t dollar_pos);
-char	*handle_expansion_error(char *partial_result);
+char				*expand_single_variable(const char *token, size_t *pos,
+						t_master *master);
+char				*expand_literal_section(const char *token, size_t start,
+						size_t end);
+char				*join_expansion_parts(char *existing, char *new_part);
+int					find_variable_end(const char *token, size_t dollar_pos);
+char				*handle_expansion_error(char *partial_result);
 
 /* Expansion Main Functions - expand_main.c */
-char	*expand_word(const char *token, t_master *master);
-char	*process_token_expansion(const char *token, t_master *master);
-char	*append_literal_part(char *result, const char *token, size_t start, size_t end);
-char	*append_variable_part(char *result, const char *token, size_t *pos, t_master *master);
-int		needs_expansion(const char *token);
+char				*expand_word(const char *token, t_master *master);
+char				*process_token_expansion(const char *token,
+						t_master *master);
+char				*append_literal_part(char *result, const char *token,
+						size_t start, size_t end);
+char				*append_variable_part(char *result, const char *token,
+						size_t *pos, t_master *master);
+int					needs_expansion(const char *token);
 
 /* Quote Removal Functions - quote_removal.c */
-char	*remove_quotes(const char *token);
-size_t	calculate_unquoted_length(const char *token);
-char	*build_unquoted_string(const char *token, char *result);
-int		has_quotes(const char *token);
-char	*process_word_complete(const char *token, t_master *master);
+char				*remove_quotes(const char *token);
+size_t				calculate_unquoted_length(const char *token);
+char				*build_unquoted_string(const char *token, char *result);
+int					has_quotes(const char *token);
+char				*process_word_complete(const char *token, t_master *master);
 
-/* Expansion Field Splitting Functions - expand_field_splitting.c */
-char **split_fields(const char *str);
-int should_split_field(const char *original_token, size_t var_start);
+/* Field Splitting Utils - expand_field_utils.c */
+int					process_string_splitting(const char *str,
+						t_split_data *data);
+int					should_split_field(const char *token, size_t var_start);
+void				free_fields_on_error(char **fields, size_t field_index);
+int					is_ifs_char(char c);
 
 /* ========================= NEW PARSER FUNCTIONS ========================= */
 
 /* Parser Main Functions - parser_main.c */
-t_command	*parser(t_token_list *tokens, t_master *master);
-t_command	*build_command_list(t_parser_state *state);
-int		process_next_token(t_parser_state *state, t_command *cmd);
-int		add_command_argument(t_parser_state *state, t_command *cmd);
-void	finalize_commands(t_command *head, t_master *master);
+t_command			*parser(t_token_list *tokens, t_master *master);
+t_command			*build_command_list(t_parser_state *state);
+int					process_command_token(t_parser_state *state,
+						t_command *current);
+int					process_next_token(t_parser_state *state, t_command *cmd);
+void				finalize_commands(t_command *head, t_master *master);
+
+/* Parser Arguments Functions - parser_arguments.c */
+int					add_command_argument(t_parser_state *state, t_command *cmd);
 
 /* Parser Main Functions - parser_init.c */
-t_command *init_command(void);
-void free_command(t_command *cmd);
-int add_arg(t_command *cmd, char *arg);
-
+t_command			*init_command(void);
+void				free_command(t_command *cmd);
+int					add_arg(t_command *cmd, char *arg);
 
 /* Parser Token Functions - parser_tokens.c */
-int		is_redirect_token(const char *token);
-int		is_pipe_token(t_parser_state *state);
-char	*get_current_token(t_parser_state *state);
-int		advance_token_index(t_parser_state *state);
-t_token_type	get_token_type(const char *token);
+int					is_redirect_token(const char *token);
+int					is_pipe_token(t_parser_state *state);
+char				*get_current_token(t_parser_state *state);
+int					advance_token_index(t_parser_state *state);
+t_token_type		get_token_type(const char *token);
 
 /* Parser Redirect Functions - parser_redirects.c */
-int		handle_redirection(t_parser_state *state, t_command *cmd);
-int		process_redirect_by_type(t_command *cmd, t_token_type type, char *filename, t_master *master);
-int		add_input_redirect(t_command *cmd, char *filename, t_master *master);
-int		add_output_redirect(t_command *cmd, char *filename, t_master *master, int append);
-int		add_heredoc_redirect(t_command *cmd, char *delimiter, t_master *master);
+int					handle_redirection(t_parser_state *state, t_command *cmd);
+int					process_redirect_by_type(t_command *cmd, t_token_type type,
+						char *filename, t_master *master);
+int					add_input_redirect(t_command *cmd, char *filename,
+						t_master *master);
+int					add_output_redirect(t_command *cmd, char *filename,
+						t_master *master, int append);
+int					add_heredoc_redirect(t_command *cmd, char *delimiter,
+						t_master *master);
 
 /* Parser Utils Functions - parser_utils.c */
-int		init_parser_state(t_parser_state *state, t_token_list *tokens, t_master *master);
-void	cleanup_parser_state(t_parser_state *state);
-t_command	*handle_pipe_transition(t_parser_state *state, t_command *current);
-int		append_to_string_array(char ***array, const char *new_item);
-size_t	get_string_array_length(char **array);
+int					init_parser_state(t_parser_state *state,
+						t_token_list *tokens, t_master *master);
+void				cleanup_parser_state(t_parser_state *state);
+t_command			*handle_pipe_transition(t_parser_state *state,
+						t_command *current);
+int					append_to_string_array(char ***array, const char *new_item);
+size_t				get_string_array_length(char **array);
 
 /* Parser Utils 2 Functions - parser_utils_2.c */
-void    set_command_error(t_command *cmd, const char *error_msg);
-void    resolve_command_in_path(t_command *cmd, t_master *master);
+void				set_command_error(t_command *cmd, const char *error_msg);
+void				resolve_command_in_path(t_command *cmd, t_master *master);
 
 /* Parser Command Functions - parser_commands.c */
-void	validate_command_path(t_command *cmd, t_master *master);
-int		is_builtin_command(const char *cmd_name);
-void	set_builtin_path(t_command *cmd);
-int		is_absolute_or_relative_path(const char *cmd_name);
-void	validate_direct_path(t_command *cmd);
+void				validate_command_path(t_command *cmd, t_master *master);
+int					is_builtin_command(const char *cmd_name);
+void				set_builtin_path(t_command *cmd);
+int					is_absolute_or_relative_path(const char *cmd_name);
+void				validate_direct_path(t_command *cmd);
 
 /* Executor Functions */
-void			ft_exec(t_master *master);
-void			ft_execpipe(t_master *master);
-void			ft_execbuiltin(t_master *master);
-int				ft_openinfiles(t_master *master, t_command currentcmd);
-int				ft_openoutfiles(t_master *master, t_command currentcmd);
-void			ft_checkcmdpath(t_master *master, t_command *currentcmd);
-int				ft_isbuiltin(t_command cmd);
-void	        ft_checkforcmdpath(t_master *master, t_command *currentcmd);
-char	        **ft_getpathsarr(t_master master);
-int 			ft_heredoc(char *delimiter);
+void				ft_exec(t_master *master);
+void				ft_execpipe(t_master *master);
+void				ft_execbuiltin(t_master *master);
+int					ft_openinfiles(t_master *master, t_command currentcmd);
+int					ft_openoutfiles(t_master *master, t_command currentcmd);
+void				ft_checkcmdpath(t_master *master, t_command *currentcmd);
+int					ft_isbuiltin(t_command cmd);
+void				ft_checkforcmdpath(t_master *master, t_command *currentcmd);
+char				**ft_getpathsarr(t_master master);
+int					ft_heredoc(char *delimiter);
 
 /* Heredoc functions*/
-void            handle_heredoc(t_command *cmd, t_master *master);    // Handle heredoc input
-int				is_quoted_delimiter(char *delimiter);
-int				ft_setup_heredoc_input(t_command *cmd);
+void				handle_heredoc(t_command *cmd, t_master *master);
+// Handle heredoc input
+int					is_quoted_delimiter(char *delimiter);
+int					ft_setup_heredoc_input(t_command *cmd);
 
 /* Built-in Functions */
-int 			ft_cd(t_master *master);
-int             ft_echo(t_command cmd);            // Echo command built-in
-int             ft_env(t_master master);           // Print environment variables
-void            ft_exit(t_master master);            // Exit shell built-in
-int             ft_export(t_master *master);       // Export environment variable
-int             ft_pwd(void);                      // Print working directory
-int             ft_unset(t_master *master);        // Unset environment variable
+int					ft_cd(t_master *master);
+int	ft_echo(t_command cmd);      // Echo command built-in
+int	ft_env(t_master master);     // Print environment variables
+void	ft_exit(t_master master);   // Exit shell built-in
+int	ft_export(t_master *master); // Export environment variable
+int	ft_pwd(void);                // Print working directory
+int	ft_unset(t_master *master);  // Unset environment variable
 
 /* Environment Functions */
-t_env           *ft_createenvlist(char **envp);    // Create env list from envp
-t_env           *ft_addvar(t_env **env, char *key, char *value); // Add env variable
-void            ft_delvar(t_env **env, char *key); // Delete env variable
-char            *ft_getkey(char *var);             // Get key from env string
-char            *ft_getvalue(char *var);           // Get value from env string
-void            ft_freevar(t_env *var);            // Free an env variable
-char			*ft_getstralloc(char *str);
-void 			ft_freeenv(t_env *env);
-char			**ft_getenvarray(t_master *master);
-int				ft_lstlen(t_master master);
-char            *ft_addlvl(char *stringlvl);       // Increment SHLVL value
-t_env           *ft_getvar(t_env *env, char *key);
+t_env				*ft_createenvlist(char **envp);
+// Create env list from envp
+t_env	*ft_addvar(t_env **env, char *key, char *value); // Add env variable
+void	ft_delvar(t_env **env, char *key);                // Delete env variable
+char				*ft_getkey(char *var);
+// Get key from env string
+char				*ft_getvalue(char *var);
+// Get value from env string
+void				ft_freevar(t_env *var);
+// Free an env variable
+char				*ft_getstralloc(char *str);
+void				ft_freeenv(t_env *env);
+char				**ft_getenvarray(t_master *master);
+int					ft_lstlen(t_master master);
+char	*ft_addlvl(char *stringlvl); // Increment SHLVL value
+t_env				*ft_getvar(t_env *env, char *key);
 
 /* Signal Handling Functions */
-void	setup_signals(void);
-void	reset_signals(void);
-int	check_signal(void);
+void				setup_signals(void);
+void				reset_signals(void);
+int					check_signal(void);
 
 /* Main Functions */
-t_master        *init_master(void);                // Initialize master structure
-void            free_master(t_master *master);     // Free master structure
+t_master	*init_master(void);        // Initialize master structure
+void	free_master(t_master *master); // Free master structure
 
 /* Free functions */
-void ft_freeandexit(t_master *master, unsigned char exitcode);
-void ft_freecmds(t_master *master);
-void ft_freechararr(char **array);
+void				ft_freeandexit(t_master *master, unsigned char exitcode);
+void				ft_freecmds(t_master *master);
+void				ft_freechararr(char **array);
 
 /* Error Handling */
-void            ft_printerror(char *cmd, char *errfile, char *errormsg); // Print error message
+void				ft_printerror(char *cmd, char *errfile, char *errormsg);
+// Print error message
 
 /* Debug Functions */
-void            print_tokens(t_token_list *tokens); // Print token list
-void            print_parsed_commands(t_command *cmd); // Print parsed commands
-void            print_master(t_master *master);    // Print master structure
-void            debug_shell_state(t_token_list *tokens, t_command *cmd, t_master *master, const char *stage); // Debug shell state
+void				print_tokens(t_token_list *tokens);
+// Print token list
+void				print_parsed_commands(t_command *cmd);
+// Print parsed commands
+void				print_master(t_master *master);
+// Print master structure
+void	debug_shell_state(t_token_list *tokens, t_command *cmd,
+		t_master *master, const char *stage); // Debug shell state
 
 #endif /* MINISHELL_H */

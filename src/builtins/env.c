@@ -2,9 +2,9 @@
 
 /* prints out the whole enviroment */
 
-int ft_env(t_master master)
-{ 
- 	if (master.cmds->args[1])
+int	ft_env(t_master master)
+{
+	if (master.cmds->args[1])
 		return (1);
 	while (master.env)
 	{

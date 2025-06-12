@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   lexer_quotes.c                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: feanor <feanor@student.42.fr>              +#+  +:+       +#+        */
+/*   By: mhuthmay <mhuthmay@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/03 15:30:00 by mhuthmay          #+#    #+#             */
-/*   Updated: 2025/06/03 09:15:55 by feanor           ###   ########.fr       */
+/*   Updated: 2025/06/12 10:46:07 by mhuthmay         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,9 +17,8 @@ int	handle_single_quote(t_lexer_data *data)
 	char	current_char;
 
 	current_char = get_current_char(data);
-	if (current_char == '\0')  /* FIX: Handle end of input */
-		return (1);  /* Let lexer_main handle unclosed quote */
-		
+	if (current_char == '\0')
+		return (1);
 	if (current_char == '\'')
 	{
 		if (!add_quote_char(data, current_char))
@@ -37,9 +36,8 @@ int	handle_double_quote(t_lexer_data *data)
 	char	current_char;
 
 	current_char = get_current_char(data);
-	if (current_char == '\0')  /* FIX: Handle end of input */
-		return (1);  /* Let lexer_main handle unclosed quote */
-		
+	if (current_char == '\0')
+		return (1);
 	if (current_char == '"')
 	{
 		if (!add_quote_char(data, current_char))

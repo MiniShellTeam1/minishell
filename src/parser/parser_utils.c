@@ -3,16 +3,17 @@
 /*                                                        :::      ::::::::   */
 /*   parser_utils.c                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: feanor <feanor@student.42.fr>              +#+  +:+       +#+        */
+/*   By: mhuthmay <mhuthmay@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/03 17:00:00 by mhuthmay          #+#    #+#             */
-/*   Updated: 2025/06/03 08:23:38 by feanor           ###   ########.fr       */
+/*   Updated: 2025/06/12 10:43:04 by mhuthmay         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-int	init_parser_state(t_parser_state *state, t_token_list *tokens, t_master *master)
+int	init_parser_state(t_parser_state *state, t_token_list *tokens,
+		t_master *master)
 {
 	if (!state || !tokens || !master)
 		return (0);

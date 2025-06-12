@@ -3,16 +3,17 @@
 /*                                                        :::      ::::::::   */
 /*   expand_vars.c                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: feanor <feanor@student.42.fr>              +#+  +:+       +#+        */
+/*   By: mhuthmay <mhuthmay@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/03 16:30:00 by mhuthmay          #+#    #+#             */
-/*   Updated: 2025/06/03 08:21:17 by feanor           ###   ########.fr       */
+/*   Updated: 2025/06/12 10:43:54 by mhuthmay         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-char	*expand_single_variable(const char *token, size_t *pos, t_master *master)
+char	*expand_single_variable(const char *token, size_t *pos,
+		t_master *master)
 {
 	char	*var_name;
 	char	*var_value;

@@ -1,17 +1,29 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   functions_01.c                                     :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: mhuthmay <mhuthmay@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/06/12 10:48:52 by mhuthmay          #+#    #+#             */
+/*   Updated: 2025/06/12 11:21:07 by mhuthmay         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "minishell.h"
 
-void ft_putstr_fd(char *str, int fd)
+void	ft_putstr_fd(char *str, int fd)
 {
-    if (str)
-        write(fd, str, ft_strlen(str));
+	if (str)
+		write(fd, str, ft_strlen(str));
 }
 
-int ft_strcmp(char *str1, char *str2)
+int	ft_strcmp(char *str1, char *str2)
 {
-	int x;
+	int	x;
 
 	x = 0;
-	while(str1[x] && str2[x])
+	while (str1[x] && str2[x])
 	{
 		if (str1[x] != str2[x])
 			return (1);
@@ -22,93 +34,69 @@ int ft_strcmp(char *str1, char *str2)
 	return (0);
 }
 
-char *ft_itoa(int num)
+static int	ft_get_num_length(int num, int *is_negative)
 {
-    char *str;
-    int temp = num;
-    int length = 0;
-    int isNegative = 0;
-    int x;
+	int	temp;
+	int	length;
 
-    if (num < 0)
-    {
-        isNegative = 1;
-        num *= -1;
-    }
-    if (num == 0)
-        length = 1;
-    else
-    {
-        while (temp != 0)
-        {
-            temp /= 10;
-            length++;
-        }
-    }
-    if (isNegative)
-        length++;
-    str = malloc(sizeof(char) * (length + 1));
-    if (!str)
-        return (NULL);
-    str[length] = '\0';
-    x = length - 1;
-    if (num == 0)
-        str[x] = '0';
-    else
-    {
-        while (num > 0)
-        {
-            str[x] = (num % 10) + '0';
-            num /= 10;
-            x--;
-        }
-    }
-    if (isNegative)
-        str[0] = '-';
-    return (str);
+	temp = num;
+	length = 0;
+	*is_negative = 0;
+	if (num < 0)
+	{
+		*is_negative = 1;
+		temp = -temp;
+	}
+	if (temp == 0)
+		length = 1;
+	else
+	{
+		while (temp != 0)
+		{
+			temp /= 10;
+			length++;
+		}
+	}
+	if (*is_negative)
+		length++;
+	return (length);
 }
 
-int ft_strlen(const char *str)
+static void	ft_fill_nmb_str(char *str, int num, int length, int is_negative)
 {
-	int x;
+	int	x;
 
-	x = 0;
-	while (str[x])
-		x++;
-	return (x);
+	x = length - 1;
+	if (num == 0)
+		str[x] = '0';
+	else
+	{
+		while (num > 0)
+		{
+			str[x] = (num % 10) + '0';
+			num /= 10;
+			x--;
+		}
+	}
+	if (is_negative)
+		str[0] = '-';
 }
 
-char *ft_strjoin3(char *str1, char *str2, char *str3)
+char	*ft_itoa(int num)
 {
-	int len;
-	char *joinedstr;
-    int x;
-    int y;
+	char	*str;
+	int		length;
+	int		is_negative;
+	int		original_num;
 
-    x = 0;
-    y = 0;
-	len = ft_strlen(str1) + ft_strlen(str2) + ft_strlen(str3);
-	joinedstr = malloc(sizeof(char) * (len + 1));
-	if (!joinedstr)
+	original_num = num;
+	if (num < 0)
+		num = -num;
+	length = ft_get_num_length(original_num, &is_negative);
+	str = malloc(sizeof(char) * (length + 1));
+	if (!str)
 		return (NULL);
-    while (str1[x])
-    {
-        joinedstr[x] = str1[x];
-        x++;
-    }
-    while (str2[y])
-    {
-        joinedstr[x] = str2[y];
-        y++;
-        x++;
-    }
-    y = 0;
-    while (str3[y])
-    {
-        joinedstr[x] = str3[y];
-        y++;
-        x++;
-    }
-    joinedstr[x] = 0;
-    return (joinedstr);
+	str[length] = '\0';
+	ft_fill_nmb_str(str, num, length, is_negative);
+	return (str);
 }

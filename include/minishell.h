@@ -6,7 +6,7 @@
 /*   By: mhuthmay <mhuthmay@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/16 13:23:29 by mhuthmay          #+#    #+#             */
-/*   Updated: 2025/06/12 11:13:31 by mhuthmay         ###   ########.fr       */
+/*   Updated: 2025/06/12 17:26:52 by mhuthmay         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -324,6 +324,10 @@ int					process_command_token(t_parser_state *state,
 int					process_next_token(t_parser_state *state, t_command *cmd);
 void				finalize_commands(t_command *head, t_master *master);
 
+/* Input Priority Functions - parser_input_priority.c */
+void	clear_previous_input_redirections(t_command *cmd);
+int		add_input_redirect_priority(t_command *cmd, char *filename, t_master *master);
+
 /* Parser Arguments Functions - parser_arguments.c */
 int					add_command_argument(t_parser_state *state, t_command *cmd);
 
@@ -340,15 +344,10 @@ int					advance_token_index(t_parser_state *state);
 t_token_type		get_token_type(const char *token);
 
 /* Parser Redirect Functions - parser_redirects.c */
-int					handle_redirection(t_parser_state *state, t_command *cmd);
-int					process_redirect_by_type(t_command *cmd, t_token_type type,
-						char *filename, t_master *master);
-int					add_input_redirect(t_command *cmd, char *filename,
-						t_master *master);
-int					add_output_redirect(t_command *cmd, char *filename,
-						t_master *master, int append);
-int					add_heredoc_redirect(t_command *cmd, char *delimiter,
-						t_master *master);
+int		handle_redirection(t_parser_state *state, t_command *cmd);
+int		process_redirect_by_type(t_command *cmd, t_token_type type, char *filename, t_master *master);
+int		add_output_redirect(t_command *cmd, char *filename, t_master *master, int append);
+int		add_heredoc_redirect_sequential(t_command *cmd, char *delimiter, t_master *master);
 
 /* Parser Utils Functions - parser_utils.c */
 int					init_parser_state(t_parser_state *state,

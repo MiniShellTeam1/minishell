@@ -25,8 +25,10 @@ SIGNAL_DIR = signal
 SRCS = \
 	$(SRC_DIR)/main.c \
 	$(FUNCTIONS_DIR)/functions_01.c \
+	$(FUNCTIONS_DIR)/functions_01b.c \
 	$(FUNCTIONS_DIR)/functions_02.c \
 	$(FUNCTIONS_DIR)/functions_03.c \
+	$(FUNCTIONS_DIR)/functions_04.c \
 	$(LEXER_DIR)/lexer_init.c \
 	$(LEXER_DIR)/lexer_main.c \
 	$(LEXER_DIR)/lexer_utils.c \
@@ -34,7 +36,9 @@ SRCS = \
 	$(LEXER_DIR)/lexer_quotes.c \
 	$(LEXER_DIR)/lexer_word.c \
 	$(LEXER_DIR)/lexer_operators.c \
+	$(LEXER_DIR)/lexer_helpers.c \
 	$(EXPANSION_DIR)/expand_main.c \
+	$(EXPANSION_DIR)/expand_field_utils.c \
 	$(EXPANSION_DIR)/expand_utils.c \
 	$(EXPANSION_DIR)/expand_context.c \
 	$(EXPANSION_DIR)/expand_vars.c \
@@ -47,6 +51,8 @@ SRCS = \
 	$(PARSER_DIR)/parser_utils.c \
 	$(PARSER_DIR)/parser_commands.c \
 	$(PARSER_DIR)/parser_utils_2.c \
+	$(PARSER_DIR)/parser_input_priority.c \
+	$(PARSER_DIR)/parser_arguments.c \
 	$(EXECUTOR_DIR)/execution.c \
 	$(EXECUTOR_DIR)/heredoc.c \
 	$(EXECUTOR_DIR)/free.c \

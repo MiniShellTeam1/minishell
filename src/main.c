@@ -6,7 +6,7 @@
 /*   By: mhuthmay <mhuthmay@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/02 15:30:00 by mhuthmay          #+#    #+#             */
-/*   Updated: 2025/06/12 10:47:38 by mhuthmay         ###   ########.fr       */
+/*   Updated: 2025/06/12 16:54:36 by mhuthmay         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,18 +14,7 @@
 
 static void	set_errorcode(t_master *master)
 {
-	// t_command *cmd;
-	// cmd = master->cmds;
 	master->errorcode = 0;
-	// while (cmd)
-	// {
-	//     if (cmd->errormsg)
-	//     {
-	//         master->errorcode = 1;
-	//         break ;
-	//     }
-	//     cmd = cmd->next;
-	// }
 }
 
 t_master	*init_master(void)
@@ -37,6 +26,7 @@ t_master	*init_master(void)
 		return (NULL);
 	master->cmds = NULL;
 	master->env = NULL;
+	master->pids = NULL;
 	master->errorcode = 0;
 	return (master);
 }
@@ -56,6 +46,8 @@ void	free_master(t_master *master)
 		free(tmp->value);
 		free(tmp);
 	}
+	if (master->pids)
+		free(master->pids);
 	free(master);
 }
 
@@ -66,14 +58,14 @@ static void	process_command_line(t_master *master, char *line)
 	if (*line)
 		add_history(line);
 	tokens = lexer(line);
-	if (!tokens) /* FIX: Handle lexer errors gracefully */
+	if (!tokens)
 	{
-		master->errorcode = 2; /* Syntax error */
+		master->errorcode = 2;
 		return ;
 	}
 	debug_shell_state(tokens, NULL, NULL, "After Lexing");
 	master->cmds = parser(tokens, master);
-	if (!master->cmds) /* FIX: Handle parser errors */
+	if (!master->cmds)
 	{
 		free_token_list(tokens);
 		master->errorcode = 2;
@@ -91,8 +83,8 @@ static void	process_command_line(t_master *master, char *line)
 
 int	main(int argc, char *argv[], char **env)
 {
-	t_master *master;
-	char *line;
+	t_master	*master;
+	char		*line;
 
 	(void)argc;
 	(void)argv;

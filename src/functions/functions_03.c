@@ -6,12 +6,32 @@
 /*   By: mhuthmay <mhuthmay@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/16 14:47:45 by mhuthmay          #+#    #+#             */
-/*   Updated: 2025/06/12 11:09:21 by mhuthmay         ###   ########.fr       */
+/*   Updated: 2025/06/12 16:34:16 by mhuthmay         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
+int	ft_check_overflow(long result, int digit, int sign, int *overflow)
+{
+	if (sign == 1)
+	{
+		if (result > (LONG_MAX - digit) / 10)
+		{
+			*overflow = 1;
+			return (0);
+		}
+	}
+	else
+	{
+		if (result > (-(LONG_MIN + digit)) / 10)
+		{
+			*overflow = 1;
+			return (0);
+		}
+	}
+	return (1);
+}
 size_t	ft_strlcpy(char *dst, const char *src, size_t size)
 {
 	size_t	i;
@@ -79,26 +99,6 @@ long	ft_atol(char *str, int *overflow)
 	return (sign * result);
 }
 
-static int	ft_check_overflow(long result, int digit, int sign, int *overflow)
-{
-	if (sign == 1)
-	{
-		if (result > (LONG_MAX - digit) / 10)
-		{
-			*overflow = 1;
-			return (0);
-		}
-	}
-	else
-	{
-		if (result > (-(LONG_MIN + digit)) / 10)
-		{
-			*overflow = 1;
-			return (0);
-		}
-	}
-	return (1);
-}
 
 char	**ft_split(char *tosplit, char seperator)
 {

@@ -6,13 +6,13 @@
 /*   By: mhuthmay <mhuthmay@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/12 10:49:38 by mhuthmay          #+#    #+#             */
-/*   Updated: 2025/06/12 10:54:32 by mhuthmay         ###   ########.fr       */
+/*   Updated: 2025/06/12 16:36:43 by mhuthmay         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-static int	is_ifs_char(char c)
+int	is_ifs_char(char c)
 {
 	return (c == ' ' || c == '\t' || c == '\n');
 }
@@ -40,7 +40,7 @@ static size_t	count_fields(const char *str)
 	return (count);
 }
 
-static char	*extract_field(const char *str, size_t start, size_t end)
+char	*extract_field(const char *str, size_t start, size_t end)
 {
 	char	*field;
 	size_t	len;
@@ -60,7 +60,7 @@ static char	*extract_field(const char *str, size_t start, size_t end)
 	return (field);
 }
 
-static void	free_fields_on_error(char **fields, size_t field_index)
+void	free_fields_on_error(char **fields, size_t field_index)
 {
 	while (field_index > 0)
 		free(fields[--field_index]);
